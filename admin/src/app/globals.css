@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: 'Cairo', sans-serif;
+  background-color: #F5F5F5;
+}
+
+/* Custom Utilities for RTL */
+.rtl {
+  direction: rtl;
+}

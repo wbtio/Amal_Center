@@ -1,12 +1,26 @@
 {
   "expo": {
-    "name": "al-amal-hypermarket",
-    "slug": "al-amal-hypermarket",
+    "name": "الأمل سنتر",
+    "slug": "al-amal-center",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
+    "scheme": "al-amal-center",
+    "plugins": [
+      "expo-router",
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "./assets/fonts/Cairo-Regular.ttf",
+            "./assets/fonts/Cairo-SemiBold.ttf",
+            "./assets/fonts/Cairo-Bold.ttf"
+          ]
+        }
+      ]
+    ],
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -16,6 +30,7 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.alamalcenter.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -24,7 +39,18 @@
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "extra": {
+      "enableReviews": false,
+      "enableWishlist": false,
+      "enableNotifications": false,
+      "debugMode": false,
+      "router": {},
+      "eas": {
+        "projectId": "5fc7c19f-3577-4e1c-9e50-ae7c4b7a8d47"
+      }
     }
   }
 }

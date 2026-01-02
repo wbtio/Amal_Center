@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* RTL Support */
+@layer base {
+  * {
+    writing-mode: horizontal-tb;
+    direction: rtl;
+  }
+  
+  html, body {
+    direction: rtl;
+    text-align: right;
+  }
+  
+  /* Font face for Cairo */
+  .font-cairo {
+    font-family: 'Cairo', sans-serif;
+  }
+}
+
+/* Custom components */
+@layer components {
+  .btn-primary {
+    @apply bg-cta text-white font-semibold py-3 px-6 rounded-lg;
+  }
+  
+  .btn-secondary {
+    @apply bg-primary text-white font-semibold py-3 px-6 rounded-lg;
+  }
+  
+  .btn-danger {
+    @apply bg-danger text-white font-semibold py-3 px-6 rounded-lg;
+  }
+  
+  .input-field {
+    @apply border border-gray-300 rounded-lg px-4 py-3 text-right font-cairo;
+  }
+  
+  .card {
+    @apply bg-white rounded-lg shadow-sm p-4;
+  }
+  
+  .product-card {
+    @apply card flex flex-col;
+  }
+}
+
+/* Custom utilities */
+@layer utilities {
+  .text-shadow {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .rtl-flip {
+    transform: scaleX(-1);
+  }
+}
