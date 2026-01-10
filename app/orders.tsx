@@ -1,8 +1,8 @@
-import { View, Text, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import { useLanguage, useCurrency } from '../contexts';
 
@@ -13,12 +13,63 @@ export default function OrdersScreen() {
   const insets = useSafeAreaInsets();
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>('active');
   const { t, language, isRTL } = useLanguage();
   const { formatPrice } = useCurrency();
 
   useEffect(() => {
     fetchOrders();
+
+    // Subscribe to realtime updates for orders
+    let subscription: any = null;
+
+    const setupRealtimeSubscription = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      subscription = supabase
+        .channel('orders-changes')
+        .on(
+          'postgres_changes',
+          {
+            event: '*', // Listen to all events (INSERT, UPDATE, DELETE)
+            schema: 'public',
+            table: 'orders',
+            filter: `user_id=eq.${session.user.id}`
+          },
+          (payload) => {
+            console.log('Order changed:', payload);
+
+            if (payload.eventType === 'UPDATE') {
+              // Update the specific order in state
+              setOrders(prevOrders =>
+                prevOrders.map(order =>
+                  order.id === payload.new.id ? { ...order, ...payload.new } : order
+                )
+              );
+            } else if (payload.eventType === 'INSERT') {
+              // Add new order to the beginning
+              setOrders(prevOrders => [payload.new as any, ...prevOrders]);
+            } else if (payload.eventType === 'DELETE') {
+              // Remove deleted order
+              setOrders(prevOrders =>
+                prevOrders.filter(order => order.id !== payload.old.id)
+              );
+            }
+          }
+        )
+        .subscribe();
+    };
+
+    setupRealtimeSubscription();
+
+    // Cleanup subscription on unmount
+    return () => {
+      if (subscription) {
+        supabase.removeChannel(subscription);
+      }
+    };
   }, []);
 
   const fetchOrders = async () => {
@@ -41,8 +92,15 @@ export default function OrdersScreen() {
       console.error(error);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    fetchOrders();
+  }, []);
+
 
   const activeOrders = orders.filter(o => !['delivered', 'cancelled'].includes(o.status));
   const historyOrders = orders.filter(o => ['delivered', 'cancelled'].includes(o.status));
@@ -234,6 +292,14 @@ export default function OrdersScreen() {
           data={activeTab === 'active' ? activeOrders : historyOrders}
           keyExtractor={(item) => item.id}
           contentContainerStyle={{ padding: 16 }}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={['#2E7D32']}
+              tintColor="#2E7D32"
+            />
+          }
           ListEmptyComponent={
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 80 }}>
               <Ionicons

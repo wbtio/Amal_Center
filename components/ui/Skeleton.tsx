@@ -37,7 +37,7 @@ export function Skeleton({ width, height, style, borderRadius = 4 }: SkeletonPro
         {
           width: width,
           height: height,
-          backgroundColor: '#E0E0E0',
+          backgroundColor: '#F5F5F5',
           borderRadius: borderRadius,
           opacity: opacity,
         },

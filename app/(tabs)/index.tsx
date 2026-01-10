@@ -125,7 +125,13 @@ export default function HomeScreen() {
             style={{ width: 80 }}
             onPress={() => router.push(`/(tabs)/category/${item.id}` as any)}
           >
-            <View className="bg-gray-50 rounded-2xl w-[70px] h-[70px] items-center justify-center border border-gray-100 overflow-hidden">
+            <View className="bg-white rounded-2xl w-[70px] h-[70px] items-center justify-center border border-gray-100 overflow-hidden" style={{
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 1 },
+              shadowOpacity: 0.05,
+              shadowRadius: 2,
+              elevation: 2,
+            }}>
               {item.image_url ? (
                 <Image
                   source={{ uri: item.image_url }}

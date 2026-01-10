@@ -16,10 +16,6 @@ export const APP_CONFIG = {
     FACEBOOK_URL: 'https://facebook.com/alamalcenter',
     INSTAGRAM_URL: 'https://instagram.com/alamalcenter',
 
-    // Policies
-    TERMS_URL: 'https://al-amal-center.iq/terms',
-    PRIVACY_URL: 'https://al-amal-center.iq/privacy',
-    RETURN_POLICY_URL: 'https://al-amal-center.iq/return-policy',
 } as const;
 
 export const COLORS = {

@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "الأمل سنتر",
-    "slug": "al-amal-center",
+    "slug": "al-amal-hypermarket",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -18,6 +18,12 @@
             "./assets/fonts/Cairo-SemiBold.ttf",
             "./assets/fonts/Cairo-Bold.ttf"
           ]
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "This app needs access to location to show your position on the map and provide accurate delivery location."
         }
       ]
     ],

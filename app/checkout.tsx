@@ -41,14 +41,20 @@ export default function CheckoutScreen() {
     { id: 'review', title: t('checkout.review'), icon: 'checkmark-circle' },
   ];
 
-  const { control, handleSubmit, trigger, getValues, formState: { errors } } = useForm<AddressData>({
+  const { control, handleSubmit, trigger, getValues, setValue, formState: { errors } } = useForm<AddressData>({
     resolver: zodResolver(addressSchema),
     defaultValues: {
       type: 'home',
       fullName: '',
       phone: '',
-      address: '',
       city: '',
+      district: '',
+      neighborhood: '',
+      street: '',
+      building: '',
+      floor: '',
+      apartment: '',
+      nearestLandmark: '',
       notes: '',
     },
   });
@@ -67,16 +73,19 @@ export default function CheckoutScreen() {
     return () => backHandler.remove();
   }, [currentStep]);
 
-  // Redirect if cart is empty
+
+  // Redirect if cart is empty (only on initial load, not after order completion)
+  const [orderCompleted, setOrderCompleted] = useState(false);
+  
   useEffect(() => {
-    if (items.length === 0 && !isSubmitting) {
+    if (items.length === 0 && !isSubmitting && !orderCompleted) {
       Alert.alert(
         t('common.error'),
         t('checkout.emptyCart'),
         [{ text: t('common.ok'), onPress: () => router.replace('/(tabs)') }]
       );
     }
-  }, [items.length]);
+  }, [items.length, isSubmitting, orderCompleted]);
 
   // Load saved addresses
   useEffect(() => {
@@ -123,7 +132,7 @@ export default function CheckoutScreen() {
   const handleNext = async () => {
     if (currentStep === 0) {
       // Validate only required fields
-      const isAddressValid = await trigger(['fullName', 'phone', 'address']);
+      const isAddressValid = await trigger(['fullName', 'phone', 'city']);
       const values = getValues();
       
       console.log('Form values:', values);
@@ -135,7 +144,7 @@ export default function CheckoutScreen() {
         const errorMessages = [];
         if (errors.fullName) errorMessages.push(errors.fullName.message);
         if (errors.phone) errorMessages.push(errors.phone.message);
-        if (errors.address) errorMessages.push(errors.address.message);
+        if (errors.city) errorMessages.push(errors.city.message);
         
         Alert.alert(
           t('common.error'), 
@@ -192,7 +201,23 @@ export default function CheckoutScreen() {
         ? (language === 'ar' ? 'المنزل' : 'Home')
         : (language === 'ar' ? 'العمل' : 'Work');
 
-      const fullAddress = `${addressTypeLabel} - ${addressData.address}${addressData.city ? `, ${addressData.city}` : ''}`;
+      // Build full address from components
+      const addressParts = [
+        addressData.city,
+        addressData.district,
+        addressData.neighborhood,
+        addressData.street,
+        addressData.building ? `عمارة ${addressData.building}` : '',
+        addressData.floor ? `طابق ${addressData.floor}` : '',
+        addressData.apartment ? `شقة ${addressData.apartment}` : '',
+        addressData.nearestLandmark
+      ].filter(Boolean);
+      const fullAddress = `${addressTypeLabel} - ${addressParts.join(', ')}`;
+      
+      // Include location coordinates if available
+      const locationData = addressData.latitude && addressData.longitude 
+        ? { latitude: addressData.latitude, longitude: addressData.longitude }
+        : null;
 
       // 1. Create Order
       const { data: order, error: orderError } = await supabase
@@ -213,6 +238,8 @@ export default function CheckoutScreen() {
           coupon_id: couponInfo.couponId || null,
           coupon_code: couponInfo.couponCode || null,
           discount_amount: discountAmount,
+          delivery_latitude: locationData?.latitude || null,
+          delivery_longitude: locationData?.longitude || null,
           created_at: new Date().toISOString(),
         })
         .select()
@@ -231,15 +258,17 @@ export default function CheckoutScreen() {
       }
 
       // 1.6. Save address if it's new
-      if (!selectedAddressId && addressData.address) {
+      if (!selectedAddressId && addressData.city) {
         await supabase.from('addresses').insert({
           user_id: userId,
           name: addressData.fullName,
           city: addressData.city || '',
-          area: '',
-          street: addressData.address,
+          area: addressData.district || '',
+          street: addressData.street || '',
           phone: addressData.phone,
           type: addressData.type,
+          latitude: locationData?.latitude || null,
+          longitude: locationData?.longitude || null,
           is_default: savedAddresses.length === 0
         });
       }
@@ -273,7 +302,8 @@ export default function CheckoutScreen() {
         if (stockError) console.error('Stock update error:', stockError);
       }
 
-      // Success
+      // Success - mark order as completed before clearing cart
+      setOrderCompleted(true);
       clearCart();
 
       Alert.alert(
@@ -301,7 +331,7 @@ export default function CheckoutScreen() {
   const renderStepContent = () => {
     switch (currentStep) {
       case 0:
-        return <AddressStep control={control} errors={errors} />;
+        return <AddressStep control={control} errors={errors} setValue={setValue} getValues={getValues} />;
       case 1:
         return <DeliveryStep selectedType={deliveryType} onSelect={setDeliveryType} />;
       case 2:
@@ -425,13 +455,15 @@ export default function CheckoutScreen() {
       <KeyboardAvoidingView 
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         className="flex-1"
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 120 : 20}
       >
         <ScrollView
           className="flex-1"
-          contentContainerStyle={{ padding: 16, paddingBottom: 120 }}
+          contentContainerStyle={{ padding: 16, paddingBottom: 180 }}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="interactive"
+          automaticallyAdjustKeyboardInsets={true}
         >
           {renderStepContent()}
         </ScrollView>

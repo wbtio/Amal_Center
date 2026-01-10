@@ -56,7 +56,13 @@ export const BannerSlider = memo(({ banners, isLoading, error, onRetry, t }: Ban
 
   if (error) {
     return (
-      <View className="mt-4 mb-2 mx-4 items-center py-6 bg-gray-50 rounded-2xl">
+      <View className="mt-4 mb-2 mx-4 items-center py-6 bg-white rounded-2xl" style={{
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 4,
+        elevation: 3,
+      }}>
         <Ionicons name="images-outline" size={40} color="#EF4444" />
         <Text className="font-cairo-regular text-text-secondary mt-2">{t('errors.loadError')}</Text>
         <TouchableOpacity

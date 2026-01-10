@@ -29,7 +29,6 @@ export default function SplashScreen({ onFinish }: SplashScreenProps) {
   const circleOpacity = useSharedValue(0.3);
 
   useEffect(() => {
-    // Logo animation - scale up with spring
     logoScale.value = withSpring(1, {
       damping: 12,
       stiffness: 100,
@@ -195,7 +194,7 @@ export default function SplashScreen({ onFinish }: SplashScreenProps) {
   );
 }
 
-// Loading dot component with animation
+
 function LoadingDot({ delay }: { delay: number }) {
   const scale = useSharedValue(0.8);
   const opacity = useSharedValue(0.5);

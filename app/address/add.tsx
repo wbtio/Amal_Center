@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { LocationPicker } from '../../components/ui/LocationPicker';
 
 export default function AddAddressScreen() {
     const router = useRouter();
@@ -19,8 +20,22 @@ export default function AddAddressScreen() {
         area: '',
         street: '',
         details: '',
-        type: 'home' // home or work
+        type: 'home', // home or work
+        latitude: null as number | null,
+        longitude: null as number | null
     });
+    const [showLocationPicker, setShowLocationPicker] = useState(false);
+
+    const handleLocationSelect = (location: { latitude: number; longitude: number; address?: string }) => {
+        setFormData(prev => ({
+            ...prev,
+            latitude: location.latitude,
+            longitude: location.longitude
+        }));
+        if (location.address) {
+            setFormData(prev => ({ ...prev, street: location.address || prev.street }));
+        }
+    };
 
     const handleSave = async () => {
         if (!formData.name || !formData.phone || !formData.city || !formData.area || !formData.street) {
@@ -54,7 +69,7 @@ export default function AddAddressScreen() {
         }
     };
 
-    const renderInput = (label: string, field: keyof typeof formData, placeholder: string, keyboardType: 'default' | 'numeric' | 'phone-pad' = 'default') => (
+    const renderInput = (label: string, field: keyof Omit<typeof formData, 'latitude' | 'longitude'>, placeholder: string, keyboardType: 'default' | 'numeric' | 'phone-pad' = 'default') => (
         <View style={{ marginBottom: 16 }}>
             <Text style={{
                 fontFamily: 'Cairo_600SemiBold',
@@ -77,7 +92,7 @@ export default function AddAddressScreen() {
                     fontSize: 16
                 }}
                 placeholder={placeholder}
-                value={formData[field]}
+                value={formData[field] || ''}
                 onChangeText={(text) => setFormData(prev => ({ ...prev, [field]: text }))}
                 keyboardType={keyboardType}
             />
@@ -167,6 +182,60 @@ export default function AddAddressScreen() {
                     {renderInput(language === 'ar' ? 'المنطقة' : 'Area', 'area', language === 'ar' ? 'الكرادة' : 'Karrada')}
                     {renderInput(language === 'ar' ? 'الشارع' : 'Street', 'street', language === 'ar' ? 'شارع 62' : '62 St.')}
 
+                    {/* Location Picker Button */}
+                    <View style={{ marginBottom: 16 }}>
+                        <Text style={{
+                            fontFamily: 'Cairo_600SemiBold',
+                            fontSize: 14,
+                            color: '#212121',
+                            marginBottom: 8,
+                            textAlign: isRTL ? 'right' : 'left'
+                        }}>
+                            {language === 'ar' ? 'تحديد الموقع على الخريطة' : 'Select Location on Map'}
+                        </Text>
+                        <TouchableOpacity
+                            onPress={() => setShowLocationPicker(true)}
+                            style={{
+                                backgroundColor: '#FFFFFF',
+                                borderWidth: 1,
+                                borderColor: '#E0E0E0',
+                                borderRadius: 12,
+                                padding: 16,
+                                flexDirection: isRTL ? 'row-reverse' : 'row',
+                                alignItems: 'center',
+                                justifyContent: 'space-between'
+                            }}
+                            activeOpacity={0.7}
+                        >
+                            <View style={{ 
+                                flexDirection: isRTL ? 'row-reverse' : 'row', 
+                                alignItems: 'center', 
+                                gap: 12 
+                            }}>
+                                <Ionicons 
+                                    name="location" 
+                                    size={20} 
+                                    color={formData.latitude && formData.longitude ? "#2E7D32" : "#757575"} 
+                                />
+                                <Text style={{ 
+                                    fontFamily: 'Cairo_400Regular', 
+                                    color: formData.latitude && formData.longitude ? '#2E7D32' : '#757575',
+                                    fontSize: 16
+                                }}>
+                                    {formData.latitude && formData.longitude 
+                                        ? (language === 'ar' ? 'تم تحديد الموقع' : 'Location Selected')
+                                        : (language === 'ar' ? 'اضغط لتحديد الموقع' : 'Tap to Select Location')
+                                    }
+                                </Text>
+                            </View>
+                            <Ionicons 
+                                name={isRTL ? "chevron-back" : "chevron-forward"} 
+                                size={20} 
+                                color="#757575" 
+                            />
+                        </TouchableOpacity>
+                    </View>
+
                     <View style={{ marginBottom: 16 }}>
                         <Text style={{
                             fontFamily: 'Cairo_600SemiBold',
@@ -223,6 +292,18 @@ export default function AddAddressScreen() {
                     </TouchableOpacity>
                 </View>
             </KeyboardAvoidingView>
+
+            {/* Location Picker Modal */}
+            <LocationPicker
+                visible={showLocationPicker}
+                onClose={() => setShowLocationPicker(false)}
+                onLocationSelect={handleLocationSelect}
+                initialLocation={
+                    formData.latitude && formData.longitude
+                        ? { latitude: formData.latitude, longitude: formData.longitude }
+                        : undefined
+                }
+            />
         </View>
     );
 }

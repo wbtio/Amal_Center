@@ -1,8 +1,8 @@
-import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, FlatList } from 'react-native';
+import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, FlatList, RefreshControl } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useLanguage, useCurrency } from '../../contexts';
 import { Image } from 'expo-image';
@@ -13,11 +13,35 @@ export default function OrderDetailsScreen() {
   const [order, setOrder] = useState<any>(null);
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const { t, language, isRTL } = useLanguage();
   const { formatPrice } = useCurrency();
 
   useEffect(() => {
     fetchOrderDetails();
+
+    // Subscribe to realtime updates for this specific order
+    const subscription = supabase
+      .channel(`order-${id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'orders',
+          filter: `id=eq.${id}`
+        },
+        (payload) => {
+          console.log('Order updated:', payload);
+          setOrder((prevOrder: any) => ({ ...prevOrder, ...payload.new }));
+        }
+      )
+      .subscribe();
+
+    // Cleanup subscription on unmount
+    return () => {
+      supabase.removeChannel(subscription);
+    };
   }, [id]);
 
   const fetchOrderDetails = async () => {
@@ -45,8 +69,15 @@ export default function OrderDetailsScreen() {
       console.error(error);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    fetchOrderDetails();
+  }, [id]);
+
 
   const getStatusText = (status: string) => {
     switch (status) {
@@ -91,7 +122,17 @@ export default function OrderDetailsScreen() {
         <View style={{ width: 24 }} />
       </View>
 
-      <ScrollView className="flex-1 p-4">
+      <ScrollView
+        className="flex-1 p-4"
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={['#2E7D32']}
+            tintColor="#2E7D32"
+          />
+        }
+      >
         {/* Status Card */}
         <View className="bg-white p-4 rounded-lg shadow-sm mb-4 border border-gray-100">
           <View className={`flex-row justify-between items-center mb-2 ${isRTL ? 'flex-row-reverse' : ''}`}>

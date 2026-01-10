@@ -109,7 +109,6 @@ export default function ProfileScreen() {
 
   // State for expandable sections - must be before any return
   const [helpExpanded, setHelpExpanded] = useState(false);
-  const [termsExpanded, setTermsExpanded] = useState(false);
 
   if (loading) {
     return (
@@ -246,40 +245,6 @@ export default function ProfileScreen() {
                 <TouchableOpacity className={`py-3 flex-row items-center ${isRTL ? 'flex-row-reverse' : ''}`} onPress={openWhatsApp}>
                   <Ionicons name="logo-whatsapp" size={18} color="#25D366" style={{ marginRight: isRTL ? 0 : 12, marginLeft: isRTL ? 12 : 0 }} />
                   <Text className="font-cairo text-sm text-text-secondary">{t('profile.whatsapp')}</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-          </View>
-
-          {/* Terms & Policies - Expandable */}
-          <View className="mx-4 mt-3 mb-6 bg-white rounded-2xl border border-gray-100 overflow-hidden">
-            <TouchableOpacity 
-              className={`p-4 flex-row items-center justify-between ${isRTL ? 'flex-row-reverse' : ''}`}
-              onPress={() => setTermsExpanded(!termsExpanded)}
-              activeOpacity={0.7}
-            >
-              <View className={`flex-row items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
-                <View className="w-9 h-9 bg-orange-50 rounded-full items-center justify-center" style={{ marginRight: isRTL ? 0 : 12, marginLeft: isRTL ? 12 : 0 }}>
-                  <Ionicons name="document-text-outline" size={20} color="#FF9800" />
-                </View>
-                <Text className="font-cairo-bold text-base text-text-primary">{t('profile.termsAndPolicies')}</Text>
-              </View>
-              <Ionicons name={termsExpanded ? "chevron-up" : "chevron-down"} size={20} color="#9CA3AF" />
-            </TouchableOpacity>
-            
-            {termsExpanded && (
-              <View className="px-4 pb-3 border-t border-gray-100">
-                <TouchableOpacity className={`py-3 flex-row items-center ${isRTL ? 'flex-row-reverse' : ''}`} onPress={() => Linking.openURL(APP_CONFIG.TERMS_URL)}>
-                  <Ionicons name="reader-outline" size={18} color="#757575" style={{ marginRight: isRTL ? 0 : 12, marginLeft: isRTL ? 12 : 0 }} />
-                  <Text className="font-cairo text-sm text-text-secondary">{t('profile.terms')}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity className={`py-3 flex-row items-center ${isRTL ? 'flex-row-reverse' : ''}`} onPress={() => Linking.openURL(APP_CONFIG.PRIVACY_URL)}>
-                  <Ionicons name="shield-checkmark-outline" size={18} color="#757575" style={{ marginRight: isRTL ? 0 : 12, marginLeft: isRTL ? 12 : 0 }} />
-                  <Text className="font-cairo text-sm text-text-secondary">{t('profile.privacy')}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity className={`py-3 flex-row items-center ${isRTL ? 'flex-row-reverse' : ''}`} onPress={() => Linking.openURL(APP_CONFIG.RETURN_POLICY_URL)}>
-                  <Ionicons name="refresh-outline" size={18} color="#757575" style={{ marginRight: isRTL ? 0 : 12, marginLeft: isRTL ? 12 : 0 }} />
-                  <Text className="font-cairo text-sm text-text-secondary">{t('profile.returnPolicy')}</Text>
                 </TouchableOpacity>
               </View>
             )}
@@ -431,40 +396,6 @@ export default function ProfileScreen() {
               <TouchableOpacity className={`py-3 flex-row items-center ${isRTL ? 'flex-row-reverse' : ''}`} onPress={openWhatsApp}>
                 <Ionicons name="logo-whatsapp" size={18} color="#25D366" style={{ marginRight: isRTL ? 0 : 12, marginLeft: isRTL ? 12 : 0 }} />
                 <Text className="font-cairo text-sm text-text-secondary">{t('profile.whatsapp')}</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-        </View>
-
-        {/* Terms & Policies - Expandable */}
-        <View className="mx-4 mt-3 mb-6 bg-white rounded-2xl border border-gray-100 overflow-hidden">
-          <TouchableOpacity 
-            className={`p-4 flex-row items-center justify-between ${isRTL ? 'flex-row-reverse' : ''}`}
-            onPress={() => setTermsExpanded(!termsExpanded)}
-            activeOpacity={0.7}
-          >
-            <View className={`flex-row items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
-              <View className="w-9 h-9 bg-orange-50 rounded-full items-center justify-center" style={{ marginRight: isRTL ? 0 : 12, marginLeft: isRTL ? 12 : 0 }}>
-                <Ionicons name="document-text-outline" size={20} color="#FF9800" />
-              </View>
-              <Text className="font-cairo-bold text-base text-text-primary">{t('profile.termsAndPolicies')}</Text>
-            </View>
-            <Ionicons name={termsExpanded ? "chevron-up" : "chevron-down"} size={20} color="#9CA3AF" />
-          </TouchableOpacity>
-          
-          {termsExpanded && (
-            <View className="px-4 pb-3 border-t border-gray-100">
-              <TouchableOpacity className={`py-3 flex-row items-center ${isRTL ? 'flex-row-reverse' : ''}`} onPress={() => Linking.openURL(APP_CONFIG.TERMS_URL)}>
-                <Ionicons name="reader-outline" size={18} color="#757575" style={{ marginRight: isRTL ? 0 : 12, marginLeft: isRTL ? 12 : 0 }} />
-                <Text className="font-cairo text-sm text-text-secondary">{t('profile.terms')}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity className={`py-3 flex-row items-center ${isRTL ? 'flex-row-reverse' : ''}`} onPress={() => Linking.openURL(APP_CONFIG.PRIVACY_URL)}>
-                <Ionicons name="shield-checkmark-outline" size={18} color="#757575" style={{ marginRight: isRTL ? 0 : 12, marginLeft: isRTL ? 12 : 0 }} />
-                <Text className="font-cairo text-sm text-text-secondary">{t('profile.privacy')}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity className={`py-3 flex-row items-center ${isRTL ? 'flex-row-reverse' : ''}`} onPress={() => Linking.openURL(APP_CONFIG.RETURN_POLICY_URL)}>
-                <Ionicons name="refresh-outline" size={18} color="#757575" style={{ marginRight: isRTL ? 0 : 12, marginLeft: isRTL ? 12 : 0 }} />
-                <Text className="font-cairo text-sm text-text-secondary">{t('profile.returnPolicy')}</Text>
               </TouchableOpacity>
             </View>
           )}

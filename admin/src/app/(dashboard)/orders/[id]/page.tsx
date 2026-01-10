@@ -15,6 +15,9 @@ export default function OrderDetailsPage() {
   const [order, setOrder] = useState<any>(null);
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [updating, setUpdating] = useState(false);
+  const [updateError, setUpdateError] = useState<string | null>(null);
+  const [updateSuccess, setUpdateSuccess] = useState<string | null>(null);
   const printRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -23,34 +26,109 @@ export default function OrderDetailsPage() {
 
   const fetchOrderDetails = async () => {
     if (!id) return;
-    
+
+    // Debug: Check current user
+    const { data: { session } } = await supabase.auth.getSession();
+    console.log('Current Session:', session);
+    if (session) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', session.user.id)
+        .single();
+      console.log('Current Profile:', profile);
+
+      if (profile?.role !== 'admin') {
+        console.warn('User is NOT an admin!');
+      }
+    }
+
     // Fetch Order
-    const { data: orderData } = await supabase
+    const { data: orderData, error: orderError } = await supabase
       .from('orders')
       .select('*')
       .eq('id', id)
       .single();
-    
+
+    if (orderError) {
+      console.error('Error fetching order:', orderError);
+    }
+
     setOrder(orderData);
 
     // Fetch Items
-    const { data: itemsData } = await supabase
+    const { data: itemsData, error: itemsError } = await supabase
       .from('order_items')
       .select('*')
       .eq('order_id', id);
-    
+
+    if (itemsError) {
+      console.error('Error fetching items:', itemsError);
+    }
+
     setItems(itemsData || []);
     setLoading(false);
   };
 
+  // Debug helper
+  const checkAdminStatus = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      alert('غير مسجل الدخول!');
+      return false;
+    }
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', session.user.id)
+      .single();
+
+    if (profile?.role !== 'admin') {
+      alert(`تنبيه: أنت لست أدمن! دورك هو: ${profile?.role}`);
+      return false;
+    }
+    return true;
+  };
+
   const updateStatus = async (newStatus: string) => {
-    const { error } = await supabase
+    // Check perm first
+    const isAdmin = await checkAdminStatus();
+    if (!isAdmin) return;
+
+    const previousStatus = order.status;
+    setUpdating(true);
+    setUpdateError(null);
+    setUpdateSuccess(null);
+
+    // Optimistic update
+    setOrder({ ...order, status: newStatus });
+
+    const { data, error } = await supabase
       .from('orders')
       .update({ status: newStatus, updated_at: new Date().toISOString() })
-      .eq('id', id);
+      .eq('id', id)
+      .select()
+      .single();
 
-    if (!error) {
-      setOrder({ ...order, status: newStatus });
+    setUpdating(false);
+
+    if (error) {
+      // Revert on error
+      setOrder({ ...order, status: previousStatus });
+      console.error('Error updating order status FULL:', JSON.stringify(error, null, 2));
+      setUpdateError(`فشل تحديث الحالة: ${error.message || JSON.stringify(error)}`);
+
+      // Clear error after 5 seconds
+      setTimeout(() => setUpdateError(null), 5000);
+      return;
+    }
+
+    if (data) {
+      setOrder(data);
+      setUpdateSuccess('تم تحديث حالة الطلب بنجاح!');
+
+      // Clear success message after 3 seconds
+      setTimeout(() => setUpdateSuccess(null), 3000);
     }
   };
 
@@ -224,7 +302,7 @@ export default function OrderDetailsPage() {
       </body>
       </html>
     `);
-    
+
     printWindow.document.close();
     printWindow.focus();
     setTimeout(() => {
@@ -311,20 +389,24 @@ export default function OrderDetailsPage() {
             </p>
           </div>
         </div>
-        
-        <div className="flex gap-3">
-          <button 
+
+        <div className="flex gap-3 items-center">
+          {updating && (
+            <span className="text-sm text-blue-600 animate-pulse">جاري التحديث...</span>
+          )}
+          <button
             className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 text-gray-700 transition-colors"
             onClick={handlePrint}
           >
             <Printer size={18} />
             <span>طباعة الفاتورة</span>
           </button>
-          
-          <select 
-            className="px-4 py-2 bg-primary text-white rounded-lg outline-none cursor-pointer font-bold"
+
+          <select
+            className={`px-4 py-2 bg-primary text-white rounded-lg outline-none cursor-pointer font-bold ${updating ? 'opacity-50 cursor-not-allowed' : ''}`}
             value={order.status}
             onChange={(e) => updateStatus(e.target.value)}
+            disabled={updating}
           >
             <option value="pending">قيد الانتظار</option>
             <option value="confirmed">تأكيد الطلب</option>
@@ -335,6 +417,21 @@ export default function OrderDetailsPage() {
           </select>
         </div>
       </div>
+
+      {/* Status Update Messages */}
+      {updateError && (
+        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 flex items-center gap-2">
+          <XCircle size={20} />
+          <span>{updateError}</span>
+        </div>
+      )}
+
+      {updateSuccess && (
+        <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg text-green-700 flex items-center gap-2">
+          <CheckCircle size={20} />
+          <span>{updateSuccess}</span>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Content: Items */}
@@ -383,7 +480,7 @@ export default function OrderDetailsPage() {
                 </tbody>
               </table>
             </div>
-            
+
             {/* Totals */}
             <div className="p-4 bg-gray-50 border-t border-gray-200 space-y-2">
               <div className="flex justify-between text-sm">

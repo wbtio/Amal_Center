@@ -2,8 +2,8 @@ import { ExpoConfig, ConfigContext } from "@expo/config";
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
     ...config,
-    name: process.env.EXPO_PUBLIC_APP_NAME || "Al-Amal Center",
-    slug: "al-amal-center",
+    name: process.env.EXPO_PUBLIC_APP_NAME || "Al-Amal Hypermarket",
+    slug: "al-amal-hypermarket",
     version: process.env.EXPO_PUBLIC_APP_VERSION || "1.0.0",
     orientation: "portrait",
     icon: "./assets/icon.png",
