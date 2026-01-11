@@ -4,7 +4,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     ...config,
     name: process.env.EXPO_PUBLIC_APP_NAME || "Al-Amal Hypermarket",
     slug: "al-amal-hypermarket",
-    version: process.env.EXPO_PUBLIC_APP_VERSION || "1.0.0",
+    version: process.env.EXPO_PUBLIC_APP_VERSION || "0.50",
     orientation: "portrait",
     icon: "./assets/icon.png",
     userInterfaceStyle: "light",
@@ -19,11 +19,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         bundleIdentifier: "com.alamal.center",
     },
     android: {
+        package: "com.alamalcenter.app",
+        versionCode: 2,
         adaptiveIcon: {
             foregroundImage: "./assets/adaptive-icon.png",
             backgroundColor: "#2E7D32",
         },
-        package: "com.alamal.center",
     },
     web: {
         favicon: "./assets/favicon.png",
@@ -48,5 +49,5 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
             projectId: "5fc7c19f-3577-4e1c-9e50-ae7c4b7a8d47",
         },
     },
-    scheme: "alamal",
+    scheme: "al-amal-center",
 });
