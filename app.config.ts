@@ -19,7 +19,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         bundleIdentifier: "com.alamal.center",
     },
     android: {
-        package: "com.alamalcenter.app",
+        package: "com.alamal.center",
         versionCode: 2,
         adaptiveIcon: {
             foregroundImage: "./assets/adaptive-icon.png",
