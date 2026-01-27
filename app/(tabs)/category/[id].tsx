@@ -274,12 +274,12 @@ export default function CategoryScreen() {
               <TouchableOpacity 
                 onPress={() => setShowFilterModal(true)}
                 activeOpacity={0.7}
-                className={`flex-1 flex-row items-center justify-center h-14 rounded-2xl ${hasActiveFilters ? 'bg-green-50 border border-green-300 shadow-md' : 'bg-gray-50 border border-gray-200 shadow-sm'} ${isRTL ? 'flex-row-reverse' : ''}`}
+                className={`flex-1 flex-row items-center justify-center h-14 rounded-2xl ${hasActiveFilters ? 'bg-white border border-gray-300 shadow-md' : 'bg-gray-50 border border-gray-200 shadow-sm'} ${isRTL ? 'flex-row-reverse' : ''}`}
               >
-                <View className={`w-10 h-10 rounded-xl items-center justify-center shadow-sm mr-2 ml-2 ${hasActiveFilters ? 'bg-green-600' : 'bg-white'}`}>
+                <View className={`w-10 h-10 rounded-xl items-center justify-center shadow-sm mr-2 ml-2 ${hasActiveFilters ? 'bg-primary' : 'bg-white'}`}>
                   <Ionicons name="options-outline" size={20} color={hasActiveFilters ? 'white' : '#6B7280'} />
                 </View>
-                <Text className={`font-cairo-bold text-[15px] ${hasActiveFilters ? 'text-green-800' : 'text-gray-800'}`}>
+                <Text className={`font-cairo-bold text-[15px] ${hasActiveFilters ? 'text-primary' : 'text-gray-800'}`}>
                   {language === 'ar' ? 'تصفية' : 'Filter'}
                 </Text>
                 {activeFiltersCount > 0 && (

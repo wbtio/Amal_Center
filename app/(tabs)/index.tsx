@@ -15,7 +15,7 @@ import { useLanguage } from '../../contexts';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const BANNER_WIDTH = SCREEN_WIDTH - 32;
-const BANNER_HEIGHT = BANNER_WIDTH / 2.5;
+const BANNER_HEIGHT = BANNER_WIDTH / 3.2;
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -125,7 +125,7 @@ export default function HomeScreen() {
             style={{ width: 80 }}
             onPress={() => router.push(`/(tabs)/category/${item.id}` as any)}
           >
-            <View className="bg-green-50 rounded-2xl w-[70px] h-[70px] items-center justify-center border border-green-100 overflow-hidden" style={{
+            <View className="bg-white rounded-2xl w-[70px] h-[70px] items-center justify-center border border-gray-200 overflow-hidden" style={{
               shadowColor: '#000',
               shadowOffset: { width: 0, height: 2 },
               shadowOpacity: 0.05,

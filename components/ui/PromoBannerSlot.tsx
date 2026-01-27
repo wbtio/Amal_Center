@@ -9,10 +9,11 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 // Banner dimensions
 const BANNER_FULL_WIDTH = SCREEN_WIDTH - 32;
-const BANNER_FULL_HEIGHT = 120;
+const BANNER_FULL_HEIGHT = 100;
 const BANNER_HALF_WIDTH = (SCREEN_WIDTH - 48) / 2;
-const BANNER_HALF_HEIGHT = 100;
+const BANNER_HALF_HEIGHT = 85;
 const BANNER_SQUARE_SIZE = (SCREEN_WIDTH - 48) / 2;
+const BANNER_SQUARE_HEIGHT = 120;
 
 interface PromoBannerSlotProps {
     banners: PromoBanner[] | undefined;
@@ -95,7 +96,7 @@ export const PromoBannerSlot: React.FC<PromoBannerSlotProps> = ({ banners, isLoa
                     className="rounded-2xl overflow-hidden"
                     style={{
                         width: BANNER_SQUARE_SIZE,
-                        height: BANNER_SQUARE_SIZE,
+                        height: BANNER_SQUARE_HEIGHT,
                         backgroundColor: '#ffffff',
                         shadowColor: '#000',
                         shadowOffset: { width: 0, height: 2 },
@@ -119,7 +120,7 @@ export const PromoBannerSlot: React.FC<PromoBannerSlotProps> = ({ banners, isLoa
                         className="rounded-2xl overflow-hidden"
                         style={{
                             width: BANNER_SQUARE_SIZE,
-                            height: BANNER_SQUARE_SIZE,
+                            height: BANNER_SQUARE_HEIGHT,
                             backgroundColor: '#ffffff',
                             shadowColor: '#000',
                             shadowOffset: { width: 0, height: 2 },

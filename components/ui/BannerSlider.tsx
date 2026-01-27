@@ -8,7 +8,7 @@ import { Skeleton } from './Skeleton';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const BANNER_WIDTH = SCREEN_WIDTH - 32;
-const BANNER_HEIGHT = BANNER_WIDTH / 2.5;
+const BANNER_HEIGHT = BANNER_WIDTH / 3.2;
 
 interface Banner {
   id: string;

@@ -231,7 +231,7 @@ export default function ProfileScreen() {
   return (
     <View className="flex-1 bg-gray-50">
       <ScrollView showsVerticalScrollIndicator={false}>
-        <View className="bg-primary" style={{ paddingTop: insets.top + 6, paddingBottom: 12 }}>
+        <View className="bg-primary" style={{ paddingTop: insets.top + 20, paddingBottom: 24 }}>
           <View className={`px-4 flex-row items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
             {profile?.avatar_url ? (
               <Image
