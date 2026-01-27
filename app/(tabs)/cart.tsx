@@ -1,5 +1,5 @@
 import { View, Text, TouchableOpacity, TextInput, Alert, FlatList, ScrollView, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { ShoppingCartIcon, CheckCircleIcon, ArrowRightIcon, ArrowLeftIcon, BuildingStorefrontIcon } from 'react-native-heroicons/outline';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCartStore } from '../../store/cartStore';
@@ -153,10 +153,10 @@ export default function CartScreen() {
 
     const renderListHeader = useCallback(() => (
         <Text 
-            className={`font-cairo-bold text-text-primary mb-2.5 ${isRTL ? 'text-right' : 'text-left'}`}
-            style={{ fontSize: 15 }}
+            className={`font-cairo-bold text-text-primary mb-3 ${isRTL ? 'text-right' : 'text-left'}`}
+            style={{ fontSize: 16 }}
         >
-            {language === 'ar' ? `المنتجات (${items.length})` : `Items (${items.length})`}
+            {language === 'ar' ? `سلة التسوق (${items.length})` : `Shopping Cart (${items.length})`}
         </Text>
     ), [isRTL, language, items.length]);
 
@@ -164,22 +164,22 @@ export default function CartScreen() {
         <View>
             {/* Coupon Section */}
             <View
-                className="bg-white rounded-2xl border border-gray-100 mb-3"
+                className="bg-white rounded-xl border border-gray-100 mb-3"
                 style={{
-                    padding: 10,
+                    padding: 12,
                     shadowColor: '#000',
                     shadowOffset: { width: 0, height: 1 },
-                    shadowOpacity: 0.04,
-                    shadowRadius: 4,
+                    shadowOpacity: 0.03,
+                    shadowRadius: 3,
                     elevation: 1,
                 }}
             >
                 <View className={`flex-row ${isRTL ? 'flex-row-reverse' : ''}`}>
                     <TextInput
-                        className={`flex-1 bg-gray-50 border border-gray-200 rounded-xl font-cairo ${isRTL ? 'text-right' : 'text-left'}`}
+                        className={`flex-1 bg-gray-50 border border-gray-200 rounded-lg font-cairo ${isRTL ? 'text-right' : 'text-left'}`}
                         style={{ 
                             paddingHorizontal: 12, 
-                            paddingVertical: 9, 
+                            paddingVertical: 10, 
                             fontSize: 13,
                             marginRight: isRTL ? 0 : 8,
                             marginLeft: isRTL ? 8 : 0
@@ -192,10 +192,10 @@ export default function CartScreen() {
                         autoCapitalize="characters"
                     />
                     <TouchableOpacity
-                        className="rounded-xl justify-center items-center"
+                        className="rounded-lg justify-center items-center"
                         style={{
                             paddingHorizontal: 16,
-                            paddingVertical: 9,
+                            paddingVertical: 10,
                             minWidth: 70,
                             backgroundColor: appliedCoupon ? 'rgba(211, 47, 47, 0.1)' : '#2E7D32'
                         }}
@@ -220,18 +220,17 @@ export default function CartScreen() {
                     <View
                         className={`flex-row items-center rounded-lg ${isRTL ? 'flex-row-reverse' : ''}`}
                         style={{ 
-                            marginTop: 8,
-                            padding: 6,
+                            marginTop: 10,
+                            padding: 8,
                             backgroundColor: 'rgba(46, 125, 50, 0.08)' 
                         }}
                     >
-                        <Ionicons
-                            name="checkmark-circle"
-                            size={14}
+                        <CheckCircleIcon
+                            size={16}
                             color="#2E7D32"
-                            style={{ marginRight: isRTL ? 0 : 5, marginLeft: isRTL ? 5 : 0 }}
+                            style={{ marginRight: isRTL ? 0 : 6, marginLeft: isRTL ? 6 : 0 }}
                         />
-                        <Text className="text-primary font-cairo" style={{ fontSize: 11 }}>
+                        <Text className="text-primary font-cairo-semibold" style={{ fontSize: 12 }}>
                             {t('cart.couponApplied')} ({appliedCoupon})
                         </Text>
                     </View>
@@ -240,47 +239,47 @@ export default function CartScreen() {
 
             {/* Summary Section */}
             <View
-                className="bg-white rounded-2xl border border-gray-100 mb-3"
+                className="bg-white rounded-xl border border-gray-100 mb-3"
                 style={{
-                    padding: 12,
+                    padding: 14,
                     shadowColor: '#000',
                     shadowOffset: { width: 0, height: 1 },
-                    shadowOpacity: 0.04,
-                    shadowRadius: 4,
+                    shadowOpacity: 0.03,
+                    shadowRadius: 3,
                     elevation: 1,
                 }}
             >
                 <Text 
                     className={`font-cairo-bold text-text-primary border-b border-gray-100 ${isRTL ? 'text-right' : 'text-left'}`}
-                    style={{ fontSize: 14, paddingBottom: 8, marginBottom: 10 }}
+                    style={{ fontSize: 15, paddingBottom: 10, marginBottom: 12 }}
                 >
                     {t('cart.orderSummary')}
                 </Text>
 
-                <View className={`flex-row justify-between ${isRTL ? 'flex-row-reverse' : ''}`} style={{ marginBottom: 8 }}>
+                <View className={`flex-row justify-between ${isRTL ? 'flex-row-reverse' : ''}`} style={{ marginBottom: 10 }}>
                     <Text className="font-cairo text-text-secondary" style={{ fontSize: 13 }}>
                         {t('cart.subtotal')}
                     </Text>
-                    <Text className="font-cairo-bold text-text-primary" style={{ fontSize: 13 }}>
+                    <Text className="font-cairo-semibold text-text-primary" style={{ fontSize: 13 }}>
                         {formatPrice(totals.subtotal)}
                     </Text>
                 </View>
 
-                <View className={`flex-row justify-between ${isRTL ? 'flex-row-reverse' : ''}`} style={{ marginBottom: 8 }}>
+                <View className={`flex-row justify-between ${isRTL ? 'flex-row-reverse' : ''}`} style={{ marginBottom: 10 }}>
                     <Text className="font-cairo text-text-secondary" style={{ fontSize: 13 }}>
                         {t('cart.deliveryFee')}
                     </Text>
-                    <Text className="font-cairo-bold text-text-primary" style={{ fontSize: 13 }}>
+                    <Text className="font-cairo-semibold text-text-primary" style={{ fontSize: 13 }}>
                         {formatPrice(totals.delivery)}
                     </Text>
                 </View>
 
                 {discount > 0 && (
-                    <View className={`flex-row justify-between ${isRTL ? 'flex-row-reverse' : ''}`} style={{ marginBottom: 8 }}>
+                    <View className={`flex-row justify-between ${isRTL ? 'flex-row-reverse' : ''}`} style={{ marginBottom: 10 }}>
                         <Text className="font-cairo text-danger" style={{ fontSize: 13 }}>
                             {t('cart.discount')}
                         </Text>
-                        <Text className="font-cairo-bold text-danger" style={{ fontSize: 13 }}>
+                        <Text className="font-cairo-semibold text-danger" style={{ fontSize: 13 }}>
                             -{formatPrice(totals.discount)}
                         </Text>
                     </View>
@@ -288,12 +287,12 @@ export default function CartScreen() {
 
                 <View
                     className={`flex-row justify-between border-t border-dashed border-gray-300 ${isRTL ? 'flex-row-reverse' : ''}`}
-                    style={{ paddingTop: 8, marginTop: 6 }}
+                    style={{ paddingTop: 12, marginTop: 4 }}
                 >
-                    <Text className="font-cairo-bold text-text-primary" style={{ fontSize: 14 }}>
+                    <Text className="font-cairo-bold text-text-primary" style={{ fontSize: 15 }}>
                         {t('cart.total')}
                     </Text>
-                    <Text className="font-cairo-bold text-primary" style={{ fontSize: 17 }}>
+                    <Text className="font-cairo-bold text-primary" style={{ fontSize: 18 }}>
                         {formatPrice(totals.final)}
                     </Text>
                 </View>
@@ -311,37 +310,37 @@ export default function CartScreen() {
                 {items.length === 0 ? (
                     <View className="flex-1 justify-center items-center px-6">
                         <View
-                            className="rounded-full items-center justify-center mb-5"
+                            className="rounded-full items-center justify-center mb-6"
                             style={{ 
-                                width: 140, 
-                                height: 140,
-                                backgroundColor: 'rgba(46, 125, 50, 0.05)' 
+                                width: 130, 
+                                height: 130,
+                                backgroundColor: 'rgba(46, 125, 50, 0.06)' 
                             }}
                         >
-                            <Ionicons name="cart-outline" size={70} color="#BDBDBD" />
+                            <ShoppingCartIcon size={65} color="#BDBDBD" />
                         </View>
-                        <Text className="font-cairo-bold text-text-primary mb-2" style={{ fontSize: 19 }}>
+                        <Text className="font-cairo-bold text-text-primary mb-2" style={{ fontSize: 18 }}>
                             {t('cart.empty')}
                         </Text>
-                        <Text className="font-cairo text-text-secondary text-center mb-8" style={{ fontSize: 14, maxWidth: 280 }}>
+                        <Text className="font-cairo text-text-secondary text-center mb-8" style={{ fontSize: 14, maxWidth: 280, lineHeight: 22 }}>
                             {t('cart.emptyMessage')}
                         </Text>
                         <TouchableOpacity
                             className="bg-primary rounded-xl flex-row items-center"
                             style={{
-                                paddingHorizontal: 28,
-                                paddingVertical: 14,
+                                paddingHorizontal: 24,
+                                paddingVertical: 13,
                                 gap: 8,
                                 shadowColor: '#2E7D32',
-                                shadowOpacity: 0.25,
-                                shadowRadius: 12,
-                                shadowOffset: { width: 0, height: 4 },
-                                elevation: 5,
+                                shadowOpacity: 0.2,
+                                shadowRadius: 8,
+                                shadowOffset: { width: 0, height: 3 },
+                                elevation: 4,
                             }}
                             onPress={() => router.push('/(tabs)')}
                             activeOpacity={0.8}
                         >
-                            <Ionicons name="storefront-outline" size={20} color="white" />
+                            <BuildingStorefrontIcon size={20} color="white" />
                             <Text className="font-cairo-bold text-white" style={{ fontSize: 15 }}>
                                 {t('cart.browseProducts')}
                             </Text>
@@ -356,8 +355,8 @@ export default function CartScreen() {
                             ListHeaderComponent={renderListHeader}
                             ListFooterComponent={renderListFooter}
                             contentContainerStyle={{ 
-                                paddingHorizontal: 14, 
-                                paddingTop: 12, 
+                                paddingHorizontal: 16, 
+                                paddingTop: 14, 
                                 paddingBottom: insets.bottom + 80 
                             }}
                             showsVerticalScrollIndicator={false}
@@ -368,14 +367,14 @@ export default function CartScreen() {
                         <View
                             className="bg-white border-t border-gray-100"
                             style={{
-                                paddingHorizontal: 14,
+                                paddingHorizontal: 16,
                                 paddingVertical: 12,
                                 paddingBottom: insets.bottom + 12,
                                 shadowColor: '#000',
-                                shadowOpacity: 0.08,
-                                shadowRadius: 6,
-                                shadowOffset: { width: 0, height: -3 },
-                                elevation: 6,
+                                shadowOpacity: 0.06,
+                                shadowRadius: 5,
+                                shadowOffset: { width: 0, height: -2 },
+                                elevation: 5,
                             }}
                         >
                             <TouchableOpacity
@@ -385,10 +384,10 @@ export default function CartScreen() {
                                     gap: 8,
                                     backgroundColor: '#2E7D32',
                                     shadowColor: '#2E7D32',
-                                    shadowOpacity: 0.35,
-                                    shadowRadius: 10,
-                                    shadowOffset: { width: 0, height: 4 },
-                                    elevation: 5,
+                                    shadowOpacity: 0.25,
+                                    shadowRadius: 8,
+                                    shadowOffset: { width: 0, height: 3 },
+                                    elevation: 4,
                                 }}
                                 onPress={() => router.push('/checkout')}
                                 activeOpacity={0.8}
@@ -398,11 +397,11 @@ export default function CartScreen() {
                                 <Text className="font-cairo-bold text-white" style={{ fontSize: 16 }}>
                                     {t('cart.checkout')}
                                 </Text>
-                                <Ionicons
-                                    name={isRTL ? "arrow-back" : "arrow-forward"}
-                                    size={19}
-                                    color="white"
-                                />
+                                {isRTL ? (
+                                    <ArrowLeftIcon size={20} color="white" />
+                                ) : (
+                                    <ArrowRightIcon size={20} color="white" />
+                                )}
                             </TouchableOpacity>
                         </View>
                     </>

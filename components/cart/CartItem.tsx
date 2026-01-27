@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { TrashIcon, MinusIcon, PlusIcon } from 'react-native-heroicons/outline';
 import { Image } from 'expo-image';
 
 interface CartItemProps {
@@ -39,22 +39,22 @@ const CartItem = memo(({ item, onRemove, onUpdateQuantity, isRTL, language, form
 
     return (
         <View
-            className={`flex-row bg-white rounded-2xl mb-3 border border-gray-100 ${isRTL ? 'flex-row-reverse' : ''}`}
+            className={`flex-row bg-white rounded-xl mb-2.5 border border-gray-100 ${isRTL ? 'flex-row-reverse' : ''}`}
             style={{
-                padding: 12,
+                padding: 10,
                 shadowColor: '#000',
                 shadowOffset: { width: 0, height: 1 },
-                shadowOpacity: 0.04,
-                shadowRadius: 4,
+                shadowOpacity: 0.03,
+                shadowRadius: 3,
                 elevation: 1,
             }}
         >
             {/* Product Image */}
             <View
-                className="bg-gray-50 rounded-xl overflow-hidden border border-gray-100"
+                className="bg-gray-50 rounded-lg overflow-hidden border border-gray-100"
                 style={{ 
-                    width: 80, 
-                    height: 80,
+                    width: 70, 
+                    height: 70,
                     marginRight: isRTL ? 0 : 10, 
                     marginLeft: isRTL ? 10 : 0 
                 }}
@@ -68,8 +68,8 @@ const CartItem = memo(({ item, onRemove, onUpdateQuantity, isRTL, language, form
                         cachePolicy="memory-disk"
                     />
                 ) : (
-                    <View className="flex-1 justify-center items-center">
-                        <Ionicons name="image-outline" size={28} color="#BDBDBD" />
+                    <View className="flex-1 justify-center items-center bg-gray-100 rounded-lg">
+                        <Text className="text-gray-400 text-xs font-cairo">صورة</Text>
                     </View>
                 )}
             </View>
@@ -79,11 +79,11 @@ const CartItem = memo(({ item, onRemove, onUpdateQuantity, isRTL, language, form
                 {/* Name & Remove Button */}
                 <View className={`flex-row justify-between items-start ${isRTL ? 'flex-row-reverse' : ''}`}>
                     <Text
-                        className={`font-cairo-bold text-text-primary flex-1 ${isRTL ? 'text-right' : 'text-left'}`}
+                        className={`font-cairo-semibold text-text-primary flex-1 ${isRTL ? 'text-right' : 'text-left'}`}
                         numberOfLines={2}
                         style={{ 
-                            fontSize: 14,
-                            lineHeight: 20,
+                            fontSize: 13,
+                            lineHeight: 18,
                             marginRight: isRTL ? 0 : 6, 
                             marginLeft: isRTL ? 6 : 0 
                         }}
@@ -92,41 +92,40 @@ const CartItem = memo(({ item, onRemove, onUpdateQuantity, isRTL, language, form
                     </Text>
                     <TouchableOpacity
                         onPress={handleRemove}
-                        className="p-1"
+                        className="p-0.5"
                         activeOpacity={0.7}
                         hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                         accessibilityLabel={t('cart.removeItem')}
                         accessibilityRole="button"
                         accessibilityHint={`${t('cart.removeItemConfirm')} ${productName}`}
                     >
-                        <Ionicons name="trash-outline" size={18} color="#D32F2F" />
+                        <TrashIcon size={17} color="#D32F2F" />
                     </TouchableOpacity>
                 </View>
 
                 {/* Price & Quantity */}
-                <View className={`flex-row justify-between items-center mt-1 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                <View className={`flex-row justify-between items-center mt-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                     {/* Quantity Controls */}
                     <View className="flex-row items-center bg-gray-50 rounded-lg border border-gray-200">
                         <TouchableOpacity
                             className="justify-center items-center"
-                            style={{ width: 32, height: 32 }}
+                            style={{ width: 28, height: 28 }}
                             onPress={() => handleQuantityChange(item.quantity - 1)}
                             activeOpacity={0.7}
                             disabled={item.quantity <= 1}
                             accessibilityLabel={t('common.decrease')}
                             accessibilityRole="button"
                         >
-                            <Ionicons
-                                name="remove"
-                                size={16}
+                            <MinusIcon
+                                size={14}
                                 color={item.quantity <= 1 ? "#BDBDBD" : "#2E7D32"}
                             />
                         </TouchableOpacity>
 
-                        <View className="justify-center items-center border-x border-gray-200" style={{ width: 36, height: 32 }}>
+                        <View className="justify-center items-center border-x border-gray-200" style={{ width: 32, height: 28 }}>
                             <Text 
                                 className="font-cairo-bold text-text-primary" 
-                                style={{ fontSize: 13 }}
+                                style={{ fontSize: 12 }}
                                 accessibilityLabel={`${t('product.quantity')}: ${item.quantity}`}
                             >
                                 {item.quantity}
@@ -135,16 +134,15 @@ const CartItem = memo(({ item, onRemove, onUpdateQuantity, isRTL, language, form
 
                         <TouchableOpacity
                             className="justify-center items-center"
-                            style={{ width: 32, height: 32 }}
+                            style={{ width: 28, height: 28 }}
                             onPress={() => handleQuantityChange(item.quantity + 1)}
                             activeOpacity={0.7}
                             disabled={item.quantity >= (item.stock_quantity || 99)}
                             accessibilityLabel={t('common.increase')}
                             accessibilityRole="button"
                         >
-                            <Ionicons
-                                name="add"
-                                size={16}
+                            <PlusIcon
+                                size={14}
                                 color={item.quantity >= (item.stock_quantity || 99) ? "#BDBDBD" : "#2E7D32"}
                             />
                         </TouchableOpacity>
@@ -152,10 +150,10 @@ const CartItem = memo(({ item, onRemove, onUpdateQuantity, isRTL, language, form
 
                     {/* Price */}
                     <View className={isRTL ? 'items-end' : 'items-start'}>
-                        <Text className="font-cairo-bold text-primary" style={{ fontSize: 15 }}>
+                        <Text className="font-cairo-bold text-primary" style={{ fontSize: 14 }}>
                             {formatPrice(item.price_iqd * item.quantity)}
                         </Text>
-                        <Text className="font-cairo text-text-secondary" style={{ fontSize: 11, marginTop: 2 }}>
+                        <Text className="font-cairo text-text-secondary" style={{ fontSize: 10, marginTop: 1 }}>
                             {formatPrice(item.price_iqd)} / {t('cart.perUnit')}
                         </Text>
                     </View>

@@ -14,7 +14,7 @@ export function MainHeader() {
         <View 
             className="bg-white border-b border-gray-100"
             style={{ 
-                paddingTop: insets.top + 8, // 🔥 مسافة صغيرة من Status Bar
+                paddingTop: insets.top + 8,
                 paddingBottom: 12,
             }}
         >

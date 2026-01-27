@@ -125,11 +125,11 @@ export default function HomeScreen() {
             style={{ width: 80 }}
             onPress={() => router.push(`/(tabs)/category/${item.id}` as any)}
           >
-            <View className="bg-white rounded-2xl w-[70px] h-[70px] items-center justify-center border border-gray-100 overflow-hidden" style={{
+            <View className="bg-green-50 rounded-2xl w-[70px] h-[70px] items-center justify-center border border-green-100 overflow-hidden" style={{
               shadowColor: '#000',
-              shadowOffset: { width: 0, height: 1 },
+              shadowOffset: { width: 0, height: 2 },
               shadowOpacity: 0.05,
-              shadowRadius: 2,
+              shadowRadius: 3,
               elevation: 2,
             }}>
               {item.image_url ? (
@@ -157,7 +157,7 @@ export default function HomeScreen() {
         const secondRowCategories = categories?.filter((_, i) => i % 2 === 1) || [];
 
         return (
-          <View key={section.id} className="py-4 bg-white border-t border-gray-50">
+          <View key={section.id} className="py-4 bg-white">
             <SectionHeader
               title={getTitle(section, 'common.categories')}
               icon="grid"
@@ -229,7 +229,7 @@ export default function HomeScreen() {
         }
 
         return (
-          <View key={section.id} className="py-4 bg-white border-t border-gray-50">
+          <View key={section.id} className="py-4 bg-white">
             <SectionHeader
               title={specialOffers?.offerName || getTitle(section, 'home.specialOffers')}
               hasTimer={!!specialOffers?.offerEndDate}
@@ -262,7 +262,7 @@ export default function HomeScreen() {
         }
 
         return (
-          <View key={section.id} className="py-4 bg-white border-t border-gray-50">
+          <View key={section.id} className="py-4 bg-white">
             <SectionHeader
               title={getTitle(section, 'home.bestSellers')}
               icon="flame"
@@ -294,7 +294,7 @@ export default function HomeScreen() {
         }
 
         return (
-          <View key={section.id} className="py-4 bg-white border-t border-gray-50">
+          <View key={section.id} className="py-4 bg-white">
             <SectionHeader
               title={getTitle(section, 'home.newArrivals')}
               icon="sparkles"
@@ -323,7 +323,7 @@ export default function HomeScreen() {
       case 'trending':
         // Trending products - uses dedicated hook with fallback to random products
         return (
-          <View key={section.id} className="py-4 bg-white border-t border-gray-50">
+          <View key={section.id} className="py-4 bg-white">
             <SectionHeader
               title={getTitle(section, 'home.trending')}
               icon="trending-up"
@@ -368,7 +368,7 @@ export default function HomeScreen() {
   };
 
   return (
-    <View className="flex-1 bg-background">
+    <View className="flex-1 bg-white">
       <Stack.Screen options={{ headerShown: false }} />
       <MainHeader />
 

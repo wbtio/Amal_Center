@@ -1,9 +1,9 @@
-import { View, Text, TouchableOpacity, ScrollView, Alert, ActivityIndicator, Linking, Animated, Image } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Alert, ActivityIndicator, Linking, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { supabase } from '../../lib/supabase';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useCartStore } from '../../store/cartStore';
 import { useLanguage, useCurrency } from '../../contexts';
 import { User } from '@supabase/supabase-js';
@@ -22,16 +22,11 @@ export default function ProfileScreen() {
   const [loading, setLoading] = useState(true);
   const { currency, setCurrency } = useCurrency();
   const { language, changeLanguage, t, isRTL } = useLanguage();
-
   const insets = useSafeAreaInsets();
 
   useEffect(() => {
-    // Initial fetch
     checkUser();
-
-    // Listen for auth changes
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
-      // console.log(`Supabase auth event: ${event}`);
       if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
         setUser(session?.user || null);
         if (session?.user) {
@@ -107,55 +102,45 @@ export default function ProfileScreen() {
     Linking.openURL(APP_CONFIG.WHATSAPP_URL);
   };
 
-  // State for expandable sections - must be before any return
-  const [helpExpanded, setHelpExpanded] = useState(false);
-
   if (loading) {
     return (
-      <View className="flex-1 justify-center items-center bg-background">
+      <View className="flex-1 justify-center items-center bg-gray-50">
         <ActivityIndicator color="#2E7D32" size="large" />
-        <Text className="mt-4 text-text-secondary font-cairo text-sm">
-          {t('common.loading')}
-        </Text>
       </View>
     );
   }
 
-  // ===== Guest User View (Not Logged In) =====
   if (!user) {
     return (
-      <View className="flex-1 bg-background">
-        <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-
-          {/* Hero Section - Welcome - starts from top */}
-          <View className="bg-primary px-4 pb-10" style={{ paddingTop: insets.top + 16, borderBottomLeftRadius: 32, borderBottomRightRadius: 32 }}>
-            <View className="items-center">
-              {/* Avatar */}
-              <View className="w-20 h-20 rounded-full bg-white/20 items-center justify-center mb-4 border-2 border-white/30">
-                <Ionicons name="person" size={40} color="#fff" />
+      <View className="flex-1 bg-gray-50">
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <View className="bg-primary" style={{ paddingTop: insets.top + 20, paddingBottom: 40 }}>
+            <View className="items-center px-6">
+              <View className="w-24 h-24 rounded-full bg-white/20 items-center justify-center mb-4">
+                <Ionicons name="person-outline" size={48} color="#fff" />
               </View>
-              
-              <Text className="text-xl font-cairo-bold text-white mb-1 text-center">
+              <Text className="text-2xl font-cairo-bold text-white mb-2">
                 {t('profile.welcome')}
               </Text>
-              <Text className="text-sm font-cairo text-white/80 text-center mb-5 px-4">
+              <Text className="text-sm font-cairo text-white/90 text-center mb-6">
                 {t('profile.welcomeMessage')}
               </Text>
-
-              {/* Auth Buttons */}
               <View className="flex-row gap-3 w-full">
                 <TouchableOpacity
-                  className="flex-1 py-3 bg-white rounded-xl items-center"
+                  className="flex-1 py-3.5 bg-white rounded-xl"
                   onPress={() => router.push('/auth/login')}
+                  activeOpacity={0.8}
                 >
-                  <Text className="text-primary font-cairo-bold text-base">{t('profile.login')}</Text>
+                  <Text className="text-primary font-cairo-bold text-base text-center">
+                    {t('profile.login')}
+                  </Text>
                 </TouchableOpacity>
-
                 <TouchableOpacity
-                  className="flex-1 py-3 bg-white/20 border border-white/40 rounded-xl items-center"
+                  className="flex-1 py-3.5 bg-white/20 rounded-xl border border-white/30"
                   onPress={() => router.push('/auth/register')}
+                  activeOpacity={0.8}
                 >
-                  <Text className="text-white font-cairo-bold text-base">
+                  <Text className="text-white font-cairo-bold text-base text-center">
                     {t('profile.createAccount')}
                   </Text>
                 </TouchableOpacity>
@@ -163,314 +148,300 @@ export default function ProfileScreen() {
             </View>
           </View>
 
-          {/* Settings Section */}
-          <View className="mx-4 mt-4 bg-white rounded-2xl border border-gray-100 overflow-hidden">
-            <View className={`p-4 flex-row items-center justify-between border-b border-gray-100 ${isRTL ? 'flex-row-reverse' : ''}`}>
-              <View className={`flex-row items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
-                <Ionicons name="language-outline" size={20} color="#2E7D32" style={{ marginRight: isRTL ? 0 : 10, marginLeft: isRTL ? 10 : 0 }} />
-                <Text className="text-sm font-cairo-bold text-text-primary">
-                  {t('profile.language')}
-                </Text>
-              </View>
-              <View className="flex-row bg-gray-100 rounded-lg p-1">
-                <TouchableOpacity
-                  className={`px-4 py-2 rounded-md ${language === 'ar' ? 'bg-white' : ''}`}
-                  onPress={() => changeLanguage('ar')}
-                  style={{ shadowColor: language === 'ar' ? '#000' : 'transparent', shadowOpacity: 0.05, shadowRadius: 2, elevation: language === 'ar' ? 1 : 0 }}
-                >
-                  <Text className={`text-xs font-cairo-bold ${language === 'ar' ? 'text-primary' : 'text-gray-500'}`}>العربية</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  className={`px-4 py-2 rounded-md ${language === 'en' ? 'bg-white' : ''}`}
-                  onPress={() => changeLanguage('en')}
-                  style={{ shadowColor: language === 'en' ? '#000' : 'transparent', shadowOpacity: 0.05, shadowRadius: 2, elevation: language === 'en' ? 1 : 0 }}
-                >
-                  <Text className={`text-xs font-cairo-bold ${language === 'en' ? 'text-primary' : 'text-gray-500'}`}>Eng</Text>
-                </TouchableOpacity>
-              </View>
+          <View className="px-4 py-4">
+            <View className="bg-white rounded-2xl overflow-hidden mb-3">
+              <SettingRow
+                icon="language-outline"
+                title={t('profile.language')}
+                value={
+                  <View className="flex-row bg-gray-100 rounded-lg p-1">
+                    <TouchableOpacity
+                      className={`px-4 py-1.5 rounded-md ${language === 'ar' ? 'bg-white' : ''}`}
+                      onPress={() => changeLanguage('ar')}
+                    >
+                      <Text className={`text-sm font-cairo-bold ${language === 'ar' ? 'text-primary' : 'text-gray-500'}`}>
+                        العربية
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      className={`px-4 py-1.5 rounded-md ${language === 'en' ? 'bg-white' : ''}`}
+                      onPress={() => changeLanguage('en')}
+                    >
+                      <Text className={`text-sm font-cairo-bold ${language === 'en' ? 'text-primary' : 'text-gray-500'}`}>
+                        English
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                }
+              />
+              <View className="h-px bg-gray-100 mx-4" />
+              <SettingRow
+                icon="cash-outline"
+                title={t('profile.currency')}
+                value={
+                  <View className="flex-row bg-gray-100 rounded-lg p-1">
+                    <TouchableOpacity
+                      className={`px-4 py-1.5 rounded-md ${currency === 'IQD' ? 'bg-white' : ''}`}
+                      onPress={() => setCurrency('IQD')}
+                    >
+                      <Text className={`text-sm font-cairo-bold ${currency === 'IQD' ? 'text-primary' : 'text-gray-500'}`}>
+                        د.ع
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      className={`px-4 py-1.5 rounded-md ${currency === 'USD' ? 'bg-white' : ''}`}
+                      onPress={() => setCurrency('USD')}
+                    >
+                      <Text className={`text-sm font-cairo-bold ${currency === 'USD' ? 'text-primary' : 'text-gray-500'}`}>
+                        USD
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                }
+              />
             </View>
 
-            <View className={`p-4 flex-row items-center justify-between ${isRTL ? 'flex-row-reverse' : ''}`}>
-              <View className={`flex-row items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
-                <Ionicons name="cash-outline" size={20} color="#2E7D32" style={{ marginRight: isRTL ? 0 : 10, marginLeft: isRTL ? 10 : 0 }} />
-                <Text className="text-sm font-cairo-bold text-text-primary">
-                  {t('profile.currency')}
-                </Text>
-              </View>
-              <View className="flex-row bg-gray-100 rounded-lg p-1">
-                <TouchableOpacity
-                  className={`px-4 py-2 rounded-md ${currency === 'IQD' ? 'bg-white' : ''}`}
-                  onPress={() => setCurrency('IQD')}
-                  style={{ shadowColor: currency === 'IQD' ? '#000' : 'transparent', shadowOpacity: 0.05, shadowRadius: 2, elevation: currency === 'IQD' ? 1 : 0 }}
-                >
-                  <Text className={`text-xs font-cairo-bold ${currency === 'IQD' ? 'text-primary' : 'text-gray-500'}`}>د.ع</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  className={`px-4 py-2 rounded-md ${currency === 'USD' ? 'bg-white' : ''}`}
-                  onPress={() => setCurrency('USD')}
-                  style={{ shadowColor: currency === 'USD' ? '#000' : 'transparent', shadowOpacity: 0.05, shadowRadius: 2, elevation: currency === 'USD' ? 1 : 0 }}
-                >
-                  <Text className={`text-xs font-cairo-bold ${currency === 'USD' ? 'text-primary' : 'text-gray-500'}`}>USD</Text>
-                </TouchableOpacity>
-              </View>
+            <View className="bg-white rounded-2xl overflow-hidden mb-3">
+              <MenuButton
+                icon="help-circle-outline"
+                title={t('profile.helpAndSupport')}
+                onPress={() => router.push('/help/faq')}
+                iconBg="bg-blue-50"
+                iconColor="#2196F3"
+              />
+              <View className="h-px bg-gray-100 mx-4" />
+              <MenuButton
+                icon="logo-whatsapp"
+                title={t('profile.whatsapp')}
+                onPress={openWhatsApp}
+                iconBg="bg-green-50"
+                iconColor="#25D366"
+              />
             </View>
-          </View>
 
-          {/* Help & Support - Expandable */}
-          <View className="mx-4 mt-3 bg-white rounded-2xl border border-gray-100 overflow-hidden">
-            <TouchableOpacity 
-              className={`p-4 flex-row items-center justify-between ${isRTL ? 'flex-row-reverse' : ''}`}
-              onPress={() => setHelpExpanded(!helpExpanded)}
-              activeOpacity={0.7}
-            >
-              <View className={`flex-row items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
-                <View className="w-9 h-9 bg-blue-50 rounded-full items-center justify-center" style={{ marginRight: isRTL ? 0 : 12, marginLeft: isRTL ? 12 : 0 }}>
-                  <Ionicons name="help-circle-outline" size={20} color="#2196F3" />
-                </View>
-                <Text className="font-cairo-bold text-base text-text-primary">{t('profile.helpAndSupport')}</Text>
-              </View>
-              <Ionicons name={helpExpanded ? "chevron-up" : "chevron-down"} size={20} color="#9CA3AF" />
-            </TouchableOpacity>
-            
-            {helpExpanded && (
-              <View className="px-4 pb-3 border-t border-gray-100">
-                <TouchableOpacity className={`py-3 flex-row items-center ${isRTL ? 'flex-row-reverse' : ''}`} onPress={() => router.push('/help/faq')}>
-                  <Ionicons name="chatbubble-ellipses-outline" size={18} color="#757575" style={{ marginRight: isRTL ? 0 : 12, marginLeft: isRTL ? 12 : 0 }} />
-                  <Text className="font-cairo text-sm text-text-secondary">{t('profile.faq')}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity className={`py-3 flex-row items-center ${isRTL ? 'flex-row-reverse' : ''}`} onPress={() => router.push('/help/contact')}>
-                  <Ionicons name="call-outline" size={18} color="#757575" style={{ marginRight: isRTL ? 0 : 12, marginLeft: isRTL ? 12 : 0 }} />
-                  <Text className="font-cairo text-sm text-text-secondary">{t('profile.contactUs')}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity className={`py-3 flex-row items-center ${isRTL ? 'flex-row-reverse' : ''}`} onPress={openWhatsApp}>
-                  <Ionicons name="logo-whatsapp" size={18} color="#25D366" style={{ marginRight: isRTL ? 0 : 12, marginLeft: isRTL ? 12 : 0 }} />
-                  <Text className="font-cairo text-sm text-text-secondary">{t('profile.whatsapp')}</Text>
-                </TouchableOpacity>
-              </View>
-            )}
+            <Text className="text-center text-gray-400 font-cairo text-xs mt-4">
+              v{APP_CONFIG.VERSION}
+            </Text>
           </View>
-
-          {/* App Version */}
-          <Text className="text-center text-gray-400 font-cairo text-xs mb-6">v{APP_CONFIG.VERSION}</Text>
         </ScrollView>
       </View>
     );
   }
 
-  // ===== Logged In User View =====
   return (
-    <View className="flex-1 bg-background">
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-
-        {/* Hero Section - User Profile - starts from top */}
-        <View className="bg-primary px-4 pb-8" style={{ paddingTop: insets.top + 16, borderBottomLeftRadius: 32, borderBottomRightRadius: 32 }}>
-          <View className={`flex-row items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
-            {/* Avatar */}
+    <View className="flex-1 bg-gray-50">
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <View className="bg-primary" style={{ paddingTop: insets.top + 6, paddingBottom: 12 }}>
+          <View className={`px-4 flex-row items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
             {profile?.avatar_url ? (
               <Image
                 source={{ uri: profile.avatar_url }}
-                className="w-16 h-16 rounded-full border-2 border-white/40"
+                className="w-20 h-20 rounded-full"
                 style={{ marginRight: isRTL ? 0 : 14, marginLeft: isRTL ? 14 : 0 }}
               />
             ) : (
-              <View className="w-16 h-16 rounded-full items-center justify-center bg-white/20 border-2 border-white/40" style={{ marginRight: isRTL ? 0 : 14, marginLeft: isRTL ? 14 : 0 }}>
-                <Text className="font-cairo-bold text-2xl text-white">
+              <View
+                className="w-20 h-20 rounded-full bg-white/20 items-center justify-center"
+                style={{ marginRight: isRTL ? 0 : 14, marginLeft: isRTL ? 14 : 0 }}
+              >
+                <Text className="font-cairo-bold text-3xl text-white">
                   {(profile?.full_name?.[0] || user.email?.[0] || '?').toUpperCase()}
                 </Text>
               </View>
             )}
-            
-            {/* User Info */}
-            <View className={`flex-1 ${isRTL ? 'items-end' : 'items-start'}`}>
+            <View className="flex-1">
               <Text className={`font-cairo-bold text-lg text-white ${isRTL ? 'text-right' : 'text-left'}`}>
                 {profile?.full_name || user.user_metadata?.full_name || user.email?.split('@')[0]}
               </Text>
-              <Text className={`font-cairo text-sm text-white/70 ${isRTL ? 'text-right' : 'text-left'}`}>
+              <Text className={`font-cairo text-sm text-white/85 ${isRTL ? 'text-right' : 'text-left'} mt-1`}>
                 {user.email}
               </Text>
             </View>
-
-            {/* Edit & Logout Buttons */}
-            <View className="flex-row gap-2">
-              <TouchableOpacity
-                className="w-10 h-10 rounded-full bg-white/20 items-center justify-center"
-                onPress={() => router.push('/profile/edit')}
-              >
-                <Ionicons name="pencil-outline" size={18} color="#fff" />
-              </TouchableOpacity>
-              <TouchableOpacity
-                className="w-10 h-10 rounded-full bg-red-500/80 items-center justify-center"
-                onPress={handleLogout}
-              >
-                <Ionicons name="log-out-outline" size={18} color="#fff" />
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity
+              className="w-10 h-10 rounded-full bg-white/20 items-center justify-center"
+              onPress={() => router.push('/profile/edit')}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="settings-outline" size={20} color="#fff" />
+            </TouchableOpacity>
           </View>
         </View>
 
-        {/* Quick Actions */}
-        <View className="mx-4 -mt-4 bg-white rounded-2xl border border-gray-100 overflow-hidden" style={{ shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 10, elevation: 3 }}>
-          <View className="flex-row">
-            <QuickAction icon="cube-outline" title={t('profile.orders')} onPress={() => router.push('/orders')} />
-            <QuickAction icon="location-outline" title={t('profile.addresses')} onPress={() => router.push('/addresses')} />
-            <QuickAction icon="heart-outline" title={t('profile.wishlist')} onPress={() => router.push('/wishlist')} />
-            <QuickAction icon="notifications-outline" title={t('profile.notifications')} onPress={() => router.push('/notifications')} isLast />
-          </View>
-        </View>
-
-        {/* Settings Section */}
-        <View className="mx-4 mt-4 bg-white rounded-2xl border border-gray-100 overflow-hidden">
-          <View className={`p-4 flex-row items-center justify-between border-b border-gray-100 ${isRTL ? 'flex-row-reverse' : ''}`}>
-            <View className={`flex-row items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
-              <Ionicons name="language-outline" size={20} color="#2E7D32" style={{ marginRight: isRTL ? 0 : 10, marginLeft: isRTL ? 10 : 0 }} />
-              <Text className="text-sm font-cairo-bold text-text-primary">{t('profile.language')}</Text>
-            </View>
-            <View className="flex-row bg-gray-100 rounded-lg p-1">
-              <TouchableOpacity
-                className={`px-4 py-2 rounded-md ${language === 'ar' ? 'bg-white' : ''}`}
-                onPress={() => changeLanguage('ar')}
-                style={{ shadowColor: language === 'ar' ? '#000' : 'transparent', shadowOpacity: 0.05, shadowRadius: 2, elevation: language === 'ar' ? 1 : 0 }}
-              >
-                <Text className={`text-xs font-cairo-bold ${language === 'ar' ? 'text-primary' : 'text-gray-500'}`}>العربية</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                className={`px-4 py-2 rounded-md ${language === 'en' ? 'bg-white' : ''}`}
-                onPress={() => changeLanguage('en')}
-                style={{ shadowColor: language === 'en' ? '#000' : 'transparent', shadowOpacity: 0.05, shadowRadius: 2, elevation: language === 'en' ? 1 : 0 }}
-              >
-                <Text className={`text-xs font-cairo-bold ${language === 'en' ? 'text-primary' : 'text-gray-500'}`}>Eng</Text>
-              </TouchableOpacity>
+        <View className="px-4 py-3">
+          <View className="bg-white rounded-2xl overflow-hidden mb-3">
+            <View className="flex-row">
+              <ActionCard
+                icon="receipt-outline"
+                title={t('profile.orders')}
+                onPress={() => router.push('/orders')}
+              />
+              <ActionCard
+                icon="location-outline"
+                title={t('profile.addresses')}
+                onPress={() => router.push('/addresses')}
+              />
+              <ActionCard
+                icon="heart-outline"
+                title={t('profile.wishlist')}
+                onPress={() => router.push('/wishlist')}
+                isLast
+              />
             </View>
           </View>
 
-          <View className={`p-4 flex-row items-center justify-between ${isRTL ? 'flex-row-reverse' : ''}`}>
-            <View className={`flex-row items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
-              <Ionicons name="cash-outline" size={20} color="#2E7D32" style={{ marginRight: isRTL ? 0 : 10, marginLeft: isRTL ? 10 : 0 }} />
-              <Text className="text-sm font-cairo-bold text-text-primary">{t('profile.currency')}</Text>
-            </View>
-            <View className="flex-row bg-gray-100 rounded-lg p-1">
-              <TouchableOpacity
-                className={`px-4 py-2 rounded-md ${currency === 'IQD' ? 'bg-white' : ''}`}
-                onPress={() => setCurrency('IQD')}
-                style={{ shadowColor: currency === 'IQD' ? '#000' : 'transparent', shadowOpacity: 0.05, shadowRadius: 2, elevation: currency === 'IQD' ? 1 : 0 }}
-              >
-                <Text className={`text-xs font-cairo-bold ${currency === 'IQD' ? 'text-primary' : 'text-gray-500'}`}>د.ع</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                className={`px-4 py-2 rounded-md ${currency === 'USD' ? 'bg-white' : ''}`}
-                onPress={() => setCurrency('USD')}
-                style={{ shadowColor: currency === 'USD' ? '#000' : 'transparent', shadowOpacity: 0.05, shadowRadius: 2, elevation: currency === 'USD' ? 1 : 0 }}
-              >
-                <Text className={`text-xs font-cairo-bold ${currency === 'USD' ? 'text-primary' : 'text-gray-500'}`}>USD</Text>
-              </TouchableOpacity>
-            </View>
+          <View className="bg-white rounded-2xl overflow-hidden mb-3">
+            <SettingRow
+              icon="language-outline"
+              title={t('profile.language')}
+              value={
+                <View className="flex-row bg-gray-100 rounded-lg p-1">
+                  <TouchableOpacity
+                    className={`px-4 py-1.5 rounded-md ${language === 'ar' ? 'bg-white' : ''}`}
+                    onPress={() => changeLanguage('ar')}
+                  >
+                    <Text className={`text-sm font-cairo-bold ${language === 'ar' ? 'text-primary' : 'text-gray-500'}`}>
+                      العربية
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    className={`px-4 py-1.5 rounded-md ${language === 'en' ? 'bg-white' : ''}`}
+                    onPress={() => changeLanguage('en')}
+                  >
+                    <Text className={`text-sm font-cairo-bold ${language === 'en' ? 'text-primary' : 'text-gray-500'}`}>
+                      English
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              }
+            />
+            <View className="h-px bg-gray-100 mx-4" />
+            <SettingRow
+              icon="cash-outline"
+              title={t('profile.currency')}
+              value={
+                <View className="flex-row bg-gray-100 rounded-lg p-1">
+                  <TouchableOpacity
+                    className={`px-4 py-1.5 rounded-md ${currency === 'IQD' ? 'bg-white' : ''}`}
+                    onPress={() => setCurrency('IQD')}
+                  >
+                    <Text className={`text-sm font-cairo-bold ${currency === 'IQD' ? 'text-primary' : 'text-gray-500'}`}>
+                      د.ع
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    className={`px-4 py-1.5 rounded-md ${currency === 'USD' ? 'bg-white' : ''}`}
+                    onPress={() => setCurrency('USD')}
+                  >
+                    <Text className={`text-sm font-cairo-bold ${currency === 'USD' ? 'text-primary' : 'text-gray-500'}`}>
+                      USD
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              }
+            />
           </View>
-        </View>
 
-        {/* Help & Support - Expandable */}
-        <View className="mx-4 mt-3 bg-white rounded-2xl border border-gray-100 overflow-hidden">
-          <TouchableOpacity 
-            className={`p-4 flex-row items-center justify-between ${isRTL ? 'flex-row-reverse' : ''}`}
-            onPress={() => setHelpExpanded(!helpExpanded)}
-            activeOpacity={0.7}
-          >
-            <View className={`flex-row items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
-              <View className="w-9 h-9 bg-blue-50 rounded-full items-center justify-center" style={{ marginRight: isRTL ? 0 : 12, marginLeft: isRTL ? 12 : 0 }}>
-                <Ionicons name="help-circle-outline" size={20} color="#2196F3" />
-              </View>
-              <Text className="font-cairo-bold text-base text-text-primary">{t('profile.helpAndSupport')}</Text>
-            </View>
-            <Ionicons name={helpExpanded ? "chevron-up" : "chevron-down"} size={20} color="#9CA3AF" />
-          </TouchableOpacity>
-          
-          {helpExpanded && (
-            <View className="px-4 pb-3 border-t border-gray-100">
-              <TouchableOpacity className={`py-3 flex-row items-center ${isRTL ? 'flex-row-reverse' : ''}`} onPress={() => router.push('/help/faq')}>
-                <Ionicons name="chatbubble-ellipses-outline" size={18} color="#757575" style={{ marginRight: isRTL ? 0 : 12, marginLeft: isRTL ? 12 : 0 }} />
-                <Text className="font-cairo text-sm text-text-secondary">{t('profile.faq')}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity className={`py-3 flex-row items-center ${isRTL ? 'flex-row-reverse' : ''}`} onPress={() => router.push('/help/contact')}>
-                <Ionicons name="call-outline" size={18} color="#757575" style={{ marginRight: isRTL ? 0 : 12, marginLeft: isRTL ? 12 : 0 }} />
-                <Text className="font-cairo text-sm text-text-secondary">{t('profile.contactUs')}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity className={`py-3 flex-row items-center ${isRTL ? 'flex-row-reverse' : ''}`} onPress={openWhatsApp}>
-                <Ionicons name="logo-whatsapp" size={18} color="#25D366" style={{ marginRight: isRTL ? 0 : 12, marginLeft: isRTL ? 12 : 0 }} />
-                <Text className="font-cairo text-sm text-text-secondary">{t('profile.whatsapp')}</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-        </View>
+          <View className="bg-white rounded-2xl overflow-hidden mb-3">
+            <MenuButton
+              icon="help-circle-outline"
+              title={t('profile.helpAndSupport')}
+              onPress={() => router.push('/help/faq')}
+              iconBg="bg-blue-50"
+              iconColor="#2196F3"
+            />
+            <View className="h-px bg-gray-100 mx-4" />
+            <MenuButton
+              icon="logo-whatsapp"
+              title={t('profile.whatsapp')}
+              onPress={openWhatsApp}
+              iconBg="bg-green-50"
+              iconColor="#25D366"
+            />
+            <View className="h-px bg-gray-100 mx-4" />
+            <MenuButton
+              icon="log-out-outline"
+              title={t('profile.logout')}
+              onPress={handleLogout}
+              iconBg="bg-red-50"
+              iconColor="#EF4444"
+            />
+          </View>
 
-        {/* App Version */}
-        <Text className="text-center text-gray-400 font-cairo text-xs mb-6">v{APP_CONFIG.VERSION}</Text>
+          <Text className="text-center text-gray-400 font-cairo text-xs mt-4">
+            v{APP_CONFIG.VERSION}
+          </Text>
+        </View>
       </ScrollView>
     </View>
   );
 }
 
-// Quick Action Component for logged-in user
-const QuickAction = ({ icon, title, onPress, isLast = false }: {
-  icon: any,
-  title: string,
-  onPress: () => void,
-  isLast?: boolean
+const ActionCard = ({ icon, title, onPress, isLast = false }: {
+  icon: any;
+  title: string;
+  onPress: () => void;
+  isLast?: boolean;
+}) => (
+  <TouchableOpacity
+    className={`flex-1 py-3.5 items-center ${!isLast ? 'border-r border-gray-100' : ''}`}
+    onPress={onPress}
+    activeOpacity={0.7}
+  >
+    <View className="w-10 h-10 bg-primary/10 rounded-full items-center justify-center mb-1.5">
+      <Ionicons name={icon} size={20} color="#2E7D32" />
+    </View>
+    <Text className="font-cairo text-xs text-gray-600 text-center" numberOfLines={1}>
+      {title}
+    </Text>
+  </TouchableOpacity>
+);
+
+const SettingRow = ({ icon, title, value }: {
+  icon: any;
+  title: string;
+  value: React.ReactNode;
 }) => {
+  const { isRTL } = useLanguage();
+  return (
+    <View className={`p-4 flex-row items-center justify-between ${isRTL ? 'flex-row-reverse' : ''}`}>
+      <View className={`flex-row items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
+        <Ionicons
+          name={icon}
+          size={20}
+          color="#2E7D32"
+          style={{ marginRight: isRTL ? 0 : 10, marginLeft: isRTL ? 10 : 0 }}
+        />
+        <Text className="text-sm font-cairo-bold text-gray-700">{title}</Text>
+      </View>
+      {value}
+    </View>
+  );
+};
+
+const MenuButton = ({ icon, title, onPress, iconBg, iconColor }: {
+  icon: any;
+  title: string;
+  onPress: () => void;
+  iconBg: string;
+  iconColor: string;
+}) => {
+  const { isRTL } = useLanguage();
   return (
     <TouchableOpacity
-      className={`flex-1 py-4 items-center ${!isLast ? 'border-r border-gray-100' : ''}`}
+      className={`p-4 flex-row items-center justify-between active:bg-gray-50 ${isRTL ? 'flex-row-reverse' : ''}`}
       onPress={onPress}
       activeOpacity={0.7}
     >
-      <View className="w-10 h-10 bg-primary/10 rounded-full items-center justify-center mb-2">
-        <Ionicons name={icon} size={20} color="#2E7D32" />
-      </View>
-      <Text className="font-cairo text-xs text-text-secondary text-center" numberOfLines={1}>{title}</Text>
-    </TouchableOpacity>
-  );
-};
-
-// Menu Item Component
-const MenuItem = ({ icon, title, value, onPress, isLast = false }: {
-  icon: any,
-  title: string,
-  value?: string,
-  onPress: () => void,
-  isLast?: boolean
-}) => {
-  const { isRTL } = useLanguage();
-  return (
-    <TouchableOpacity
-      className={`flex-row items-center justify-between p-4 ${!isLast ? 'border-b border-gray-100' : ''} active:bg-gray-50 ${isRTL ? 'flex-row-reverse' : ''}`}
-      onPress={onPress}
-    >
       <View className={`flex-row items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
         <View
-          className="w-9 h-9 bg-primary/10 rounded-full items-center justify-center"
+          className={`w-10 h-10 ${iconBg} rounded-full items-center justify-center`}
           style={{ marginRight: isRTL ? 0 : 12, marginLeft: isRTL ? 12 : 0 }}
         >
-          <Ionicons name={icon} size={20} color="#2E7D32" />
+          <Ionicons name={icon} size={20} color={iconColor} />
         </View>
-        <Text className="font-cairo text-text-primary text-base">{title}</Text>
+        <Text className="font-cairo text-base text-gray-700">{title}</Text>
       </View>
-
-      <View className={`flex-row items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
-        {value && <Text className="font-cairo text-text-secondary mx-2 text-sm">{value}</Text>}
-        <Ionicons name={isRTL ? "chevron-back" : "chevron-forward"} size={18} color="#ccc" />
-      </View>
-    </TouchableOpacity>
-  );
-};
-
-// Settings Link Component
-const SettingsLink = ({ title, onPress }: { title: string, onPress: () => void }) => {
-  const { isRTL } = useLanguage();
-  return (
-    <TouchableOpacity
-      className={`flex-row items-center justify-between p-3 rounded-lg active:bg-gray-50 ${isRTL ? 'flex-row-reverse' : ''}`}
-      onPress={onPress}
-    >
-      <Text className="text-sm font-cairo text-text-secondary">{title}</Text>
-      <Ionicons name={isRTL ? "chevron-back" : "chevron-forward"} size={16} color="#ccc" />
+      <Ionicons name={isRTL ? "chevron-back" : "chevron-forward"} size={20} color="#D1D5DB" />
     </TouchableOpacity>
   );
 };

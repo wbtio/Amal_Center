@@ -1,6 +1,7 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { HomeIcon, Squares2X2Icon, ShoppingCartIcon, UserIcon } from 'react-native-heroicons/outline';
+import { HomeIcon as HomeSolid, Squares2X2Icon as Squares2X2Solid, ShoppingCartIcon as ShoppingCartSolid, UserIcon as UserSolid } from 'react-native-heroicons/solid';
 import { View, Platform, Text } from 'react-native';
 import { MainHeader } from '../../components/ui/MainHeader';
 import { useLanguage } from '../../contexts';
@@ -64,11 +65,11 @@ export default function TabLayout() {
                 marginBottom: 0,
               }}
             >
-              <Ionicons 
-                name={focused ? "home" : "home-outline"} 
-                size={23} 
-                color={color} 
-              />
+              {focused ? (
+                <HomeSolid size={23} color={color} />
+              ) : (
+                <HomeIcon size={23} color={color} />
+              )}
             </View>
           ),
         }}
@@ -89,11 +90,11 @@ export default function TabLayout() {
                 marginBottom: 0,
               }}
             >
-              <Ionicons 
-                name={focused ? "grid" : "grid-outline"} 
-                size={23} 
-                color={color} 
-              />
+              {focused ? (
+                <Squares2X2Solid size={23} color={color} />
+              ) : (
+                <Squares2X2Icon size={23} color={color} />
+              )}
             </View>
           ),
         }}
@@ -115,11 +116,11 @@ export default function TabLayout() {
                 marginBottom: 0,
               }}
             >
-              <Ionicons 
-                name={focused ? "cart" : "cart-outline"} 
-                size={23} 
-                color={color} 
-              />
+              {focused ? (
+                <ShoppingCartSolid size={23} color={color} />
+              ) : (
+                <ShoppingCartIcon size={23} color={color} />
+              )}
               {cartItemsCount > 0 && (
                 <View
                   style={{
@@ -163,11 +164,11 @@ export default function TabLayout() {
                 marginBottom: 0,
               }}
             >
-              <Ionicons 
-                name={focused ? "person" : "person-outline"} 
-                size={23} 
-                color={color} 
-              />
+              {focused ? (
+                <UserSolid size={23} color={color} />
+              ) : (
+                <UserIcon size={23} color={color} />
+              )}
             </View>
           ),
         }}

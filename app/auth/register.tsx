@@ -10,6 +10,7 @@ import { useState } from 'react';
 
 const registerSchema = z.object({
   fullName: z.string().min(3, 'الاسم يجب أن يكون 3 أحرف على الأقل'),
+  phone: z.string().regex(/^(07[3-9]\d{8}|\+9647[3-9]\d{8})$/, 'رقم الهاتف غير صحيح (مثال: 07XXXXXXXX)'),
   email: z.string().email('البريد الإلكتروني غير صحيح'),
   password: z.string().min(6, 'كلمة المرور يجب أن تكون 6 أحرف على الأقل'),
   confirmPassword: z.string().min(6, 'تأكيد كلمة المرور مطلوب'),
@@ -24,8 +25,27 @@ const getErrorMessage = (error: string) => {
   const errorMessages: Record<string, string> = {
     'User already registered': 'هذا البريد الإلكتروني مسجل مسبقاً',
     'Password should be at least 6 characters': 'كلمة المرور يجب أن تكون 6 أحرف على الأقل',
+    'Invalid API key': 'خطأ في الاتصال بالخادم، يرجى المحاولة لاحقاً',
+    'Unable to validate email address': 'البريد الإلكتروني غير صالح',
+    'Signup requires a valid password': 'كلمة المرور غير صالحة',
+    'Email rate limit exceeded': 'تم تجاوز الحد المسموح، يرجى المحاولة بعد قليل',
   };
-  return errorMessages[error] || 'حدث خطأ، يرجى المحاولة مرة أخرى';
+  
+  // Check if error contains specific keywords
+  if (error.includes('already registered') || error.includes('already exists')) {
+    return 'هذا البريد الإلكتروني مسجل مسبقاً';
+  }
+  if (error.includes('Invalid') || error.includes('invalid')) {
+    return 'البيانات المدخلة غير صحيحة، يرجى التحقق منها';
+  }
+  if (error.includes('network') || error.includes('Network')) {
+    return 'خطأ في الاتصال بالإنترنت، يرجى التحقق من الاتصال';
+  }
+  if (error.includes('confirmation email') || error.includes('sending email')) {
+    return undefined; // Don't show error for email confirmation issues
+  }
+  
+  return errorMessages[error] || `خطأ: ${error}`;
 };
 
 export default function RegisterScreen() {
@@ -37,37 +57,74 @@ export default function RegisterScreen() {
   });
 
   const onSubmit = async (data: RegisterFormData) => {
-    setLoading(true);
+    try {
+      setLoading(true);
+      console.log('Starting signup process...');
+      console.log('Email:', data.email.trim().toLowerCase());
 
-    const { data: authData, error: authError } = await supabase.auth.signUp({
-      email: data.email.trim().toLowerCase(),
-      password: data.password,
-      options: {
-        data: {
-          full_name: data.fullName.trim(),
-          name_ar: data.fullName.trim(),
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: data.email.trim().toLowerCase(),
+        password: data.password,
+        options: {
+          data: {
+            full_name: data.fullName.trim(),
+            name_ar: data.fullName.trim(),
+            phone: data.phone.trim(),
+          }
         }
-      }
-    });
-
-    setLoading(false);
-
-    if (authError) {
-      Alert.alert('خطأ', getErrorMessage(authError.message));
-      return;
-    }
-
-    // Check if successful signup requires verification
-    if (authData.user && !authData.session) {
-      // Redirect to Verify Page
-      router.push({
-        pathname: '/auth/verify',
-        params: { email: data.email.trim().toLowerCase() }
       });
-    } else if (authData.session) {
-      Alert.alert('تم بنجاح', 'تم إنشاء حسابك بنجاح!', [
-        { text: 'حسناً', onPress: () => router.replace('/(tabs)/profile') }
-      ]);
+
+      console.log('Signup response:', { authData, authError });
+
+      setLoading(false);
+
+      // Check if error is email confirmation related (user was created but email failed)
+      const isEmailConfirmationError = authError?.message?.includes('confirmation email') || 
+                                       authError?.message?.includes('sending email');
+
+      if (authError && !isEmailConfirmationError) {
+        console.error('Signup error:', authError);
+        const errorMsg = getErrorMessage(authError.message);
+        if (errorMsg) {
+          Alert.alert('خطأ', errorMsg);
+        }
+        return;
+      }
+
+      // If email confirmation error but user was created, proceed with login
+      if (isEmailConfirmationError && authData.user) {
+        console.log('User created but email confirmation failed - proceeding to login');
+        Alert.alert(
+          'تم إنشاء الحساب',
+          'تم إنشاء حسابك بنجاح! يمكنك تسجيل الدخول الآن.\n\nملاحظة: قد لا تتلقى بريد التأكيد بسبب إعدادات الخادم.',
+          [
+            { 
+              text: 'تسجيل الدخول', 
+              onPress: () => router.replace('/auth/login')
+            }
+          ]
+        );
+        return;
+      }
+
+      // Check if successful signup requires verification
+      if (authData.user && !authData.session) {
+        console.log('User created, needs verification');
+        // Redirect to Verify Page
+        router.push({
+          pathname: '/auth/verify',
+          params: { email: data.email.trim().toLowerCase() }
+        });
+      } else if (authData.session) {
+        console.log('User created with session');
+        Alert.alert('تم بنجاح', 'تم إنشاء حسابك بنجاح!', [
+          { text: 'حسناً', onPress: () => router.replace('/(tabs)/profile') }
+        ]);
+      }
+    } catch (error) {
+      console.error('Unexpected error during signup:', error);
+      setLoading(false);
+      Alert.alert('خطأ', 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى');
     }
   };
 
@@ -96,6 +153,26 @@ export default function RegisterScreen() {
           )}
         />
         {errors.fullName && <Text className="text-danger text-xs text-right mt-1 font-cairo">{errors.fullName.message}</Text>}
+      </View>
+
+      {/* Phone Number */}
+      <View className="mb-4">
+        <Text className="font-cairo text-right mb-1 text-text-secondary">رقم الهاتف</Text>
+        <Controller
+          control={control}
+          name="phone"
+          render={({ field: { onChange, value } }) => (
+            <TextInput
+              className="bg-gray-50 border border-gray-200 rounded-lg p-3 font-cairo"
+              style={{ textAlign: 'left', writingDirection: 'ltr' }}
+              placeholder="07XXXXXXXX"
+              keyboardType="phone-pad"
+              value={value}
+              onChangeText={onChange}
+            />
+          )}
+        />
+        {errors.phone && <Text className="text-danger text-xs text-right mt-1 font-cairo">{errors.phone.message}</Text>}
       </View>
 
       {/* Email */}

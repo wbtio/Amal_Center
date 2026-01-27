@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Plus, Edit, Trash2, Search } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, FileDown } from 'lucide-react';
+import ExcelUploadModal from '@/components/products/ExcelUploadModal';
 import Link from 'next/link';
 import { formatIQD } from '@/lib/utils';
 import { Image } from 'lucide-react';
@@ -11,10 +12,18 @@ export default function ProductsPage() {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [showExcelModal, setShowExcelModal] = useState(false);
+  const [categories, setCategories] = useState<any[]>([]);
 
   useEffect(() => {
     fetchProducts();
+    fetchCategories();
   }, []);
+
+  const fetchCategories = async () => {
+    const { data } = await supabase.from('categories').select('*').eq('is_active', true);
+    setCategories(data || []);
+  };
 
   const fetchProducts = async () => {
     const { data, error } = await supabase
@@ -29,10 +38,17 @@ export default function ProductsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm('هل أنت متأكد من حذف هذا المنتج؟')) {
-      const { error } = await supabase.from('products').delete().eq('id', id);
+    if (confirm('هل أنت متأكد من إخفاء هذا المنتج؟ لا يمكن حذفه نهائياً إذا كان مرتبطاً بطلبات سابقة.')) {
+      const { error } = await supabase
+        .from('products')
+        .update({ is_active: false })
+        .eq('id', id);
+        
       if (!error) {
-        setProducts(products.filter(p => p.id !== id));
+        setProducts(products.map(p => p.id === id ? { ...p, is_active: false } : p));
+        alert('تم إخفاء المنتج بنجاح');
+      } else {
+        alert('حدث خطأ أثناء محاولة إخفاء المنتج');
       }
     }
   };
@@ -48,14 +64,34 @@ export default function ProductsPage() {
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-800">إدارة المنتجات</h1>
-        <Link 
-          href="/products/new" 
-          className="bg-primary text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-green-700 transition-colors"
-        >
-          <Plus size={20} />
-          <span>إضافة منتج</span>
-        </Link>
+        <div className="flex gap-3">
+          <button 
+            onClick={() => setShowExcelModal(true)}
+            className="bg-green-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-green-700 transition-colors"
+          >
+            <FileDown size={20} />
+            <span>رفع من Excel</span>
+          </button>
+          <Link 
+            href="/products/new" 
+            className="bg-primary text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-green-700 transition-colors"
+          >
+            <Plus size={20} />
+            <span>إضافة منتج</span>
+          </Link>
+        </div>
       </div>
+
+      {showExcelModal && (
+        <ExcelUploadModal 
+          onClose={() => setShowExcelModal(false)}
+          onSuccess={() => {
+            fetchProducts();
+            setShowExcelModal(false);
+          }}
+          categories={categories}
+        />
+      )}
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div className="p-4 border-b border-gray-100">
