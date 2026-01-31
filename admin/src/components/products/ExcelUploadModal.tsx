@@ -204,13 +204,25 @@ export default function ExcelUploadModal({
 
         const finalCategoryId = categoryObj?.id || categories.find(c => c.name_ar === 'عام' || c.name === 'عام')?.id || categories[0]?.id;
 
-        // 2. Process image
+        // 2. Check if product already exists
+        const { data: existingProduct } = await supabase
+          .from('products')
+          .select('id, name_ar, name')
+          .or(`name_ar.eq.${product.name_ar},name.eq.${product.name_en || product.name_ar}`)
+          .limit(1)
+          .single();
+
+        if (existingProduct) {
+          throw new Error(`المنتج موجود مسبقاً (${existingProduct.name_ar})`);
+        }
+
+        // 3. Process image
         let finalImageUrl = null;
         if (product.image_url) {
           finalImageUrl = await downloadImageAndUpload(product.image_url, product.name_en || product.name_ar);
         }
 
-        // 3. Insert into Supabase
+        // 4. Insert into Supabase
         const { error } = await supabase.from('products').insert({
           name_ar: product.name_ar,
           name: product.name_en || product.name_ar,

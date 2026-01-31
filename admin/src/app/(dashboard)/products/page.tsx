@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Plus, Edit, Trash2, Search, FileDown } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, FileDown, ChevronRight, ChevronLeft } from 'lucide-react';
 import ExcelUploadModal from '@/components/products/ExcelUploadModal';
 import Link from 'next/link';
 import { formatIQD } from '@/lib/utils';
@@ -14,6 +14,8 @@ export default function ProductsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [showExcelModal, setShowExcelModal] = useState(false);
   const [categories, setCategories] = useState<any[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     fetchProducts();
@@ -38,17 +40,17 @@ export default function ProductsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm('هل أنت متأكد من إخفاء هذا المنتج؟ لا يمكن حذفه نهائياً إذا كان مرتبطاً بطلبات سابقة.')) {
+    if (confirm('هل أنت متأكد من حذف هذا المنتج؟ لا يمكن التراجع عن هذا الإجراء.')) {
       const { error } = await supabase
         .from('products')
-        .update({ is_active: false })
+        .delete()
         .eq('id', id);
         
       if (!error) {
-        setProducts(products.map(p => p.id === id ? { ...p, is_active: false } : p));
-        alert('تم إخفاء المنتج بنجاح');
+        setProducts(products.filter(p => p.id !== id));
+        alert('تم حذف المنتج بنجاح');
       } else {
-        alert('حدث خطأ أثناء محاولة إخفاء المنتج');
+        alert('حدث خطأ أثناء حذف المنتج: ' + error.message);
       }
     }
   };
@@ -57,6 +59,15 @@ export default function ProductsPage() {
     product.name_ar.includes(searchTerm) || 
     product.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentProducts = filteredProducts.slice(startIndex, endIndex);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
 
   if (loading) return <div className="p-8 text-center">جاري التحميل...</div>;
 
@@ -67,16 +78,16 @@ export default function ProductsPage() {
         <div className="flex gap-3">
           <button 
             onClick={() => setShowExcelModal(true)}
-            className="bg-green-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-green-700 transition-colors"
+            className="bg-green-600 text-white px-6 py-3 rounded-lg flex items-center gap-2 hover:bg-green-700 transition-colors text-base font-bold shadow-md"
           >
-            <FileDown size={20} />
+            <FileDown size={22} />
             <span>رفع من Excel</span>
           </button>
           <Link 
             href="/products/new" 
-            className="bg-primary text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-green-700 transition-colors"
+            className="bg-primary text-white px-6 py-3 rounded-lg flex items-center gap-2 hover:bg-green-700 transition-colors text-base font-bold shadow-md"
           >
-            <Plus size={20} />
+            <Plus size={22} />
             <span>إضافة منتج</span>
           </Link>
         </div>
@@ -120,7 +131,7 @@ export default function ProductsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {filteredProducts.map((product) => (
+              {currentProducts.map((product) => (
                 <tr key={product.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 flex items-center gap-3">
                     <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
@@ -173,6 +184,62 @@ export default function ProductsPage() {
             </div>
           )}
         </div>
+
+        {filteredProducts.length > 0 && (
+          <div className="p-4 border-t border-gray-100 flex items-center justify-between">
+            <div className="text-sm text-gray-600">
+              عرض {startIndex + 1} - {Math.min(endIndex, filteredProducts.length)} من {filteredProducts.length} منتج
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+                className="px-3 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                <ChevronRight size={18} />
+              </button>
+              
+              <div className="flex items-center gap-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+                  if (
+                    page === 1 ||
+                    page === totalPages ||
+                    (page >= currentPage - 1 && page <= currentPage + 1)
+                  ) {
+                    return (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        className={`px-3 py-1 rounded-lg font-medium transition-colors ${
+                          currentPage === page
+                            ? 'bg-primary text-white'
+                            : 'hover:bg-gray-100 text-gray-700'
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    );
+                  } else if (
+                    page === currentPage - 2 ||
+                    page === currentPage + 2
+                  ) {
+                    return <span key={page} className="px-2 text-gray-400">...</span>;
+                  }
+                  return null;
+                })}
+              </div>
+              
+              <button
+                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                disabled={currentPage === totalPages}
+                className="px-3 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                <ChevronLeft size={18} />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

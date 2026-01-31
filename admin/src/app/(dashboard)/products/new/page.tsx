@@ -1,119 +1,21 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
-import { ArrowRight, Upload, Loader2, Save, ImageIcon, X } from 'lucide-react';
+import { useState } from 'react';
+import { ArrowRight, Sparkles, Edit3 } from 'lucide-react';
 import Link from 'next/link';
+import ManualProductForm from '@/components/products/ManualProductForm';
+import AIProductForm from '@/components/products/AIProductForm';
 
 export default function NewProductPage() {
-  const router = useRouter();
-  const [loading, setLoading] = useState(false);
-  const [uploading, setUploading] = useState(false);
-  const [categories, setCategories] = useState<any[]>([]);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  
-  const [formData, setFormData] = useState({
-    name_ar: '',
-    name: '',
-    description_ar: '',
-    description: '',
-    price_iqd: '',
-    category_id: '',
-    stock_quantity: '',
-    image_url: ''
-  });
+  const [selectedMode, setSelectedMode] = useState<'manual' | 'ai' | null>(null);
 
-  useEffect(() => {
-    fetchCategories();
-  }, []);
+  if (selectedMode === 'manual') {
+    return <ManualProductForm onBack={() => setSelectedMode(null)} />;
+  }
 
-  const fetchCategories = async () => {
-    const { data } = await supabase.from('categories').select('*').eq('is_active', true);
-    setCategories(data || []);
-  };
-
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files || e.target.files.length === 0) {
-      return;
-    }
-
-    const file = e.target.files[0];
-    
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      alert('يرجى اختيار ملف صورة صالح');
-      return;
-    }
-
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      alert('حجم الصورة يجب أن يكون أقل من 5 ميجابايت');
-      return;
-    }
-
-    setUploading(true);
-
-    try {
-      // Create unique filename
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-      const filePath = `products/${fileName}`;
-
-      // Upload to Supabase Storage
-      const { error: uploadError } = await supabase.storage
-        .from('products')
-        .upload(filePath, file);
-
-      if (uploadError) throw uploadError;
-
-      // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('products')
-        .getPublicUrl(filePath);
-
-      setFormData({ ...formData, image_url: publicUrl });
-      setImagePreview(publicUrl);
-    } catch (error: any) {
-      console.error('Error uploading image:', error);
-      alert('حدث خطأ أثناء رفع الصورة: ' + error.message);
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  const removeImage = () => {
-    setFormData({ ...formData, image_url: '' });
-    setImagePreview(null);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      const { error } = await supabase.from('products').insert({
-        name_ar: formData.name_ar,
-        name: formData.name,
-        description_ar: formData.description_ar,
-        description: formData.description,
-        price_iqd: parseFloat(formData.price_iqd),
-        price_usd: parseFloat(formData.price_iqd) / 1500, // Approx conversion
-        category_id: formData.category_id,
-        stock_quantity: parseInt(formData.stock_quantity),
-        image_url: formData.image_url || null,
-        is_active: true
-      });
-
-      if (error) throw error;
-      router.push('/products');
-      router.refresh();
-    } catch (error: any) {
-      alert(error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  if (selectedMode === 'ai') {
+    return <AIProductForm onBack={() => setSelectedMode(null)} />;
+  }
 
   return (
     <div className="p-6">
@@ -124,138 +26,101 @@ export default function NewProductPage() {
         <h1 className="text-2xl font-bold text-gray-800">إضافة منتج جديد</h1>
       </div>
 
-      <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Arabic Name */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">اسم المنتج (بالعربية)</label>
-              <input
-                type="text"
-                required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
-                value={formData.name_ar}
-                onChange={(e) => setFormData({...formData, name_ar: e.target.value})}
-              />
-            </div>
+      <div className="max-w-4xl mx-auto">
+        <div className="text-center mb-8">
+          <h2 className="text-xl font-bold text-gray-800 mb-2">اختر طريقة الإضافة</h2>
+          <p className="text-gray-600">يمكنك إضافة المنتج يدوياً أو باستخدام الذكاء الاصطناعي</p>
+        </div>
 
-            {/* English Name */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">اسم المنتج (بالإنجليزية)</label>
-              <input
-                type="text"
-                required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
-                value={formData.name}
-                onChange={(e) => setFormData({...formData, name: e.target.value})}
-              />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* AI Mode */}
+          <button
+            onClick={() => setSelectedMode('ai')}
+            className="group relative bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl p-8 text-white hover:shadow-2xl transition-all duration-300 hover:scale-105"
+          >
+            <div className="absolute top-4 right-4">
+              <span className="bg-yellow-400 text-purple-900 text-xs font-bold px-3 py-1 rounded-full">جديد</span>
             </div>
-
-            {/* Price */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">السعر (د.ع)</label>
-              <input
-                type="number"
-                required
-                min="0"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
-                value={formData.price_iqd}
-                onChange={(e) => setFormData({...formData, price_iqd: e.target.value})}
-              />
-            </div>
-
-            {/* Stock */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">الكمية المتوفرة</label>
-              <input
-                type="number"
-                required
-                min="0"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
-                value={formData.stock_quantity}
-                onChange={(e) => setFormData({...formData, stock_quantity: e.target.value})}
-              />
-            </div>
-
-            {/* Category */}
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">القسم</label>
-              <select
-                required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
-                value={formData.category_id}
-                onChange={(e) => setFormData({...formData, category_id: e.target.value})}
-              >
-                <option value="">اختر القسم...</option>
-                {categories.map(cat => (
-                  <option key={cat.id} value={cat.id}>{cat.name_ar}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* Description Arabic */}
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">الوصف (بالعربية)</label>
-              <textarea
-                rows={3}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
-                value={formData.description_ar}
-                onChange={(e) => setFormData({...formData, description_ar: e.target.value})}
-              />
-            </div>
-
-            {/* Image Upload */}
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-2">صورة المنتج</label>
+            
+            <div className="flex flex-col items-center text-center space-y-4">
+              <div className="bg-white/20 p-4 rounded-full group-hover:bg-white/30 transition-colors">
+                <Sparkles size={48} />
+              </div>
               
-              {imagePreview ? (
-                <div className="relative w-48 h-48 bg-gray-100 rounded-xl overflow-hidden border-2 border-gray-200">
-                  <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
-                  <button
-                    type="button"
-                    onClick={removeImage}
-                    className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
-                  >
-                    <X size={16} />
-                  </button>
-                </div>
-              ) : (
-                <label className="flex flex-col items-center justify-center w-48 h-48 bg-gray-50 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:bg-gray-100 hover:border-primary transition-all">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    className="hidden"
-                    disabled={uploading}
-                  />
-                  {uploading ? (
-                    <>
-                      <Loader2 className="animate-spin text-primary mb-2" size={32} />
-                      <span className="text-sm text-gray-500">جاري الرفع...</span>
-                    </>
-                  ) : (
-                    <>
-                      <ImageIcon className="text-gray-400 mb-2" size={40} />
-                      <span className="text-sm font-medium text-gray-600">اختر صورة</span>
-                      <span className="text-xs text-gray-400 mt-1">PNG, JPG حتى 5MB</span>
-                    </>
-                  )}
-                </label>
-              )}
-            </div>
-          </div>
+              <div>
+                <h3 className="text-2xl font-bold mb-2">إضافة ذكية</h3>
+                <p className="text-white/90 text-sm leading-relaxed">
+                  صور المنتج فقط وسيقوم الذكاء الاصطناعي باستخراج جميع المعلومات تلقائياً
+                </p>
+              </div>
 
-          <div className="flex justify-end pt-6 border-t border-gray-100">
-            <button
-              type="submit"
-              disabled={loading}
-              className="bg-primary text-white px-8 py-3 rounded-lg font-bold hover:bg-green-700 transition-colors flex items-center gap-2 disabled:opacity-50"
-            >
-              {loading ? <Loader2 className="animate-spin" size={20} /> : <Save size={20} />}
-              <span>حفظ المنتج</span>
-            </button>
-          </div>
-        </form>
+              <div className="bg-white/10 rounded-lg p-4 w-full text-right text-sm space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-green-300">✓</span>
+                  <span>استخراج الاسم والوصف تلقائياً</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-green-300">✓</span>
+                  <span>تحديد القسم المناسب</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-green-300">✓</span>
+                  <span>إزالة خلفية الصورة</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-green-300">✓</span>
+                  <span>سريع وسهل</span>
+                </div>
+              </div>
+
+              <div className="mt-4 bg-white text-purple-600 px-6 py-3 rounded-lg font-bold group-hover:bg-purple-50 transition-colors">
+                ابدأ الآن
+              </div>
+            </div>
+          </button>
+
+          {/* Manual Mode */}
+          <button
+            onClick={() => setSelectedMode('manual')}
+            className="group relative bg-white border-2 border-gray-200 rounded-2xl p-8 hover:border-primary hover:shadow-xl transition-all duration-300 hover:scale-105"
+          >
+            <div className="flex flex-col items-center text-center space-y-4">
+              <div className="bg-gray-100 p-4 rounded-full group-hover:bg-primary/10 transition-colors">
+                <Edit3 size={48} className="text-gray-600 group-hover:text-primary transition-colors" />
+              </div>
+              
+              <div>
+                <h3 className="text-2xl font-bold text-gray-800 mb-2">إضافة يدوية</h3>
+                <p className="text-gray-600 text-sm leading-relaxed">
+                  أدخل جميع معلومات المنتج بنفسك بشكل تفصيلي
+                </p>
+              </div>
+
+              <div className="bg-gray-50 rounded-lg p-4 w-full text-right text-sm space-y-2 text-gray-700">
+                <div className="flex items-center gap-2">
+                  <span className="text-primary">•</span>
+                  <span>تحكم كامل في البيانات</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-primary">•</span>
+                  <span>إدخال يدوي للاسم والوصف</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-primary">•</span>
+                  <span>اختيار القسم يدوياً</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-primary">•</span>
+                  <span>رفع الصورة مباشرة</span>
+                </div>
+              </div>
+
+              <div className="mt-4 bg-primary text-white px-6 py-3 rounded-lg font-bold group-hover:bg-green-700 transition-colors">
+                ابدأ الآن
+              </div>
+            </div>
+          </button>
+        </div>
       </div>
     </div>
   );
