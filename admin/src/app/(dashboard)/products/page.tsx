@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Plus, Edit, Trash2, Search, FileDown, ChevronRight, ChevronLeft } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, FileDown, ChevronRight, ChevronLeft, Filter, X } from 'lucide-react';
 import ExcelUploadModal from '@/components/products/ExcelUploadModal';
 import Link from 'next/link';
 import { formatIQD } from '@/lib/utils';
@@ -12,15 +12,35 @@ export default function ProductsPage() {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [showExcelModal, setShowExcelModal] = useState(false);
   const [categories, setCategories] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const [totalCount, setTotalCount] = useState(0);
+  const [showFilters, setShowFilters] = useState(false);
+  const itemsPerPage = 20;
+  
+  const [filters, setFilters] = useState({
+    category_id: '',
+    is_active: 'all',
+    stock_status: 'all'
+  });
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
 
   useEffect(() => {
     fetchProducts();
-    fetchCategories();
-  }, []);
+  }, [currentPage, debouncedSearch, filters]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+      setCurrentPage(1);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
   const fetchCategories = async () => {
     const { data } = await supabase.from('categories').select('*').eq('is_active', true);
@@ -28,13 +48,43 @@ export default function ProductsPage() {
   };
 
   const fetchProducts = async () => {
-    const { data, error } = await supabase
+    setLoading(true);
+    
+    const from = (currentPage - 1) * itemsPerPage;
+    const to = from + itemsPerPage - 1;
+
+    let query = supabase
       .from('products')
-      .select('*, categories(name_ar)')
+      .select('*, categories(name_ar)', { count: 'exact' })
       .order('created_at', { ascending: false });
+
+    if (debouncedSearch) {
+      query = query.or(`name_ar.ilike.%${debouncedSearch}%,name.ilike.%${debouncedSearch}%`);
+    }
+
+    if (filters.category_id) {
+      query = query.eq('category_id', filters.category_id);
+    }
+
+    if (filters.is_active !== 'all') {
+      query = query.eq('is_active', filters.is_active === 'active');
+    }
+
+    if (filters.stock_status === 'low') {
+      query = query.lt('stock_quantity', 10);
+    } else if (filters.stock_status === 'out') {
+      query = query.eq('stock_quantity', 0);
+    } else if (filters.stock_status === 'in_stock') {
+      query = query.gt('stock_quantity', 0);
+    }
+
+    query = query.range(from, to);
+
+    const { data, error, count } = await query;
 
     if (!error) {
       setProducts(data || []);
+      setTotalCount(count || 0);
     }
     setLoading(false);
   };
@@ -47,7 +97,7 @@ export default function ProductsPage() {
         .eq('id', id);
         
       if (!error) {
-        setProducts(products.filter(p => p.id !== id));
+        fetchProducts();
         alert('تم حذف المنتج بنجاح');
       } else {
         alert('حدث خطأ أثناء حذف المنتج: ' + error.message);
@@ -55,21 +105,21 @@ export default function ProductsPage() {
     }
   };
 
-  const filteredProducts = products.filter(product => 
-    product.name_ar.includes(searchTerm) || 
-    product.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentProducts = filteredProducts.slice(startIndex, endIndex);
-
-  useEffect(() => {
+  const clearFilters = () => {
+    setFilters({
+      category_id: '',
+      is_active: 'all',
+      stock_status: 'all'
+    });
+    setSearchTerm('');
     setCurrentPage(1);
-  }, [searchTerm]);
+  };
 
-  if (loading) return <div className="p-8 text-center">جاري التحميل...</div>;
+  const hasActiveFilters = filters.category_id || filters.is_active !== 'all' || filters.stock_status !== 'all' || searchTerm;
+
+  const totalPages = Math.ceil(totalCount / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = Math.min(startIndex + itemsPerPage, totalCount);
 
   return (
     <div className="p-6">
@@ -106,15 +156,94 @@ export default function ProductsPage() {
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div className="p-4 border-b border-gray-100">
-          <div className="relative max-w-md">
-            <input
-              type="text"
-              placeholder="بحث عن منتج..."
-              className="w-full pl-4 pr-10 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <Search className="absolute right-3 top-2.5 text-gray-400" size={18} />
+          <div className="flex items-center gap-3 mb-3">
+            <div className="relative flex-1 max-w-md">
+              <input
+                type="text"
+                placeholder="بحث عن منتج..."
+                className="w-full pl-4 pr-10 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              <Search className="absolute right-3 top-2.5 text-gray-400" size={18} />
+            </div>
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
+                showFilters ? 'bg-primary text-white border-primary' : 'bg-white border-gray-300 hover:bg-gray-50'
+              }`}
+            >
+              <Filter size={18} />
+              <span>فلاتر</span>
+            </button>
+            {hasActiveFilters && (
+              <button
+                onClick={clearFilters}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
+              >
+                <X size={18} />
+                <span>مسح</span>
+              </button>
+            )}
+          </div>
+
+          {showFilters && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 p-4 bg-gray-50 rounded-lg">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">القسم</label>
+                <select
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  value={filters.category_id}
+                  onChange={(e) => {
+                    setFilters({...filters, category_id: e.target.value});
+                    setCurrentPage(1);
+                  }}
+                >
+                  <option value="">جميع الأقسام</option>
+                  {categories.map(cat => (
+                    <option key={cat.id} value={cat.id}>{cat.name_ar}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">الحالة</label>
+                <select
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  value={filters.is_active}
+                  onChange={(e) => {
+                    setFilters({...filters, is_active: e.target.value});
+                    setCurrentPage(1);
+                  }}
+                >
+                  <option value="all">الكل</option>
+                  <option value="active">نشط</option>
+                  <option value="inactive">غير نشط</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">المخزون</label>
+                <select
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  value={filters.stock_status}
+                  onChange={(e) => {
+                    setFilters({...filters, stock_status: e.target.value});
+                    setCurrentPage(1);
+                  }}
+                >
+                  <option value="all">الكل</option>
+                  <option value="in_stock">متوفر</option>
+                  <option value="low">منخفض (&lt;10)</option>
+                  <option value="out">نفذ</option>
+                </select>
+              </div>
+            </div>
+          )}
+
+          <div className="flex items-center justify-between mt-3 text-sm text-gray-600">
+            <span>إجمالي المنتجات: <strong className="text-primary">{totalCount.toLocaleString()}</strong></span>
+            {loading && <span className="text-primary">جاري التحميل...</span>}
           </div>
         </div>
 
@@ -131,7 +260,7 @@ export default function ProductsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {currentProducts.map((product) => (
+              {products.map((product) => (
                 <tr key={product.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 flex items-center gap-3">
                     <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
@@ -178,17 +307,24 @@ export default function ProductsPage() {
             </tbody>
           </table>
           
-          {filteredProducts.length === 0 && (
+          {!loading && products.length === 0 && (
             <div className="p-8 text-center text-gray-500">
-              لا توجد منتجات مطابقة
+              {hasActiveFilters ? 'لا توجد منتجات مطابقة للفلاتر' : 'لا توجد منتجات'}
+            </div>
+          )}
+          
+          {loading && (
+            <div className="p-8 text-center text-gray-500">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+              <p className="mt-2">جاري تحميل المنتجات...</p>
             </div>
           )}
         </div>
 
-        {filteredProducts.length > 0 && (
+        {totalCount > 0 && (
           <div className="p-4 border-t border-gray-100 flex items-center justify-between">
             <div className="text-sm text-gray-600">
-              عرض {startIndex + 1} - {Math.min(endIndex, filteredProducts.length)} من {filteredProducts.length} منتج
+              عرض {startIndex + 1} - {endIndex} من {totalCount.toLocaleString()} منتج
             </div>
             
             <div className="flex items-center gap-2">
