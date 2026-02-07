@@ -7,6 +7,7 @@ import ExcelUploadModal from '@/components/products/ExcelUploadModal';
 import Link from 'next/link';
 import { formatIQD } from '@/lib/utils';
 import { Image } from 'lucide-react';
+import { Header } from '@/components/layout/Header';
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<any[]>([]);
@@ -19,7 +20,7 @@ export default function ProductsPage() {
   const [totalCount, setTotalCount] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
   const itemsPerPage = 20;
-  
+
   const [filters, setFilters] = useState({
     category_id: '',
     is_active: 'all',
@@ -49,7 +50,7 @@ export default function ProductsPage() {
 
   const fetchProducts = async () => {
     setLoading(true);
-    
+
     const from = (currentPage - 1) * itemsPerPage;
     const to = from + itemsPerPage - 1;
 
@@ -95,7 +96,7 @@ export default function ProductsPage() {
         .from('products')
         .delete()
         .eq('id', id);
-        
+
       if (!error) {
         fetchProducts();
         alert('تم حذف المنتج بنجاح');
@@ -122,29 +123,33 @@ export default function ProductsPage() {
   const endIndex = Math.min(startIndex + itemsPerPage, totalCount);
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">إدارة المنتجات</h1>
-        <div className="flex gap-3">
-          <button 
+    <>
+    <Header title="إدارة المنتجات" />
+    <div className="p-3 sm:p-4 md:p-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 md:mb-6">
+        <h1 className="text-lg md:text-2xl font-bold text-gray-800">إدارة المنتجات</h1>
+        <div className="flex gap-2 md:gap-3 w-full sm:w-auto">
+          <button
             onClick={() => setShowExcelModal(true)}
-            className="bg-green-600 text-white px-6 py-3 rounded-lg flex items-center gap-2 hover:bg-green-700 transition-colors text-base font-bold shadow-md"
+            className="bg-green-600 text-white px-3 py-2 md:px-6 md:py-3 rounded-lg flex items-center gap-1.5 md:gap-2 hover:bg-green-700 transition-colors text-xs md:text-base font-bold shadow-md flex-1 sm:flex-initial justify-center"
           >
-            <FileDown size={22} />
-            <span>رفع من Excel</span>
+            <FileDown size={18} />
+            <span className="hidden sm:inline">رفع من Excel</span>
+            <span className="sm:hidden">Excel</span>
           </button>
-          <Link 
-            href="/products/new" 
-            className="bg-primary text-white px-6 py-3 rounded-lg flex items-center gap-2 hover:bg-green-700 transition-colors text-base font-bold shadow-md"
+          <Link
+            href="/products/new"
+            className="bg-primary text-white px-3 py-2 md:px-6 md:py-3 rounded-lg flex items-center gap-1.5 md:gap-2 hover:bg-green-700 transition-colors text-xs md:text-base font-bold shadow-md flex-1 sm:flex-initial justify-center"
           >
-            <Plus size={22} />
-            <span>إضافة منتج</span>
+            <Plus size={18} />
+            <span className="hidden sm:inline">إضافة منتج</span>
+            <span className="sm:hidden">إضافة</span>
           </Link>
         </div>
       </div>
 
       {showExcelModal && (
-        <ExcelUploadModal 
+        <ExcelUploadModal
           onClose={() => setShowExcelModal(false)}
           onSuccess={() => {
             fetchProducts();
@@ -169,9 +174,8 @@ export default function ProductsPage() {
             </div>
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
-                showFilters ? 'bg-primary text-white border-primary' : 'bg-white border-gray-300 hover:bg-gray-50'
-              }`}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${showFilters ? 'bg-primary text-white border-primary' : 'bg-white border-gray-300 hover:bg-gray-50'
+                }`}
             >
               <Filter size={18} />
               <span>فلاتر</span>
@@ -195,7 +199,7 @@ export default function ProductsPage() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
                   value={filters.category_id}
                   onChange={(e) => {
-                    setFilters({...filters, category_id: e.target.value});
+                    setFilters({ ...filters, category_id: e.target.value });
                     setCurrentPage(1);
                   }}
                 >
@@ -212,7 +216,7 @@ export default function ProductsPage() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
                   value={filters.is_active}
                   onChange={(e) => {
-                    setFilters({...filters, is_active: e.target.value});
+                    setFilters({ ...filters, is_active: e.target.value });
                     setCurrentPage(1);
                   }}
                 >
@@ -228,7 +232,7 @@ export default function ProductsPage() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
                   value={filters.stock_status}
                   onChange={(e) => {
-                    setFilters({...filters, stock_status: e.target.value});
+                    setFilters({ ...filters, stock_status: e.target.value });
                     setCurrentPage(1);
                   }}
                 >
@@ -247,7 +251,8 @@ export default function ProductsPage() {
           </div>
         </div>
 
-        <div className="overflow-x-auto">
+        {/* Desktop Table */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-right">
             <thead className="bg-gray-50 text-gray-600 text-sm font-medium">
               <tr>
@@ -288,13 +293,13 @@ export default function ProductsPage() {
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
-                      <Link 
+                      <Link
                         href={`/products/${product.id}`}
                         className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                       >
                         <Edit size={18} />
                       </Link>
-                      <button 
+                      <button
                         className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                         onClick={() => handleDelete(product.id)}
                       >
@@ -306,37 +311,83 @@ export default function ProductsPage() {
               ))}
             </tbody>
           </table>
-          
-          {!loading && products.length === 0 && (
-            <div className="p-8 text-center text-gray-500">
-              {hasActiveFilters ? 'لا توجد منتجات مطابقة للفلاتر' : 'لا توجد منتجات'}
-            </div>
-          )}
-          
-          {loading && (
-            <div className="p-8 text-center text-gray-500">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-              <p className="mt-2">جاري تحميل المنتجات...</p>
-            </div>
-          )}
         </div>
 
+        {/* Mobile Card View */}
+        <div className="md:hidden divide-y divide-gray-100">
+          {products.map((product) => (
+            <div key={product.id} className="p-3 hover:bg-gray-50">
+              <div className="flex items-start gap-3">
+                <div className="w-14 h-14 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
+                  {product.image_url ? (
+                    <img src={product.image_url} alt={product.name_ar} className="w-full h-full object-cover" />
+                  ) : (
+                    <Image className="text-gray-400" size={24} />
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="font-bold text-gray-800 text-sm truncate">{product.name_ar}</p>
+                      <p className="text-xs text-gray-500 truncate">{product.categories?.name_ar}</p>
+                    </div>
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                      <Link
+                        href={`/products/${product.id}`}
+                        className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                      >
+                        <Edit size={16} />
+                      </Link>
+                      <button
+                        className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        onClick={() => handleDelete(product.id)}
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 mt-1.5">
+                    <span className="font-bold text-primary text-sm">{formatIQD(product.price_iqd)}</span>
+                    <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${product.stock_quantity < 10 ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
+                      مخزون: {product.stock_quantity}
+                    </span>
+                    <span className={`w-1.5 h-1.5 rounded-full inline-block ${product.is_active ? 'bg-green-500' : 'bg-gray-400'}`}></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {!loading && products.length === 0 && (
+          <div className="p-6 md:p-8 text-center text-gray-500 text-sm md:text-base">
+            {hasActiveFilters ? 'لا توجد منتجات مطابقة للفلاتر' : 'لا توجد منتجات'}
+          </div>
+        )}
+
+        {loading && (
+          <div className="p-6 md:p-8 text-center text-gray-500">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            <p className="mt-2 text-sm">جاري تحميل المنتجات...</p>
+          </div>
+        )}
+
         {totalCount > 0 && (
-          <div className="p-4 border-t border-gray-100 flex items-center justify-between">
-            <div className="text-sm text-gray-600">
+          <div className="p-3 md:p-4 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-2">
+            <div className="text-xs md:text-sm text-gray-600">
               عرض {startIndex + 1} - {endIndex} من {totalCount.toLocaleString()} منتج
             </div>
-            
-            <div className="flex items-center gap-2">
+
+            <div className="flex items-center gap-1 md:gap-2">
               <button
                 onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                 disabled={currentPage === 1}
-                className="px-3 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="px-2 py-1.5 md:px-3 md:py-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                <ChevronRight size={18} />
+                <ChevronRight size={16} />
               </button>
-              
-              <div className="flex items-center gap-1">
+
+              <div className="flex items-center gap-0.5 md:gap-1">
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
                   if (
                     page === 1 ||
@@ -347,11 +398,10 @@ export default function ProductsPage() {
                       <button
                         key={page}
                         onClick={() => setCurrentPage(page)}
-                        className={`px-3 py-1 rounded-lg font-medium transition-colors ${
-                          currentPage === page
-                            ? 'bg-primary text-white'
-                            : 'hover:bg-gray-100 text-gray-700'
-                        }`}
+                        className={`px-2 py-1 md:px-3 rounded-lg text-sm font-medium transition-colors ${currentPage === page
+                          ? 'bg-primary text-white'
+                          : 'hover:bg-gray-100 text-gray-700'
+                          }`}
                       >
                         {page}
                       </button>
@@ -360,16 +410,16 @@ export default function ProductsPage() {
                     page === currentPage - 2 ||
                     page === currentPage + 2
                   ) {
-                    return <span key={page} className="px-2 text-gray-400">...</span>;
+                    return <span key={page} className="px-1 text-gray-400">...</span>;
                   }
                   return null;
                 })}
               </div>
-              
+
               <button
                 onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                 disabled={currentPage === totalPages}
-                className="px-3 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="px-2 py-1.5 md:px-3 md:py-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 <ChevronLeft size={18} />
               </button>
@@ -378,5 +428,6 @@ export default function ProductsPage() {
         )}
       </div>
     </div>
+    </>
   );
 }

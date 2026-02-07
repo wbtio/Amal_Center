@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase';
 import { Plus, Edit2, Trash2, Check, X, Tag, Percent, DollarSign } from 'lucide-react';
 import { formatIQD } from '@/lib/utils';
 import { format } from 'date-fns';
+import { Header } from '@/components/layout/Header';
 
 interface Coupon {
   id: string;
@@ -143,27 +144,36 @@ export default function CouponsPage() {
     });
   };
 
-  if (loading) return <div className="p-8 text-center">جاري التحميل...</div>;
+  if (loading) return (
+    <>
+      <Header title="إدارة الكوبونات" />
+      <div className="p-8 text-center">جاري التحميل...</div>
+    </>
+  );
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-          <Tag className="text-primary" />
+    <>
+    <Header title="إدارة الكوبونات" />
+    <div className="p-3 sm:p-4 md:p-6">
+      <div className="flex justify-between items-center gap-3 mb-4 md:mb-6">
+        <h1 className="text-lg md:text-2xl font-bold text-gray-800 flex items-center gap-2">
+          <Tag className="text-primary" size={20} />
           إدارة الكوبونات
         </h1>
         
         <button
           onClick={() => setShowModal(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors font-bold"
+          className="flex items-center gap-1.5 md:gap-2 px-3 py-2 md:px-4 md:py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors font-bold text-xs md:text-base shadow-md"
         >
-          <Plus size={20} />
-          إضافة كوبون
+          <Plus size={18} />
+          <span className="hidden sm:inline">إضافة كوبون</span>
+          <span className="sm:hidden">إضافة</span>
         </button>
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <div className="overflow-x-auto">
+        {/* Desktop Table */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-right">
             <thead className="bg-gray-50 text-gray-600 text-sm font-medium">
               <tr>
@@ -254,20 +264,81 @@ export default function CouponsPage() {
               ))}
             </tbody>
           </table>
-          
-          {coupons.length === 0 && (
-            <div className="p-8 text-center text-gray-500">
-              لا توجد كوبونات
-            </div>
-          )}
         </div>
+
+        {/* Mobile Card View */}
+        <div className="md:hidden divide-y divide-gray-100">
+          {coupons.map((coupon) => (
+            <div key={coupon.id} className="p-3 hover:bg-gray-50 transition-colors">
+              <div className="flex items-start justify-between gap-2 mb-2">
+                <div className="min-w-0">
+                  <span className="font-mono font-bold text-primary bg-primary/10 px-2 py-0.5 rounded text-sm">
+                    {coupon.code}
+                  </span>
+                  <div className="flex items-center gap-2 mt-1.5">
+                    <span className="font-bold text-sm">
+                      {coupon.discount_type === 'percentage' 
+                        ? `${coupon.discount_value}%`
+                        : formatIQD(coupon.discount_value)
+                      }
+                    </span>
+                    <span className="text-[10px] text-gray-500">
+                      {coupon.discount_type === 'percentage' ? 'نسبة' : 'مبلغ ثابت'}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1 flex-shrink-0">
+                  <button
+                    onClick={() => toggleActive(coupon)}
+                    className={`px-1.5 py-0.5 rounded text-[10px] font-bold flex items-center gap-0.5 ${
+                      coupon.is_active 
+                        ? 'bg-green-100 text-green-700' 
+                        : 'bg-red-100 text-red-700'
+                    }`}
+                  >
+                    {coupon.is_active ? <Check size={10} /> : <X size={10} />}
+                    {coupon.is_active ? 'نشط' : 'معطل'}
+                  </button>
+                  <button
+                    onClick={() => openEditModal(coupon)}
+                    className="p-1 text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                  >
+                    <Edit2 size={14} />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(coupon.id)}
+                    className="p-1 text-red-600 hover:bg-red-50 rounded transition-colors"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 text-[10px] text-gray-500">
+                <span>الحد الأدنى: {formatIQD(coupon.min_order_amount)}</span>
+                <span>استخدام: {coupon.used_count}{coupon.usage_limit ? ` / ${coupon.usage_limit}` : ''}</span>
+                {coupon.expires_at && (
+                  <span>ينتهي: {format(new Date(coupon.expires_at), 'yyyy/MM/dd')}</span>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+          
+        {coupons.length === 0 && (
+          <div className="p-8 md:p-12 text-center">
+            <div className="text-gray-300 mb-3">
+              <Tag size={48} className="mx-auto" />
+            </div>
+            <p className="text-gray-500 text-sm md:text-base">لا توجد كوبونات</p>
+          </div>
+        )}
       </div>
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-6 w-full max-w-md mx-4">
-            <h2 className="text-xl font-bold mb-4">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-3 md:p-4">
+          <div className="bg-white rounded-xl p-4 md:p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <h2 className="text-lg md:text-xl font-bold mb-4">
               {editingCoupon ? 'تعديل الكوبون' : 'إضافة كوبون جديد'}
             </h2>
             
@@ -388,5 +459,6 @@ export default function CouponsPage() {
         </div>
       )}
     </div>
+    </>
   );
 }

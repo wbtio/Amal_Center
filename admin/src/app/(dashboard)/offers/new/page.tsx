@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import { ArrowRight, Save, Tag, Calendar, Percent, Package, Search, X, Plus, Image as ImageIcon } from 'lucide-react';
 import Link from 'next/link';
+import { Header } from '@/components/layout/Header';
 
 interface Product {
   id: string;
@@ -144,27 +145,29 @@ export default function NewOfferPage() {
   };
 
   return (
-    <div className="p-6" dir="rtl">
+    <>
+    <Header title="إضافة عرض جديد" />
+    <div className="p-3 sm:p-4 md:p-6" dir="rtl">
       {/* Header */}
-      <div className="flex items-center gap-4 mb-6">
+      <div className="flex items-center gap-2 md:gap-4 mb-4 md:mb-6">
         <Link
           href="/offers"
-          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          className="p-1.5 md:p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
         >
-          <ArrowRight size={24} />
+          <ArrowRight size={20} />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">إضافة عرض جديد</h1>
-          <p className="text-gray-500 mt-1">أنشئ عرضاً جديداً وأضف المنتجات إليه</p>
+          <h1 className="text-lg md:text-2xl font-bold text-gray-800">إضافة عرض جديد</h1>
+          <p className="text-xs md:text-sm text-gray-500 mt-0.5">أنشئ عرضاً جديداً وأضف المنتجات إليه</p>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
           {/* Main Info */}
           <div className="lg:col-span-2 space-y-6">
             {/* Basic Info Card */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 md:p-6">
               <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
                 <Tag size={20} className="text-primary" />
                 معلومات العرض
@@ -212,7 +215,7 @@ export default function NewOfferPage() {
             </div>
 
             {/* Discount Settings */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 md:p-6">
               <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
                 <Percent size={20} className="text-primary" />
                 إعدادات الخصم
@@ -256,7 +259,7 @@ export default function NewOfferPage() {
             </div>
 
             {/* Date Settings */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 md:p-6">
               <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
                 <Calendar size={20} className="text-primary" />
                 مدة العرض
@@ -291,7 +294,7 @@ export default function NewOfferPage() {
             </div>
 
             {/* Products Selection */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 md:p-6">
               <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
                 <Package size={20} className="text-primary" />
                 المنتجات المشمولة
@@ -389,7 +392,7 @@ export default function NewOfferPage() {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Status Card */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 md:p-6">
               <h2 className="text-lg font-bold text-gray-800 mb-4">الحالة</h2>
               
               <label className="flex items-center gap-3 cursor-pointer">
@@ -404,7 +407,7 @@ export default function NewOfferPage() {
             </div>
 
             {/* Preview Card */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 md:p-6">
               <h2 className="text-lg font-bold text-gray-800 mb-4">معاينة</h2>
               
               <div className="bg-gradient-to-br from-primary/80 to-primary rounded-xl p-4 text-white">
@@ -455,5 +458,6 @@ export default function NewOfferPage() {
         />
       )}
     </div>
+    </>
   );
 }

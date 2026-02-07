@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Plus, Search, Tag, Calendar, Percent, Clock, Edit, Trash2, Eye, EyeOff } from 'lucide-react';
 import { format, formatDistanceToNow, isPast, isFuture } from 'date-fns';
 import { ar } from 'date-fns/locale';
+import { Header } from '@/components/layout/Header';
 
 interface Offer {
   id: string;
@@ -150,106 +151,112 @@ export default function OffersPage() {
 
   if (loading) {
     return (
-      <div className="p-6">
+      <>
+      <Header title="إدارة العروض" />
+      <div className="p-3 sm:p-4 md:p-6">
         <div className="animate-pulse space-y-4">
           <div className="h-8 bg-gray-200 rounded w-1/4"></div>
           <div className="h-12 bg-gray-200 rounded"></div>
           <div className="h-64 bg-gray-200 rounded"></div>
         </div>
       </div>
+      </>
     );
   }
 
   return (
-    <div className="p-6" dir="rtl">
+    <>
+    <Header title="إدارة العروض" />
+    <div className="p-3 sm:p-4 md:p-6" dir="rtl">
       {/* Header */}
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 md:mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">إدارة العروض</h1>
-          <p className="text-gray-500 mt-1">إنشاء وإدارة العروض الخاصة والخصومات</p>
+          <h1 className="text-lg md:text-2xl font-bold text-gray-800">إدارة العروض</h1>
+          <p className="text-xs md:text-sm text-gray-500 mt-0.5">إنشاء وإدارة العروض الخاصة والخصومات</p>
         </div>
         <Link
           href="/offers/new"
-          className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors"
+          className="flex items-center gap-1.5 md:gap-2 bg-primary text-white px-3 py-2 md:px-4 md:py-2 rounded-lg hover:bg-primary/90 transition-colors text-xs md:text-base font-bold shadow-md w-full sm:w-auto justify-center"
         >
-          <Plus size={20} />
-          <span>إضافة عرض جديد</span>
+          <Plus size={18} />
+          <span className="hidden sm:inline">إضافة عرض جديد</span>
+          <span className="sm:hidden">إضافة عرض</span>
         </Link>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 mb-4 md:mb-6">
         <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-primary/10 rounded-lg">
-              <Tag className="text-primary" size={24} />
+            <div className="p-2 md:p-3 bg-primary/10 rounded-lg">
+              <Tag className="text-primary" size={20} />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-800">{offers.length}</p>
-              <p className="text-sm text-gray-500">إجمالي العروض</p>
+              <p className="text-lg md:text-2xl font-bold text-gray-800">{offers.length}</p>
+              <p className="text-[10px] md:text-sm text-gray-500">إجمالي العروض</p>
             </div>
           </div>
         </div>
         <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-green-100 rounded-lg">
-              <Eye className="text-green-600" size={24} />
+            <div className="p-2 md:p-3 bg-green-100 rounded-lg">
+              <Eye className="text-green-600" size={20} />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-800">
+              <p className="text-lg md:text-2xl font-bold text-gray-800">
                 {offers.filter(o => o.is_active && !isPast(new Date(o.end_date)) && !isFuture(new Date(o.start_date))).length}
               </p>
-              <p className="text-sm text-gray-500">عروض نشطة</p>
+              <p className="text-[10px] md:text-sm text-gray-500">عروض نشطة</p>
             </div>
           </div>
         </div>
         <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-blue-100 rounded-lg">
-              <Calendar className="text-blue-600" size={24} />
+            <div className="p-2 md:p-3 bg-blue-100 rounded-lg">
+              <Calendar className="text-blue-600" size={20} />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-800">
+              <p className="text-lg md:text-2xl font-bold text-gray-800">
                 {offers.filter(o => o.is_active && isFuture(new Date(o.start_date))).length}
               </p>
-              <p className="text-sm text-gray-500">عروض قادمة</p>
+              <p className="text-[10px] md:text-sm text-gray-500">عروض قادمة</p>
             </div>
           </div>
         </div>
         <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-red-100 rounded-lg">
-              <Clock className="text-red-600" size={24} />
+            <div className="p-2 md:p-3 bg-red-100 rounded-lg">
+              <Clock className="text-red-600" size={20} />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-800">
+              <p className="text-lg md:text-2xl font-bold text-gray-800">
                 {offers.filter(o => isPast(new Date(o.end_date))).length}
               </p>
-              <p className="text-sm text-gray-500">عروض منتهية</p>
+              <p className="text-[10px] md:text-sm text-gray-500">عروض منتهية</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
-        <div className="flex flex-col md:flex-row gap-4">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-3 md:p-4 mb-4 md:mb-6">
+        <div className="flex flex-col md:flex-row gap-3 md:gap-4">
           <div className="flex-1 relative">
-            <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+            <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
             <input
               type="text"
               placeholder="البحث عن عرض..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pr-10 pl-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+              className="w-full pr-10 pl-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm"
             />
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-1.5 md:gap-2 overflow-x-auto">
             {(['all', 'active', 'upcoming', 'expired'] as const).map((status) => (
               <button
                 key={status}
                 onClick={() => setFilterStatus(status)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                className={`px-3 py-1.5 md:px-4 md:py-2 rounded-lg text-xs md:text-sm font-medium transition-colors whitespace-nowrap ${
                   filterStatus === status
                     ? 'bg-primary text-white'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -266,7 +273,7 @@ export default function OffersPage() {
 
       {/* Offers List */}
       {filteredOffers.length === 0 ? (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 md:p-12 text-center">
           <Tag className="mx-auto text-gray-300 mb-4" size={48} />
           <h3 className="text-lg font-semibold text-gray-600 mb-2">لا توجد عروض</h3>
           <p className="text-gray-400 mb-4">ابدأ بإنشاء عرض جديد لجذب المزيد من العملاء</p>
@@ -279,7 +286,7 @@ export default function OffersPage() {
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
           {filteredOffers.map((offer) => {
             const status = getOfferStatus(offer);
             const StatusIcon = status.icon;
@@ -369,5 +376,6 @@ export default function OffersPage() {
         </div>
       )}
     </div>
+    </>
   );
 }

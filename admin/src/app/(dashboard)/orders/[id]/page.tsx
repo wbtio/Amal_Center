@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { ArrowRight, Printer, MapPin, Phone, User, Clock, CreditCard, Truck, Package, Calendar, Receipt, CheckCircle, XCircle } from 'lucide-react';
 import Link from 'next/link';
+import { Header } from '@/components/layout/Header';
 import { formatIQD } from '@/lib/utils';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
@@ -364,46 +365,60 @@ export default function OrderDetailsPage() {
     return classMap[status] || 'bg-gray-100 text-gray-700';
   };
 
-  if (loading) return <div className="p-8 text-center">جاري التحميل...</div>;
-  if (!order) return <div className="p-8 text-center text-red-500">الطلب غير موجود</div>;
+  if (loading) return (
+    <>
+      <Header title="تفاصيل الطلب" />
+      <div className="p-4 md:p-8 text-center">جاري التحميل...</div>
+    </>
+  );
+
+  if (!order) return (
+    <>
+      <Header title="تفاصيل الطلب" />
+      <div className="p-4 md:p-8 text-center text-red-500">الطلب غير موجود</div>
+    </>
+  );
 
   const itemsTotal = items.reduce((sum, item) => sum + (item.price_iqd * item.quantity), 0);
 
   return (
-    <div className="p-6" ref={printRef}>
+    <>
+    <Header title="تفاصيل الطلب" />
+    <div className="p-3 sm:p-4 md:p-6" ref={printRef}>
       {/* Header */}
-      <div className="flex justify-between items-center mb-6 print:hidden">
-        <div className="flex items-center gap-4">
-          <Link href="/orders" className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-            <ArrowRight size={24} className="text-gray-600" />
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 md:mb-6 print:hidden">
+        <div className="flex items-center gap-2 md:gap-4">
+          <Link href="/orders" className="p-1.5 md:p-2 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0">
+            <ArrowRight size={20} className="text-gray-600" />
           </Link>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-              طلب #{order.id.slice(0, 8).toUpperCase()}
-              <span className={`text-xs px-3 py-1 rounded-full ${getStatusBadgeClass(order.status)}`}>
+          <div className="min-w-0">
+            <h1 className="text-base md:text-2xl font-bold text-gray-800 flex items-center gap-2 flex-wrap">
+              <span className="truncate">طلب #{order.id.slice(0, 8).toUpperCase()}</span>
+              <span className={`text-[10px] md:text-xs px-2 py-0.5 md:px-3 md:py-1 rounded-full ${getStatusBadgeClass(order.status)}`}>
                 {getStatusText(order.status)}
               </span>
             </h1>
-            <p className="text-sm text-gray-500">
+            <p className="text-xs md:text-sm text-gray-500 truncate">
               {format(new Date(order.created_at), 'EEEE، d MMMM yyyy - hh:mm a', { locale: ar })}
             </p>
           </div>
         </div>
 
-        <div className="flex gap-3 items-center">
+        <div className="flex gap-2 md:gap-3 items-center w-full sm:w-auto">
           {updating && (
-            <span className="text-sm text-blue-600 animate-pulse">جاري التحديث...</span>
+            <span className="text-xs md:text-sm text-blue-600 animate-pulse">جاري التحديث...</span>
           )}
           <button
-            className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 text-gray-700 transition-colors"
+            className="flex items-center gap-1.5 md:gap-2 px-2.5 py-1.5 md:px-4 md:py-2 border border-gray-200 rounded-lg hover:bg-gray-50 text-gray-700 transition-colors text-xs md:text-sm"
             onClick={handlePrint}
           >
-            <Printer size={18} />
-            <span>طباعة الفاتورة</span>
+            <Printer size={16} />
+            <span className="hidden sm:inline">طباعة الفاتورة</span>
+            <span className="sm:hidden">طباعة</span>
           </button>
 
           <select
-            className={`px-4 py-2 bg-primary text-white rounded-lg outline-none cursor-pointer font-bold ${updating ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className={`px-2.5 py-1.5 md:px-4 md:py-2 bg-primary text-white rounded-lg outline-none cursor-pointer font-bold text-xs md:text-sm flex-1 sm:flex-initial ${updating ? 'opacity-50 cursor-not-allowed' : ''}`}
             value={order.status}
             onChange={(e) => updateStatus(e.target.value)}
             disabled={updating}
@@ -433,16 +448,18 @@ export default function OrderDetailsPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
         {/* Main Content: Items */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-2 space-y-4 md:space-y-6">
           {/* Products Table */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="p-4 border-b border-gray-100 bg-gray-50 flex items-center gap-2">
-              <Package size={18} className="text-primary" />
-              <h3 className="font-bold text-gray-800">تفاصيل المنتجات ({items.length} منتج)</h3>
+            <div className="p-3 md:p-4 border-b border-gray-100 bg-gray-50 flex items-center gap-2">
+              <Package size={16} className="text-primary" />
+              <h3 className="font-bold text-gray-800 text-sm md:text-base">تفاصيل المنتجات ({items.length} منتج)</h3>
             </div>
-            <div className="p-0">
+
+            {/* Desktop Table */}
+            <div className="hidden md:block p-0">
               <table className="w-full text-right">
                 <thead className="bg-gray-50 text-gray-500 text-xs">
                   <tr>
@@ -481,8 +498,26 @@ export default function OrderDetailsPage() {
               </table>
             </div>
 
+            {/* Mobile Card View */}
+            <div className="md:hidden divide-y divide-gray-100">
+              {items.map((item, index) => (
+                <div key={item.id} className="p-3 flex items-start gap-2">
+                  {item.product_snapshot?.image_url && (
+                    <img src={item.product_snapshot.image_url} className="w-12 h-12 rounded-lg object-cover bg-gray-100 flex-shrink-0" />
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-gray-800 text-xs truncate">{item.product_snapshot?.name_ar || 'منتج غير معروف'}</p>
+                    <div className="flex items-center justify-between mt-1">
+                      <span className="text-xs text-gray-500">{formatIQD(item.price_iqd)} × {item.quantity}</span>
+                      <span className="font-bold text-primary text-xs">{formatIQD(item.price_iqd * item.quantity)}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
             {/* Totals */}
-            <div className="p-4 bg-gray-50 border-t border-gray-200 space-y-2">
+            <div className="p-3 md:p-4 bg-gray-50 border-t border-gray-200 space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-gray-500">المجموع الفرعي</span>
                 <span className="font-medium">{formatIQD(itemsTotal)}</span>
@@ -499,16 +534,16 @@ export default function OrderDetailsPage() {
               )}
               <div className="flex justify-between pt-2 border-t border-gray-200">
                 <span className="font-bold text-gray-800">المجموع الكلي</span>
-                <span className="text-2xl font-bold text-primary">{formatIQD(order.total_iqd)}</span>
+                <span className="text-lg md:text-2xl font-bold text-primary">{formatIQD(order.total_iqd)}</span>
               </div>
             </div>
           </div>
         </div>
 
         {/* Sidebar */}
-        <div className="space-y-6">
+        <div className="space-y-4 md:space-y-6">
           {/* Customer Info */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6">
             <div className="flex items-center gap-2 mb-4 border-b border-gray-100 pb-2">
               <User size={18} className="text-primary" />
               <h3 className="font-bold text-gray-800">معلومات العميل</h3>
@@ -547,7 +582,7 @@ export default function OrderDetailsPage() {
           </div>
 
           {/* Payment & Delivery Info */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6">
             <div className="flex items-center gap-2 mb-4 border-b border-gray-100 pb-2">
               <CreditCard size={18} className="text-primary" />
               <h3 className="font-bold text-gray-800">معلومات الدفع والتوصيل</h3>
@@ -584,7 +619,7 @@ export default function OrderDetailsPage() {
           </div>
 
           {/* Order Timeline */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6">
             <div className="flex items-center gap-2 mb-4 border-b border-gray-100 pb-2">
               <Calendar size={18} className="text-primary" />
               <h3 className="font-bold text-gray-800">تفاصيل الوقت</h3>
@@ -609,5 +644,6 @@ export default function OrderDetailsPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }

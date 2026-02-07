@@ -7,6 +7,7 @@ import {
     Layout, Layers, ImagePlus
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { Header } from '@/components/layout/Header';
 
 // Types
 type Banner = {
@@ -396,36 +397,42 @@ export default function HomepageManagementPage() {
 
     if (isLoading) {
         return (
-            <div className="p-10 flex justify-center items-center min-h-[400px]">
-                <Loader2 className="animate-spin text-primary" size={40} />
-            </div>
+            <>
+                <Header title="الصفحة الرئيسية" />
+                <div className="p-10 flex justify-center items-center min-h-[400px]">
+                    <Loader2 className="animate-spin text-primary" size={40} />
+                </div>
+            </>
         );
     }
 
     return (
+        <>
+        <Header title="الصفحة الرئيسية" />
         <div className="min-h-screen bg-gray-50">
             {/* Header */}
-            <div className="bg-white border-b border-gray-200 px-6 py-4 sticky top-0 z-10">
-                <div className="flex justify-between items-center">
-                    <div>
-                        <h1 className="text-2xl font-bold text-gray-800">الصفحة الرئيسية</h1>
-                        <p className="text-sm text-gray-500 mt-1">إدارة محتوى الصفحة الرئيسية للتطبيق</p>
+            <div className="bg-white border-b border-gray-200 px-3 sm:px-4 md:px-6 py-3 md:py-4 sticky top-0 z-10">
+                <div className="flex justify-between items-center gap-3">
+                    <div className="min-w-0">
+                        <h1 className="text-lg md:text-2xl font-bold text-gray-800">الصفحة الرئيسية</h1>
+                        <p className="text-xs md:text-sm text-gray-500 mt-0.5">إدارة محتوى الصفحة الرئيسية للتطبيق</p>
                     </div>
                     <button
                         onClick={handleSave}
                         disabled={isSaving}
-                        className="bg-primary text-white px-6 py-2.5 rounded-lg flex items-center gap-2 hover:bg-primary/90 disabled:opacity-50 font-medium shadow-sm"
+                        className="bg-primary text-white px-3 py-2 md:px-6 md:py-2.5 rounded-lg flex items-center gap-1.5 md:gap-2 hover:bg-primary/90 disabled:opacity-50 font-medium shadow-sm text-xs md:text-base flex-shrink-0"
                     >
-                        {isSaving ? <Loader2 className="animate-spin" size={20} /> : <Save size={20} />}
-                        <span>{isSaving ? 'جاري الحفظ...' : 'حفظ التغييرات'}</span>
+                        {isSaving ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}
+                        <span className="hidden sm:inline">{isSaving ? 'جاري الحفظ...' : 'حفظ التغييرات'}</span>
+                        <span className="sm:hidden">{isSaving ? 'حفظ...' : 'حفظ'}</span>
                     </button>
                 </div>
             </div>
 
             {/* Main Content - 3 Panels */}
-            <div className="flex h-[calc(100vh-80px)]">
+            <div className="flex flex-col md:flex-row h-[calc(100vh-70px)] md:h-[calc(100vh-80px)]">
                 {/* Panel Tabs */}
-                <div className="w-16 bg-gray-100 border-l border-gray-200 flex flex-col items-center py-4 gap-2">
+                <div className="flex md:flex-col md:w-16 bg-gray-100 border-b md:border-b-0 md:border-l border-gray-200 items-center justify-center md:justify-start px-2 py-2 md:py-4 gap-2">
                     <button
                         onClick={() => setActivePanel('preview')}
                         className={`w-12 h-12 rounded-xl flex flex-col items-center justify-center gap-1 transition-all ${
@@ -465,7 +472,7 @@ export default function HomepageManagementPage() {
                 </div>
 
                 {/* Panel Content */}
-                <div className="flex-1 overflow-auto p-6">
+                <div className="flex-1 overflow-auto p-3 sm:p-4 md:p-6">
                     {/* Preview Panel */}
                     {activePanel === 'preview' && (
                         <div className="max-w-md mx-auto">
@@ -739,18 +746,19 @@ export default function HomepageManagementPage() {
                     {/* Sections Panel */}
                     {activePanel === 'sections' && (
                         <div className="max-w-3xl mx-auto space-y-4">
-                            <div className="flex justify-between items-center mb-6">
+                            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 md:mb-6">
                                 <div>
-                                    <h2 className="text-xl font-bold text-gray-800">أقسام الصفحة</h2>
-                                    <p className="text-sm text-gray-500">رتب الأقسام واختر ما يظهر في الصفحة الرئيسية</p>
+                                    <h2 className="text-base md:text-xl font-bold text-gray-800">أقسام الصفحة</h2>
+                                    <p className="text-xs md:text-sm text-gray-500">رتب الأقسام واختر ما يظهر في الصفحة الرئيسية</p>
                                 </div>
                                 <button
                                     onClick={addCategorySection}
                                     disabled={categories.length === 0}
-                                    className="bg-primary text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-primary/90 disabled:opacity-50"
+                                    className="bg-primary text-white px-3 py-2 md:px-4 md:py-2 rounded-lg flex items-center gap-1.5 md:gap-2 hover:bg-primary/90 disabled:opacity-50 text-xs md:text-base font-bold w-full sm:w-auto justify-center"
                                 >
                                     <Plus size={18} />
-                                    إضافة قسم منتجات
+                                    <span className="hidden sm:inline">إضافة قسم منتجات</span>
+                                    <span className="sm:hidden">إضافة قسم</span>
                                 </button>
                             </div>
 
@@ -887,14 +895,14 @@ export default function HomepageManagementPage() {
                         <div className="max-w-4xl mx-auto space-y-8">
                             {/* Main Banners */}
                             <div>
-                                <div className="flex justify-between items-center mb-4">
+                                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
                                     <div>
-                                        <h2 className="text-xl font-bold text-gray-800">البنرات الرئيسية</h2>
-                                        <p className="text-sm text-gray-500">تظهر في أعلى الصفحة كـ Slider</p>
+                                        <h2 className="text-base md:text-xl font-bold text-gray-800">البنرات الرئيسية</h2>
+                                        <p className="text-xs md:text-sm text-gray-500">تظهر في أعلى الصفحة كـ Slider</p>
                                     </div>
                                     <button
                                         onClick={addBanner}
-                                        className="bg-primary text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-primary/90"
+                                        className="bg-primary text-white px-3 py-2 md:px-4 md:py-2 rounded-lg flex items-center gap-1.5 md:gap-2 hover:bg-primary/90 text-xs md:text-base font-bold w-full sm:w-auto justify-center"
                                     >
                                         <Plus size={18} />
                                         إضافة بنر
@@ -969,8 +977,8 @@ export default function HomepageManagementPage() {
                             {/* Promo Banners */}
                             <div>
                                 <div className="mb-4">
-                                    <h2 className="text-xl font-bold text-gray-800">البنرات الترويجية</h2>
-                                    <p className="text-sm text-gray-500">تظهر بين أقسام الصفحة الرئيسية</p>
+                                    <h2 className="text-base md:text-xl font-bold text-gray-800">البنرات الترويجية</h2>
+                                    <p className="text-xs md:text-sm text-gray-500">تظهر بين أقسام الصفحة الرئيسية</p>
                                 </div>
 
                                 <div className="space-y-3">
@@ -1093,5 +1101,6 @@ export default function HomepageManagementPage() {
                 </div>
             </div>
         </div>
+        </>
     );
 }

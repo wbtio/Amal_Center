@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { ArrowRight, Loader2, Save, Trash2, ImageIcon, X } from 'lucide-react';
 import Link from 'next/link';
+import { Header } from '@/components/layout/Header';
 
 export default function EditProductPage() {
   const { id } = useParams();
@@ -174,33 +175,39 @@ export default function EditProductPage() {
 
   if (loading) {
     return (
-      <div className="p-8 flex items-center justify-center">
-        <Loader2 className="animate-spin text-primary" size={32} />
-        <span className="mr-2 text-gray-600">جاري التحميل...</span>
-      </div>
+      <>
+        <Header title="تعديل المنتج" />
+        <div className="p-8 flex items-center justify-center">
+          <Loader2 className="animate-spin text-primary" size={32} />
+          <span className="mr-2 text-gray-600">جاري التحميل...</span>
+        </div>
+      </>
     );
   }
 
   return (
-    <div className="p-6">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-4">
-          <Link href="/products" className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-            <ArrowRight size={24} className="text-gray-600" />
+    <>
+    <Header title="تعديل المنتج" />
+    <div className="p-3 sm:p-4 md:p-6">
+      <div className="flex items-center justify-between gap-3 mb-4 md:mb-6">
+        <div className="flex items-center gap-2 md:gap-4 min-w-0">
+          <Link href="/products" className="p-1.5 md:p-2 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0">
+            <ArrowRight size={20} className="text-gray-600" />
           </Link>
-          <h1 className="text-2xl font-bold text-gray-800">تعديل المنتج</h1>
+          <h1 className="text-lg md:text-2xl font-bold text-gray-800 truncate">تعديل المنتج</h1>
         </div>
         
         <button
           onClick={handleDelete}
-          className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors"
+          className="flex items-center gap-1.5 md:gap-2 px-3 py-2 md:px-4 md:py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors text-xs md:text-base flex-shrink-0"
         >
-          <Trash2 size={18} />
-          <span>حذف المنتج</span>
+          <Trash2 size={16} />
+          <span className="hidden sm:inline">حذف المنتج</span>
+          <span className="sm:hidden">حذف</span>
         </button>
       </div>
 
-      <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+      <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-8">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Arabic Name */}
@@ -378,5 +385,6 @@ export default function EditProductPage() {
         </form>
       </div>
     </div>
+    </>
   );
 }

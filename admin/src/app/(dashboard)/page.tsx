@@ -1,9 +1,9 @@
 'use client';
 
 import { Header } from '@/components/layout/Header';
-import { 
-  ShoppingBag, 
-  ShoppingCart, 
+import {
+  ShoppingBag,
+  ShoppingCart,
   TrendingUp,
   TrendingDown,
   DollarSign,
@@ -22,13 +22,13 @@ import { supabase } from '@/lib/supabase';
 import { useEffect, useState } from 'react';
 import { formatIQD } from '@/lib/utils';
 import Link from 'next/link';
-import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
   ResponsiveContainer,
   PieChart,
   Pie,
@@ -104,7 +104,7 @@ export default function DashboardPage() {
     const { count: productsCount } = await supabase.from('products').select('*', { count: 'exact', head: true });
     const { count: ordersCount } = await supabase.from('orders').select('*', { count: 'exact', head: true });
     const { count: pendingCount } = await supabase.from('orders').select('*', { count: 'exact', head: true }).eq('status', 'pending');
-    
+
     // Current week revenue
     const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
     const { data: currentWeekOrders } = await supabase
@@ -112,7 +112,7 @@ export default function DashboardPage() {
       .select('total_iqd')
       .eq('status', 'delivered')
       .gte('created_at', weekAgo.toISOString());
-    
+
     // Previous week revenue (for comparison)
     const twoWeeksAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000);
     const { data: previousWeekOrders } = await supabase
@@ -127,7 +127,7 @@ export default function DashboardPage() {
       .from('orders')
       .select('total_iqd')
       .eq('status', 'delivered');
-    
+
     // Recent orders
     const { data: recent } = await supabase
       .from('orders')
@@ -136,14 +136,14 @@ export default function DashboardPage() {
       .limit(5);
 
     setRecentOrders(recent || []);
-    
+
     const totalRevenue = allDeliveredOrders?.reduce((acc, curr) => acc + (curr.total_iqd || 0), 0) || 0;
     const currentWeekRevenue = currentWeekOrders?.reduce((acc, curr) => acc + (curr.total_iqd || 0), 0) || 0;
     const previousWeekRevenue = previousWeekOrders?.reduce((acc, curr) => acc + (curr.total_iqd || 0), 0) || 0;
-    
+
     // Calculate growth percentage
-    const revenueGrowth = previousWeekRevenue > 0 
-      ? ((currentWeekRevenue - previousWeekRevenue) / previousWeekRevenue) * 100 
+    const revenueGrowth = previousWeekRevenue > 0
+      ? ((currentWeekRevenue - previousWeekRevenue) / previousWeekRevenue) * 100
       : 0;
 
     // Current week orders count
@@ -273,7 +273,7 @@ export default function DashboardPage() {
       const productId = item.product_id;
       const product = item.products;
       const snapshot = item.product_snapshot as any;
-      
+
       if (!productSales[productId]) {
         productSales[productId] = {
           id: productId,
@@ -361,11 +361,11 @@ export default function DashboardPage() {
     return (
       <div className="flex-1 bg-gray-50">
         <Header title="لوحة التحكم" />
-        <div className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="p-3 sm:p-4 md:p-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 mb-4 md:mb-8">
             {[1, 2, 3, 4].map(i => <SkeletonCard key={i} />)}
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mb-4 md:mb-8">
             <div className="lg:col-span-2"><SkeletonChart /></div>
             <SkeletonChart />
           </div>
@@ -414,39 +414,39 @@ export default function DashboardPage() {
   return (
     <div className="flex-1 bg-gray-50">
       <Header title="لوحة التحكم" />
-      
-      <div className="p-6">
+
+      <div className="p-3 sm:p-4 md:p-6">
         {/* Alerts Section */}
         {(stats.lowStockCount > 0 || stats.delayedOrdersCount > 0) && (
-          <div className="mb-6 space-y-3">
+          <div className="mb-4 md:mb-6 space-y-3">
             {stats.lowStockCount > 0 && (
-              <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 flex items-center justify-between">
+              <div className="bg-orange-50 border border-orange-200 rounded-xl p-3 md:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
-                    <AlertTriangle className="text-orange-600" size={20} />
+                  <div className="w-8 h-8 md:w-10 md:h-10 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <AlertTriangle className="text-orange-600" size={18} />
                   </div>
                   <div>
-                    <p className="font-bold text-orange-800">تنبيه المخزون</p>
-                    <p className="text-sm text-orange-600">لديك {stats.lowStockCount} منتجات بمخزون منخفض</p>
+                    <p className="font-bold text-orange-800 text-sm md:text-base">تنبيه المخزون</p>
+                    <p className="text-xs md:text-sm text-orange-600">لديك {stats.lowStockCount} منتجات بمخزون منخفض</p>
                   </div>
                 </div>
-                <Link href="/products?filter=low-stock" className="px-4 py-2 bg-orange-600 text-white rounded-lg text-sm font-medium hover:bg-orange-700 transition-colors">
+                <Link href="/products?filter=low-stock" className="px-3 py-1.5 md:px-4 md:py-2 bg-orange-600 text-white rounded-lg text-xs md:text-sm font-medium hover:bg-orange-700 transition-colors text-center flex-shrink-0">
                   عرض المنتجات
                 </Link>
               </div>
             )}
             {stats.delayedOrdersCount > 0 && (
-              <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center justify-between">
+              <div className="bg-red-50 border border-red-200 rounded-xl p-3 md:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                    <Clock className="text-red-600" size={20} />
+                  <div className="w-8 h-8 md:w-10 md:h-10 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Clock className="text-red-600" size={18} />
                   </div>
                   <div>
-                    <p className="font-bold text-red-800">طلبات متأخرة</p>
-                    <p className="text-sm text-red-600">لديك {stats.delayedOrdersCount} طلبات تحتاج متابعة (أكثر من 24 ساعة)</p>
+                    <p className="font-bold text-red-800 text-sm md:text-base">طلبات متأخرة</p>
+                    <p className="text-xs md:text-sm text-red-600">لديك {stats.delayedOrdersCount} طلبات تحتاج متابعة (أكثر من 24 ساعة)</p>
                   </div>
                 </div>
-                <Link href="/orders?filter=delayed" className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors">
+                <Link href="/orders?filter=delayed" className="px-3 py-1.5 md:px-4 md:py-2 bg-red-600 text-white rounded-lg text-xs md:text-sm font-medium hover:bg-red-700 transition-colors text-center flex-shrink-0">
                   عرض الطلبات
                 </Link>
               </div>
@@ -455,30 +455,30 @@ export default function DashboardPage() {
         )}
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 mb-4 md:mb-8">
           {statCards.map((stat, index) => {
             const Icon = stat.icon;
             const CardContent = (
-              <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-500 text-sm mb-1">{stat.title}</p>
-                    <h3 className="text-2xl font-bold text-gray-800">{stat.value}</h3>
+              <div className="bg-white p-3 md:p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="text-gray-500 text-xs md:text-sm mb-1 truncate">{stat.title}</p>
+                    <h3 className="text-base md:text-2xl font-bold text-gray-800 truncate">{stat.value}</h3>
                     {stat.growth !== undefined && (
-                      <div className={`flex items-center gap-1 mt-2 text-sm ${stat.growth >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                        {stat.growth >= 0 ? <ArrowUpRight size={16} /> : <ArrowDownRight size={16} />}
+                      <div className={`flex items-center gap-1 mt-1 md:mt-2 text-xs md:text-sm ${stat.growth >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        {stat.growth >= 0 ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
                         <span>{Math.abs(stat.growth).toFixed(1)}%</span>
-                        <span className="text-gray-400 text-xs">من الأسبوع الماضي</span>
+                        <span className="text-gray-400 text-[10px] md:text-xs hidden sm:inline">من الأسبوع الماضي</span>
                       </div>
                     )}
                   </div>
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center ${stat.bg}`}>
-                    <Icon className={stat.color} size={24} />
+                  <div className={`w-8 h-8 md:w-12 md:h-12 rounded-full flex items-center justify-center flex-shrink-0 ${stat.bg}`}>
+                    <Icon className={stat.color} size={18} />
                   </div>
                 </div>
               </div>
             );
-            
+
             return stat.link ? (
               <Link key={index} href={stat.link}>{CardContent}</Link>
             ) : (
@@ -488,10 +488,10 @@ export default function DashboardPage() {
         </div>
 
         {/* Charts Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          <div className="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <h3 className="text-lg font-bold text-gray-800 mb-6">المبيعات الأسبوعية</h3>
-            <div className="h-80 w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mb-4 md:mb-8">
+          <div className="lg:col-span-2 bg-white p-3 md:p-6 rounded-xl shadow-sm border border-gray-100">
+            <h3 className="text-sm md:text-lg font-bold text-gray-800 mb-3 md:mb-6">المبيعات الأسبوعية</h3>
+            <div className="h-52 md:h-80 w-full">
               {chartData.length === 0 ? (
                 <div className="h-full flex items-center justify-center text-gray-400">
                   <div className="text-center">
@@ -505,7 +505,7 @@ export default function DashboardPage() {
                     <CartesianGrid strokeDasharray="3 3" vertical={false} />
                     <XAxis dataKey="name" />
                     <YAxis tickFormatter={(value) => `${(value / 1000).toFixed(0)}K`} />
-                    <Tooltip 
+                    <Tooltip
                       formatter={(value) => [formatIQD(Number(value) || 0), 'المبيعات']}
                       contentStyle={{ direction: 'rtl' }}
                     />
@@ -517,9 +517,9 @@ export default function DashboardPage() {
           </div>
 
           {/* Order Status Pie Chart */}
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <h3 className="text-lg font-bold text-gray-800 mb-4">توزيع حالات الطلبات</h3>
-            <div className="h-64">
+          <div className="bg-white p-3 md:p-6 rounded-xl shadow-sm border border-gray-100">
+            <h3 className="text-sm md:text-lg font-bold text-gray-800 mb-3 md:mb-4">توزيع حالات الطلبات</h3>
+            <div className="h-52 md:h-64">
               {orderStatusData.length === 0 ? (
                 <div className="h-full flex items-center justify-center text-gray-400">
                   <p>لا توجد طلبات</p>
@@ -541,9 +541,9 @@ export default function DashboardPage() {
                       ))}
                     </Pie>
                     <Tooltip formatter={(value) => [Number(value) || 0, '']} />
-                    <Legend 
-                      layout="vertical" 
-                      align="right" 
+                    <Legend
+                      layout="vertical"
+                      align="right"
                       verticalAlign="middle"
                       formatter={(value) => <span className="text-sm">{value}</span>}
                     />
@@ -555,11 +555,11 @@ export default function DashboardPage() {
         </div>
 
         {/* Second Row: Top Products & Recent Orders */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-4 md:mb-8">
           {/* Top Products */}
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-gray-800">أكثر المنتجات مبيعاً</h3>
+          <div className="bg-white p-3 md:p-6 rounded-xl shadow-sm border border-gray-100">
+            <div className="flex items-center justify-between mb-3 md:mb-4">
+              <h3 className="text-sm md:text-lg font-bold text-gray-800">أكثر المنتجات مبيعاً</h3>
               <Link href="/products" className="text-sm text-primary hover:underline">عرض الكل</Link>
             </div>
             <div className="space-y-4">
@@ -570,23 +570,23 @@ export default function DashboardPage() {
                 </div>
               ) : (
                 topProducts.map((product, index) => (
-                  <div key={product.id} className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                    <div className="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center font-bold text-sm">
+                  <div key={product.id} className="flex items-center gap-2 md:gap-4 p-2 md:p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                    <div className="w-6 h-6 md:w-8 md:h-8 bg-primary text-white rounded-full flex items-center justify-center font-bold text-xs md:text-sm flex-shrink-0">
                       #{index + 1}
                     </div>
                     {product.image_url ? (
-                      <img src={product.image_url} alt={product.name} className="w-12 h-12 rounded-lg object-cover" />
+                      <img src={product.image_url} alt={product.name} className="w-10 h-10 md:w-12 md:h-12 rounded-lg object-cover flex-shrink-0" />
                     ) : (
-                      <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
-                        <Package size={20} className="text-gray-400" />
+                      <div className="w-10 h-10 md:w-12 md:h-12 bg-gray-200 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <Package size={18} className="text-gray-400" />
                       </div>
                     )}
-                    <div className="flex-1">
-                      <p className="font-medium text-gray-800 line-clamp-1">{product.name}</p>
-                      <p className="text-sm text-gray-500">{product.quantity} وحدة مباعة</p>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-gray-800 line-clamp-1 text-xs md:text-sm">{product.name}</p>
+                      <p className="text-xs text-gray-500">{product.quantity} وحدة مباعة</p>
                     </div>
-                    <div className="text-left">
-                      <p className="font-bold text-primary">{formatIQD(product.revenue)}</p>
+                    <div className="text-left flex-shrink-0">
+                      <p className="font-bold text-primary text-xs md:text-sm">{formatIQD(product.revenue)}</p>
                     </div>
                   </div>
                 ))
@@ -595,9 +595,9 @@ export default function DashboardPage() {
           </div>
 
           {/* Recent Orders */}
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-gray-800">أحدث الطلبات</h3>
+          <div className="bg-white p-3 md:p-6 rounded-xl shadow-sm border border-gray-100">
+            <div className="flex items-center justify-between mb-3 md:mb-4">
+              <h3 className="text-sm md:text-lg font-bold text-gray-800">أحدث الطلبات</h3>
               <Link href="/orders" className="text-sm text-primary hover:underline">عرض الكل</Link>
             </div>
             <div className="space-y-3">
@@ -609,19 +609,19 @@ export default function DashboardPage() {
               ) : (
                 recentOrders.map((order) => (
                   <Link key={order.id} href={`/orders/${order.id}`}>
-                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold">
+                    <div className="flex items-center justify-between p-2 md:p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer gap-2">
+                      <div className="flex items-center gap-2 md:gap-3 min-w-0">
+                        <div className="w-8 h-8 md:w-10 md:h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold text-xs md:text-sm flex-shrink-0">
                           {order.delivery_address?.[0] || 'U'}
                         </div>
-                        <div>
-                          <p className="text-sm font-bold text-gray-800">طلب #{order.id.slice(0, 6)}</p>
-                          <p className="text-xs text-gray-500">{new Date(order.created_at).toLocaleDateString('ar-IQ')}</p>
+                        <div className="min-w-0">
+                          <p className="text-xs md:text-sm font-bold text-gray-800 truncate">طلب #{order.id.slice(0, 6)}</p>
+                          <p className="text-[10px] md:text-xs text-gray-500">{new Date(order.created_at).toLocaleDateString('ar-IQ')}</p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3">
-                        {getStatusBadge(order.status)}
-                        <span className="text-sm font-bold text-primary">{formatIQD(order.total_iqd)}</span>
+                      <div className="flex items-center gap-1 md:gap-3 flex-shrink-0">
+                        <span className="hidden sm:inline">{getStatusBadge(order.status)}</span>
+                        <span className="text-xs md:text-sm font-bold text-primary">{formatIQD(order.total_iqd)}</span>
                       </div>
                     </div>
                   </Link>
@@ -633,22 +633,22 @@ export default function DashboardPage() {
 
         {/* Low Stock Products Alert Section */}
         {lowStockProducts.length > 0 && (
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <div className="flex items-center justify-between mb-4">
+          <div className="bg-white p-3 md:p-6 rounded-xl shadow-sm border border-gray-100">
+            <div className="flex items-center justify-between mb-3 md:mb-4">
               <div className="flex items-center gap-2">
-                <AlertTriangle className="text-orange-500" size={20} />
-                <h3 className="text-lg font-bold text-gray-800">منتجات بمخزون منخفض</h3>
+                <AlertTriangle className="text-orange-500" size={18} />
+                <h3 className="text-sm md:text-lg font-bold text-gray-800">منتجات بمخزون منخفض</h3>
               </div>
-              <Link href="/products?filter=low-stock" className="text-sm text-primary hover:underline">عرض الكل</Link>
+              <Link href="/products?filter=low-stock" className="text-xs md:text-sm text-primary hover:underline">عرض الكل</Link>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 md:gap-4">
               {lowStockProducts.map((product) => (
                 <Link key={product.id} href={`/products/${product.id}`}>
-                  <div className="p-4 border border-orange-200 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors cursor-pointer">
-                    <p className="font-medium text-gray-800 line-clamp-1 mb-2">{product.name_ar || product.name}</p>
+                  <div className="p-2 md:p-4 border border-orange-200 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors cursor-pointer">
+                    <p className="font-medium text-gray-800 line-clamp-1 mb-1 md:mb-2 text-xs md:text-sm">{product.name_ar || product.name}</p>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-500">المخزون:</span>
-                      <span className="font-bold text-orange-600">{product.stock_quantity} وحدة</span>
+                      <span className="text-[10px] md:text-sm text-gray-500">المخزون:</span>
+                      <span className="font-bold text-orange-600 text-xs md:text-sm">{product.stock_quantity} وحدة</span>
                     </div>
                   </div>
                 </Link>
@@ -658,19 +658,19 @@ export default function DashboardPage() {
         )}
 
         {/* Quick Actions */}
-        <div className="mt-6 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-          <h3 className="text-lg font-bold text-gray-800 mb-4">إجراءات سريعة</h3>
-          <div className="flex flex-wrap gap-3">
-            <Link href="/products/new" className="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-green-700 transition-colors flex items-center gap-2">
-              <Package size={18} />
+        <div className="mt-4 md:mt-6 bg-white p-3 md:p-6 rounded-xl shadow-sm border border-gray-100">
+          <h3 className="text-sm md:text-lg font-bold text-gray-800 mb-3 md:mb-4">إجراءات سريعة</h3>
+          <div className="flex flex-wrap gap-2 md:gap-3">
+            <Link href="/products/new" className="px-3 py-1.5 md:px-4 md:py-2 bg-primary text-white rounded-lg text-xs md:text-sm font-medium hover:bg-green-700 transition-colors flex items-center gap-1.5 md:gap-2">
+              <Package size={16} />
               إضافة منتج جديد
             </Link>
-            <Link href="/orders?status=pending" className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors flex items-center gap-2">
-              <ShoppingBag size={18} />
+            <Link href="/orders?status=pending" className="px-3 py-1.5 md:px-4 md:py-2 bg-blue-600 text-white rounded-lg text-xs md:text-sm font-medium hover:bg-blue-700 transition-colors flex items-center gap-1.5 md:gap-2">
+              <ShoppingBag size={16} />
               الطلبات الجديدة
             </Link>
-            <Link href="/categories" className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors flex items-center gap-2">
-              <Eye size={18} />
+            <Link href="/categories" className="px-3 py-1.5 md:px-4 md:py-2 border border-gray-300 text-gray-700 rounded-lg text-xs md:text-sm font-medium hover:bg-gray-50 transition-colors flex items-center gap-1.5 md:gap-2">
+              <Eye size={16} />
               إدارة الأقسام
             </Link>
           </div>

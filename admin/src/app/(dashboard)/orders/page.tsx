@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Eye, Clock, CheckCircle, Truck, XCircle, Search, Filter } from 'lucide-react';
+import { Eye, Clock, CheckCircle, Truck, XCircle, Search, Filter, Package } from 'lucide-react';
 import Link from 'next/link';
 import { formatIQD } from '@/lib/utils';
 import { format } from 'date-fns';
+import { Header } from '@/components/layout/Header';
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState<any[]>([]);
@@ -40,21 +41,34 @@ export default function OrdersPage() {
     }
   };
 
-  const filteredOrders = filterStatus === 'all' 
-    ? orders 
+  const filteredOrders = filterStatus === 'all'
+    ? orders
     : orders.filter(order => order.status === filterStatus);
 
-  if (loading) return <div className="p-8 text-center">جاري التحميل...</div>;
+  if (loading) return (
+    <>
+      <Header title="إدارة الطلبات" />
+      <div className="p-8 text-center">جاري التحميل...</div>
+    </>
+  );
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">إدارة الطلبات</h1>
-        
-        <div className="flex items-center gap-2 bg-white p-1 rounded-lg border border-gray-200">
-          <Filter size={16} className="text-gray-500 mr-2" />
-          <select 
-            className="bg-transparent text-sm outline-none cursor-pointer"
+    <>
+    <Header title="إدارة الطلبات" />
+    <div className="p-3 sm:p-4 md:p-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 md:mb-6">
+        <div>
+          <h1 className="text-lg md:text-2xl font-bold text-gray-800">إدارة الطلبات</h1>
+          <p className="text-xs md:text-sm text-gray-500 mt-0.5">
+            إجمالي: <strong className="text-primary">{filteredOrders.length}</strong> طلب
+            {filterStatus !== 'all' && ` (من ${orders.length})`}
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2 bg-white p-1.5 md:p-2 rounded-lg border border-gray-200 w-full sm:w-auto">
+          <Filter size={16} className="text-gray-500 mr-1 md:mr-2 flex-shrink-0" />
+          <select
+            className="bg-transparent text-xs md:text-sm outline-none cursor-pointer flex-1"
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
           >
@@ -69,7 +83,8 @@ export default function OrdersPage() {
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <div className="overflow-x-auto">
+        {/* Desktop Table */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-right">
             <thead className="bg-gray-50 text-gray-600 text-sm font-medium">
               <tr>
@@ -97,7 +112,7 @@ export default function OrdersPage() {
                     {getStatusBadge(order.status)}
                   </td>
                   <td className="px-6 py-4">
-                    <Link 
+                    <Link
                       href={`/orders/${order.id}`}
                       className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors inline-block"
                     >
@@ -108,14 +123,50 @@ export default function OrdersPage() {
               ))}
             </tbody>
           </table>
-          
-          {filteredOrders.length === 0 && (
-            <div className="p-8 text-center text-gray-500">
-              لا توجد طلبات
-            </div>
-          )}
         </div>
+
+        {/* Mobile Card View */}
+        <div className="md:hidden divide-y divide-gray-100">
+          {filteredOrders.map((order) => (
+            <Link key={order.id} href={`/orders/${order.id}`}>
+              <div className="p-3 hover:bg-gray-50 active:bg-gray-100 transition-colors">
+                <div className="flex items-start justify-between gap-2 mb-1.5">
+                  <div className="min-w-0">
+                    <p className="font-bold text-gray-800 text-sm">{order.customer_name || 'عميل'}</p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <p className="text-[10px] text-gray-500 font-mono">#{order.id.slice(0, 8).toUpperCase()}</p>
+                      {order.delivery_phone && (
+                        <p className="text-[10px] text-gray-400">{order.delivery_phone}</p>
+                      )}
+                    </div>
+                  </div>
+                  <span className="font-bold text-primary text-sm flex-shrink-0">{formatIQD(order.total_iqd)}</span>
+                </div>
+                <div className="flex items-center justify-between mt-2">
+                  <div className="flex items-center gap-2">
+                    {getStatusBadge(order.status)}
+                  </div>
+                  <span className="text-[10px] text-gray-500">
+                    {format(new Date(order.created_at), 'yyyy/MM/dd HH:mm')}
+                  </span>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+
+        {filteredOrders.length === 0 && (
+          <div className="p-8 md:p-12 text-center">
+            <div className="text-gray-300 mb-3">
+              <Package size={48} className="mx-auto" />
+            </div>
+            <p className="text-gray-500 text-sm md:text-base">
+              {filterStatus !== 'all' ? 'لا توجد طلبات بهذه الحالة' : 'لا توجد طلبات'}
+            </p>
+          </div>
+        )}
       </div>
     </div>
+    </>
   );
 }

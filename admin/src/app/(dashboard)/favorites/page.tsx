@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase';
 import { Heart, Search, TrendingUp, Users } from 'lucide-react';
 import Link from 'next/link';
 import { formatIQD } from '@/lib/utils';
+import { Header } from '@/components/layout/Header';
 
 interface FavoriteProduct {
   id: string;
@@ -101,53 +102,60 @@ export default function FavoritesPage() {
     product.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  if (loading) return <div className="p-8 text-center">جاري التحميل...</div>;
+  if (loading) return (
+    <>
+      <Header title="المنتجات المفضلة" />
+      <div className="p-8 text-center">جاري التحميل...</div>
+    </>
+  );
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
+    <>
+    <Header title="المنتجات المفضلة" />
+    <div className="p-3 sm:p-4 md:p-6">
+      <div className="flex justify-between items-center gap-3 mb-4 md:mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">المنتجات المفضلة</h1>
-          <p className="text-gray-500 text-sm mt-1">المنتجات الأكثر إضافة للمفضلة من قبل العملاء</p>
+          <h1 className="text-lg md:text-2xl font-bold text-gray-800">المنتجات المفضلة</h1>
+          <p className="text-xs md:text-sm text-gray-500 mt-0.5">المنتجات الأكثر إضافة للمفضلة من قبل العملاء</p>
         </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-3 gap-2 md:gap-4 mb-4 md:mb-6">
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
-              <Heart className="text-red-500" size={24} />
+            <div className="w-10 h-10 md:w-12 md:h-12 bg-red-100 rounded-xl flex items-center justify-center">
+              <Heart className="text-red-500" size={20} />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-800">{totalFavorites}</p>
-              <p className="text-sm text-gray-500">إجمالي التفضيلات</p>
+              <p className="text-lg md:text-2xl font-bold text-gray-800">{totalFavorites}</p>
+              <p className="text-[10px] md:text-sm text-gray-500">إجمالي التفضيلات</p>
             </div>
           </div>
         </div>
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-              <TrendingUp className="text-green-500" size={24} />
+            <div className="w-10 h-10 md:w-12 md:h-12 bg-green-100 rounded-xl flex items-center justify-center">
+              <TrendingUp className="text-green-500" size={20} />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-800">{products.length}</p>
-              <p className="text-sm text-gray-500">منتجات مفضلة</p>
+              <p className="text-lg md:text-2xl font-bold text-gray-800">{products.length}</p>
+              <p className="text-[10px] md:text-sm text-gray-500">منتجات مفضلة</p>
             </div>
           </div>
         </div>
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-              <Users className="text-blue-500" size={24} />
+            <div className="w-10 h-10 md:w-12 md:h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+              <Users className="text-blue-500" size={20} />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-800">
+              <p className="text-lg md:text-2xl font-bold text-gray-800">
                 {products.length > 0 ? Math.round(totalFavorites / products.length) : 0}
               </p>
-              <p className="text-sm text-gray-500">متوسط التفضيلات/منتج</p>
+              <p className="text-[10px] md:text-sm text-gray-500">متوسط/منتج</p>
             </div>
           </div>
         </div>
@@ -167,7 +175,8 @@ export default function FavoritesPage() {
           </div>
         </div>
 
-        <div className="overflow-x-auto">
+        {/* Desktop Table */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-right">
             <thead className="bg-gray-50 text-gray-600 text-sm font-medium">
               <tr>
@@ -232,15 +241,60 @@ export default function FavoritesPage() {
               ))}
             </tbody>
           </table>
-
-          {filteredProducts.length === 0 && (
-            <div className="p-8 text-center text-gray-500">
-              <Heart className="mx-auto mb-3 text-gray-300" size={48} />
-              <p>لا توجد منتجات مفضلة حالياً</p>
-            </div>
-          )}
         </div>
+
+        {/* Mobile Card View */}
+        <div className="md:hidden divide-y divide-gray-100">
+          {filteredProducts.map((product, index) => (
+            <Link key={product.id} href={`/products/${product.id}`}>
+              <div className="p-3 hover:bg-gray-50 active:bg-gray-100 transition-colors">
+                <div className="flex items-start gap-3">
+                  <div className="relative flex-shrink-0">
+                    {index < 3 && (
+                      <div className={`absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold text-white z-10 ${
+                        index === 0 ? 'bg-yellow-500' : index === 1 ? 'bg-gray-400' : 'bg-amber-600'
+                      }`}>
+                        {index + 1}
+                      </div>
+                    )}
+                    <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
+                      {product.image_url ? (
+                        <img src={product.image_url} alt={product.name_ar} className="w-full h-full object-cover" />
+                      ) : (
+                        <Heart className="text-gray-400" size={20} />
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="font-bold text-gray-800 text-sm truncate">{product.name_ar}</p>
+                      <div className="flex items-center gap-1 flex-shrink-0">
+                        <Heart size={12} className="text-red-500 fill-red-500" />
+                        <span className="font-bold text-red-600 text-xs">{product.favorite_count}</span>
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-500 truncate">{product.categories?.[0]?.name_ar || '-'}</p>
+                    <div className="flex items-center gap-3 mt-1">
+                      <span className="font-bold text-primary text-sm">{formatIQD(product.price_iqd)}</span>
+                      <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${product.stock_quantity < 10 ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
+                        مخزون: {product.stock_quantity}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+
+        {filteredProducts.length === 0 && (
+          <div className="p-8 md:p-12 text-center">
+            <Heart className="mx-auto mb-3 text-gray-300" size={48} />
+            <p className="text-gray-500 text-sm md:text-base">لا توجد منتجات مفضلة حالياً</p>
+          </div>
+        )}
       </div>
     </div>
+    </>
   );
 }
