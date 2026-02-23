@@ -5,18 +5,20 @@ import {
   ShoppingBag,
   ShoppingCart,
   TrendingUp,
-  TrendingDown,
-  DollarSign,
+  Wallet,
   Package,
-  AlertTriangle,
-  Clock,
+  TriangleAlert,
+  Timer,
   ArrowUpRight,
   ArrowDownRight,
   Eye,
-  CheckCircle,
-  XCircle,
   Loader2,
-  Star
+  Trophy,
+  BarChart3,
+  Hourglass,
+  PackagePlus,
+  ClipboardList,
+  FolderKanban
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useEffect, useState } from 'react';
@@ -378,35 +380,39 @@ export default function DashboardPage() {
     {
       title: 'إجمالي المبيعات',
       value: formatIQD(stats.totalRevenue),
-      icon: DollarSign,
-      color: 'text-green-600',
-      bg: 'bg-green-50',
+      icon: Wallet,
+      color: 'text-emerald-600',
+      bg: 'bg-gradient-to-br from-emerald-50 to-green-50',
+      iconBg: 'bg-gradient-to-br from-emerald-500 to-green-600',
       growth: stats.revenueGrowth,
       link: '/orders?status=delivered'
     },
     {
       title: 'إجمالي الطلبات',
       value: stats.totalOrders,
-      icon: ShoppingCart,
+      icon: ClipboardList,
       color: 'text-blue-600',
-      bg: 'bg-blue-50',
+      bg: 'bg-gradient-to-br from-blue-50 to-indigo-50',
+      iconBg: 'bg-gradient-to-br from-blue-500 to-indigo-600',
       growth: stats.ordersGrowth,
       link: '/orders'
     },
     {
       title: 'متوسط قيمة الطلب',
       value: formatIQD(stats.averageOrderValue),
-      icon: TrendingUp,
-      color: 'text-orange-600',
-      bg: 'bg-orange-50',
+      icon: BarChart3,
+      color: 'text-amber-600',
+      bg: 'bg-gradient-to-br from-amber-50 to-orange-50',
+      iconBg: 'bg-gradient-to-br from-amber-500 to-orange-600',
       link: null
     },
     {
       title: 'طلبات قيد الانتظار',
       value: stats.pendingOrders,
-      icon: ShoppingBag,
-      color: 'text-purple-600',
-      bg: 'bg-purple-50',
+      icon: Hourglass,
+      color: 'text-violet-600',
+      bg: 'bg-gradient-to-br from-violet-50 to-purple-50',
+      iconBg: 'bg-gradient-to-br from-violet-500 to-purple-600',
       link: '/orders?status=pending'
     }
   ];
@@ -420,33 +426,33 @@ export default function DashboardPage() {
         {(stats.lowStockCount > 0 || stats.delayedOrdersCount > 0) && (
           <div className="mb-4 md:mb-6 space-y-3">
             {stats.lowStockCount > 0 && (
-              <div className="bg-orange-50 border border-orange-200 rounded-xl p-3 md:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="bg-gradient-to-l from-amber-50 to-orange-50 border border-amber-200/60 rounded-2xl p-3 md:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 md:w-10 md:h-10 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
-                    <AlertTriangle className="text-orange-600" size={18} />
+                  <div className="w-9 h-9 md:w-11 md:h-11 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-amber-200">
+                    <TriangleAlert className="text-white" size={18} />
                   </div>
                   <div>
-                    <p className="font-bold text-orange-800 text-sm md:text-base">تنبيه المخزون</p>
-                    <p className="text-xs md:text-sm text-orange-600">لديك {stats.lowStockCount} منتجات بمخزون منخفض</p>
+                    <p className="font-bold text-amber-800 text-sm md:text-base">تنبيه المخزون</p>
+                    <p className="text-xs md:text-sm text-amber-600">لديك {stats.lowStockCount} منتجات بمخزون منخفض</p>
                   </div>
                 </div>
-                <Link href="/products?filter=low-stock" className="px-3 py-1.5 md:px-4 md:py-2 bg-orange-600 text-white rounded-lg text-xs md:text-sm font-medium hover:bg-orange-700 transition-colors text-center flex-shrink-0">
+                <Link href="/products?filter=low-stock" className="px-3 py-1.5 md:px-4 md:py-2 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-xl text-xs md:text-sm font-medium hover:shadow-lg transition-all text-center flex-shrink-0 shadow-sm">
                   عرض المنتجات
                 </Link>
               </div>
             )}
             {stats.delayedOrdersCount > 0 && (
-              <div className="bg-red-50 border border-red-200 rounded-xl p-3 md:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="bg-gradient-to-l from-red-50 to-rose-50 border border-red-200/60 rounded-2xl p-3 md:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 md:w-10 md:h-10 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
-                    <Clock className="text-red-600" size={18} />
+                  <div className="w-9 h-9 md:w-11 md:h-11 bg-gradient-to-br from-red-500 to-rose-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-red-200">
+                    <Timer className="text-white" size={18} />
                   </div>
                   <div>
                     <p className="font-bold text-red-800 text-sm md:text-base">طلبات متأخرة</p>
                     <p className="text-xs md:text-sm text-red-600">لديك {stats.delayedOrdersCount} طلبات تحتاج متابعة (أكثر من 24 ساعة)</p>
                   </div>
                 </div>
-                <Link href="/orders?filter=delayed" className="px-3 py-1.5 md:px-4 md:py-2 bg-red-600 text-white rounded-lg text-xs md:text-sm font-medium hover:bg-red-700 transition-colors text-center flex-shrink-0">
+                <Link href="/orders?filter=delayed" className="px-3 py-1.5 md:px-4 md:py-2 bg-gradient-to-r from-red-500 to-rose-600 text-white rounded-xl text-xs md:text-sm font-medium hover:shadow-lg transition-all text-center flex-shrink-0 shadow-sm">
                   عرض الطلبات
                 </Link>
               </div>
@@ -459,21 +465,21 @@ export default function DashboardPage() {
           {statCards.map((stat, index) => {
             const Icon = stat.icon;
             const CardContent = (
-              <div className="bg-white p-3 md:p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer">
+              <div className={`${stat.bg} p-3 md:p-6 rounded-2xl shadow-sm border border-white/60 hover:shadow-lg transition-all duration-300 cursor-pointer group`}>
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
-                    <p className="text-gray-500 text-xs md:text-sm mb-1 truncate">{stat.title}</p>
+                    <p className="text-gray-500 text-xs md:text-sm mb-1 truncate font-medium">{stat.title}</p>
                     <h3 className="text-base md:text-2xl font-bold text-gray-800 truncate">{stat.value}</h3>
                     {stat.growth !== undefined && (
-                      <div className={`flex items-center gap-1 mt-1 md:mt-2 text-xs md:text-sm ${stat.growth >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      <div className={`flex items-center gap-1 mt-1 md:mt-2 text-xs md:text-sm ${stat.growth >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
                         {stat.growth >= 0 ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
-                        <span>{Math.abs(stat.growth).toFixed(1)}%</span>
+                        <span className="font-semibold">{Math.abs(stat.growth).toFixed(1)}%</span>
                         <span className="text-gray-400 text-[10px] md:text-xs hidden sm:inline">من الأسبوع الماضي</span>
                       </div>
                     )}
                   </div>
-                  <div className={`w-8 h-8 md:w-12 md:h-12 rounded-full flex items-center justify-center flex-shrink-0 ${stat.bg}`}>
-                    <Icon className={stat.color} size={18} />
+                  <div className={`w-9 h-9 md:w-12 md:h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${stat.iconBg} shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                    <Icon className="text-white" size={18} />
                   </div>
                 </div>
               </div>
@@ -565,7 +571,7 @@ export default function DashboardPage() {
             <div className="space-y-4">
               {topProducts.length === 0 ? (
                 <div className="text-center py-8 text-gray-400">
-                  <Star size={40} className="mx-auto mb-2 opacity-50" />
+                  <Trophy size={40} className="mx-auto mb-2 opacity-50" />
                   <p>لا توجد بيانات مبيعات بعد</p>
                 </div>
               ) : (
@@ -636,7 +642,7 @@ export default function DashboardPage() {
           <div className="bg-white p-3 md:p-6 rounded-xl shadow-sm border border-gray-100">
             <div className="flex items-center justify-between mb-3 md:mb-4">
               <div className="flex items-center gap-2">
-                <AlertTriangle className="text-orange-500" size={18} />
+                <TriangleAlert className="text-amber-500" size={18} />
                 <h3 className="text-sm md:text-lg font-bold text-gray-800">منتجات بمخزون منخفض</h3>
               </div>
               <Link href="/products?filter=low-stock" className="text-xs md:text-sm text-primary hover:underline">عرض الكل</Link>
@@ -658,19 +664,19 @@ export default function DashboardPage() {
         )}
 
         {/* Quick Actions */}
-        <div className="mt-4 md:mt-6 bg-white p-3 md:p-6 rounded-xl shadow-sm border border-gray-100">
+        <div className="mt-4 md:mt-6 bg-white p-3 md:p-6 rounded-2xl shadow-sm border border-gray-100">
           <h3 className="text-sm md:text-lg font-bold text-gray-800 mb-3 md:mb-4">إجراءات سريعة</h3>
           <div className="flex flex-wrap gap-2 md:gap-3">
-            <Link href="/products/new" className="px-3 py-1.5 md:px-4 md:py-2 bg-primary text-white rounded-lg text-xs md:text-sm font-medium hover:bg-green-700 transition-colors flex items-center gap-1.5 md:gap-2">
-              <Package size={16} />
+            <Link href="/products/new" className="px-3 py-1.5 md:px-4 md:py-2.5 bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-xl text-xs md:text-sm font-medium hover:shadow-lg transition-all flex items-center gap-1.5 md:gap-2 shadow-sm">
+              <PackagePlus size={16} />
               إضافة منتج جديد
             </Link>
-            <Link href="/orders?status=pending" className="px-3 py-1.5 md:px-4 md:py-2 bg-blue-600 text-white rounded-lg text-xs md:text-sm font-medium hover:bg-blue-700 transition-colors flex items-center gap-1.5 md:gap-2">
-              <ShoppingBag size={16} />
+            <Link href="/orders?status=pending" className="px-3 py-1.5 md:px-4 md:py-2.5 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl text-xs md:text-sm font-medium hover:shadow-lg transition-all flex items-center gap-1.5 md:gap-2 shadow-sm">
+              <ClipboardList size={16} />
               الطلبات الجديدة
             </Link>
-            <Link href="/categories" className="px-3 py-1.5 md:px-4 md:py-2 border border-gray-300 text-gray-700 rounded-lg text-xs md:text-sm font-medium hover:bg-gray-50 transition-colors flex items-center gap-1.5 md:gap-2">
-              <Eye size={16} />
+            <Link href="/categories" className="px-3 py-1.5 md:px-4 md:py-2.5 border border-gray-200 text-gray-700 rounded-xl text-xs md:text-sm font-medium hover:bg-gray-50 hover:border-gray-300 transition-all flex items-center gap-1.5 md:gap-2">
+              <FolderKanban size={16} />
               إدارة الأقسام
             </Link>
           </div>

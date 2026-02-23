@@ -2,7 +2,7 @@
   "expo": {
     "name": "الأمل سنتر",
     "slug": "al-amal-hypermarket",
-    "version": "0.50",
+    "version": "0.53",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -37,7 +37,7 @@
     },
     "android": {
       "package": "com.alamal.center",
-      "versionCode": 2,
+      "versionCode": 5,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"

@@ -2,11 +2,11 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Plus, Edit, Trash2, Search, FileDown, ChevronRight, ChevronLeft, Filter, X } from 'lucide-react';
+import { PackagePlus, SquarePen, Trash2, Search, FileSpreadsheet, ChevronRight, ChevronLeft, SlidersHorizontal, CircleX } from 'lucide-react';
 import ExcelUploadModal from '@/components/products/ExcelUploadModal';
 import Link from 'next/link';
 import { formatIQD } from '@/lib/utils';
-import { Image } from 'lucide-react';
+import { ImageOff } from 'lucide-react';
 import { Header } from '@/components/layout/Header';
 
 export default function ProductsPage() {
@@ -124,310 +124,310 @@ export default function ProductsPage() {
 
   return (
     <>
-    <Header title="إدارة المنتجات" />
-    <div className="p-3 sm:p-4 md:p-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 md:mb-6">
-        <h1 className="text-lg md:text-2xl font-bold text-gray-800">إدارة المنتجات</h1>
-        <div className="flex gap-2 md:gap-3 w-full sm:w-auto">
-          <button
-            onClick={() => setShowExcelModal(true)}
-            className="bg-green-600 text-white px-3 py-2 md:px-6 md:py-3 rounded-lg flex items-center gap-1.5 md:gap-2 hover:bg-green-700 transition-colors text-xs md:text-base font-bold shadow-md flex-1 sm:flex-initial justify-center"
-          >
-            <FileDown size={18} />
-            <span className="hidden sm:inline">رفع من Excel</span>
-            <span className="sm:hidden">Excel</span>
-          </button>
-          <Link
-            href="/products/new"
-            className="bg-primary text-white px-3 py-2 md:px-6 md:py-3 rounded-lg flex items-center gap-1.5 md:gap-2 hover:bg-green-700 transition-colors text-xs md:text-base font-bold shadow-md flex-1 sm:flex-initial justify-center"
-          >
-            <Plus size={18} />
-            <span className="hidden sm:inline">إضافة منتج</span>
-            <span className="sm:hidden">إضافة</span>
-          </Link>
-        </div>
-      </div>
-
-      {showExcelModal && (
-        <ExcelUploadModal
-          onClose={() => setShowExcelModal(false)}
-          onSuccess={() => {
-            fetchProducts();
-            setShowExcelModal(false);
-          }}
-          categories={categories}
-        />
-      )}
-
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <div className="p-4 border-b border-gray-100">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="relative flex-1 max-w-md">
-              <input
-                type="text"
-                placeholder="بحث عن منتج..."
-                className="w-full pl-4 pr-10 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              <Search className="absolute right-3 top-2.5 text-gray-400" size={18} />
-            </div>
+      <Header title="إدارة المنتجات" />
+      <div className="p-3 sm:p-4 md:p-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 md:mb-6">
+          <h1 className="text-lg md:text-2xl font-bold text-gray-800">إدارة المنتجات</h1>
+          <div className="flex gap-2 md:gap-3 w-full sm:w-auto">
             <button
-              onClick={() => setShowFilters(!showFilters)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${showFilters ? 'bg-primary text-white border-primary' : 'bg-white border-gray-300 hover:bg-gray-50'
-                }`}
+              onClick={() => setShowExcelModal(true)}
+              className="bg-emerald-600 text-white px-3 py-2 md:px-6 md:py-3 rounded-xl flex items-center gap-1.5 md:gap-2 hover:bg-emerald-700 transition-all text-xs md:text-base font-bold shadow-md hover:shadow-lg flex-1 sm:flex-initial justify-center"
             >
-              <Filter size={18} />
-              <span>فلاتر</span>
+              <FileSpreadsheet size={18} />
+              <span className="hidden sm:inline">رفع من Excel</span>
+              <span className="sm:hidden">Excel</span>
             </button>
-            {hasActiveFilters && (
+            <Link
+              href="/products/new"
+              className="bg-primary text-white px-3 py-2 md:px-6 md:py-3 rounded-xl flex items-center gap-1.5 md:gap-2 hover:bg-green-700 transition-all text-xs md:text-base font-bold shadow-md hover:shadow-lg flex-1 sm:flex-initial justify-center"
+            >
+              <PackagePlus size={18} />
+              <span className="hidden sm:inline">إضافة منتج</span>
+              <span className="sm:hidden">إضافة</span>
+            </Link>
+          </div>
+        </div>
+
+        {showExcelModal && (
+          <ExcelUploadModal
+            onClose={() => setShowExcelModal(false)}
+            onSuccess={() => {
+              fetchProducts();
+              setShowExcelModal(false);
+            }}
+            categories={categories}
+          />
+        )}
+
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div className="p-4 border-b border-gray-100">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="relative flex-1 max-w-md">
+                <input
+                  type="text"
+                  placeholder="بحث عن منتج..."
+                  className="w-full pl-4 pr-10 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                <Search className="absolute right-3 top-2.5 text-gray-400" size={18} />
+              </div>
               <button
-                onClick={clearFilters}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
+                onClick={() => setShowFilters(!showFilters)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${showFilters ? 'bg-primary text-white border-primary' : 'bg-white border-gray-300 hover:bg-gray-50'
+                  }`}
               >
-                <X size={18} />
-                <span>مسح</span>
+                <SlidersHorizontal size={18} />
+                <span>فلاتر</span>
               </button>
+              {hasActiveFilters && (
+                <button
+                  onClick={clearFilters}
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
+                >
+                  <CircleX size={18} />
+                  <span>مسح</span>
+                </button>
+              )}
+            </div>
+
+            {showFilters && (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 p-4 bg-gray-50 rounded-lg">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">القسم</label>
+                  <select
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    value={filters.category_id}
+                    onChange={(e) => {
+                      setFilters({ ...filters, category_id: e.target.value });
+                      setCurrentPage(1);
+                    }}
+                  >
+                    <option value="">جميع الأقسام</option>
+                    {categories.map(cat => (
+                      <option key={cat.id} value={cat.id}>{cat.name_ar}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">الحالة</label>
+                  <select
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    value={filters.is_active}
+                    onChange={(e) => {
+                      setFilters({ ...filters, is_active: e.target.value });
+                      setCurrentPage(1);
+                    }}
+                  >
+                    <option value="all">الكل</option>
+                    <option value="active">نشط</option>
+                    <option value="inactive">غير نشط</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">المخزون</label>
+                  <select
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    value={filters.stock_status}
+                    onChange={(e) => {
+                      setFilters({ ...filters, stock_status: e.target.value });
+                      setCurrentPage(1);
+                    }}
+                  >
+                    <option value="all">الكل</option>
+                    <option value="in_stock">متوفر</option>
+                    <option value="low">منخفض (&lt;10)</option>
+                    <option value="out">نفذ</option>
+                  </select>
+                </div>
+              </div>
             )}
+
+            <div className="flex items-center justify-between mt-3 text-sm text-gray-600">
+              <span>إجمالي المنتجات: <strong className="text-primary">{totalCount.toLocaleString()}</strong></span>
+              {loading && <span className="text-primary">جاري التحميل...</span>}
+            </div>
           </div>
 
-          {showFilters && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 p-4 bg-gray-50 rounded-lg">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">القسم</label>
-                <select
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
-                  value={filters.category_id}
-                  onChange={(e) => {
-                    setFilters({ ...filters, category_id: e.target.value });
-                    setCurrentPage(1);
-                  }}
-                >
-                  <option value="">جميع الأقسام</option>
-                  {categories.map(cat => (
-                    <option key={cat.id} value={cat.id}>{cat.name_ar}</option>
-                  ))}
-                </select>
-              </div>
+          {/* Desktop Table */}
+          <div className="hidden md:block overflow-x-auto">
+            <table className="w-full text-right">
+              <thead className="bg-gray-50 text-gray-600 text-sm font-medium">
+                <tr>
+                  <th className="px-6 py-4">المنتج</th>
+                  <th className="px-6 py-4">القسم</th>
+                  <th className="px-6 py-4">السعر</th>
+                  <th className="px-6 py-4">المخزون</th>
+                  <th className="px-6 py-4">الحالة</th>
+                  <th className="px-6 py-4">إجراءات</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {products.map((product) => (
+                  <tr key={product.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 flex items-center gap-3">
+                      <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
+                        {product.image_url ? (
+                          <img src={product.image_url} alt={product.name_ar} className="w-full h-full object-cover" />
+                        ) : (
+                          <ImageOff className="text-gray-400" size={24} />
+                        )}
+                      </div>
+                      <div>
+                        <p className="font-bold text-gray-800">{product.name_ar}</p>
+                        <p className="text-xs text-gray-500">{product.name}</p>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-gray-600">{product.categories?.name_ar}</td>
+                    <td className="px-6 py-4 font-bold text-primary">{formatIQD(product.price_iqd)}</td>
+                    <td className="px-6 py-4">
+                      <span className={`px-2 py-1 rounded text-xs font-bold ${product.stock_quantity < 10 ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
+                        {product.stock_quantity}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`w-2 h-2 rounded-full inline-block ml-2 ${product.is_active ? 'bg-green-500' : 'bg-gray-400'}`}></span>
+                      {product.is_active ? 'نشط' : 'غير نشط'}
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-2">
+                        <Link
+                          href={`/products/${product.id}`}
+                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        >
+                          <SquarePen size={18} />
+                        </Link>
+                        <button
+                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          onClick={() => handleDelete(product.id)}
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">الحالة</label>
-                <select
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
-                  value={filters.is_active}
-                  onChange={(e) => {
-                    setFilters({ ...filters, is_active: e.target.value });
-                    setCurrentPage(1);
-                  }}
-                >
-                  <option value="all">الكل</option>
-                  <option value="active">نشط</option>
-                  <option value="inactive">غير نشط</option>
-                </select>
+          {/* Mobile Card View */}
+          <div className="md:hidden divide-y divide-gray-100">
+            {products.map((product) => (
+              <div key={product.id} className="p-3 hover:bg-gray-50">
+                <div className="flex items-start gap-3">
+                  <div className="w-14 h-14 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
+                    {product.image_url ? (
+                      <img src={product.image_url} alt={product.name_ar} className="w-full h-full object-cover" />
+                    ) : (
+                      <ImageOff className="text-gray-400" size={24} />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="font-bold text-gray-800 text-sm truncate">{product.name_ar}</p>
+                        <p className="text-xs text-gray-500 truncate">{product.categories?.name_ar}</p>
+                      </div>
+                      <div className="flex items-center gap-1 flex-shrink-0">
+                        <Link
+                          href={`/products/${product.id}`}
+                          className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        >
+                          <SquarePen size={16} />
+                        </Link>
+                        <button
+                          className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          onClick={() => handleDelete(product.id)}
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 mt-1.5">
+                      <span className="font-bold text-primary text-sm">{formatIQD(product.price_iqd)}</span>
+                      <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${product.stock_quantity < 10 ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
+                        مخزون: {product.stock_quantity}
+                      </span>
+                      <span className={`w-1.5 h-1.5 rounded-full inline-block ${product.is_active ? 'bg-green-500' : 'bg-gray-400'}`}></span>
+                    </div>
+                  </div>
+                </div>
               </div>
+            ))}
+          </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">المخزون</label>
-                <select
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
-                  value={filters.stock_status}
-                  onChange={(e) => {
-                    setFilters({ ...filters, stock_status: e.target.value });
-                    setCurrentPage(1);
-                  }}
-                >
-                  <option value="all">الكل</option>
-                  <option value="in_stock">متوفر</option>
-                  <option value="low">منخفض (&lt;10)</option>
-                  <option value="out">نفذ</option>
-                </select>
-              </div>
+          {!loading && products.length === 0 && (
+            <div className="p-6 md:p-8 text-center text-gray-500 text-sm md:text-base">
+              {hasActiveFilters ? 'لا توجد منتجات مطابقة للفلاتر' : 'لا توجد منتجات'}
             </div>
           )}
 
-          <div className="flex items-center justify-between mt-3 text-sm text-gray-600">
-            <span>إجمالي المنتجات: <strong className="text-primary">{totalCount.toLocaleString()}</strong></span>
-            {loading && <span className="text-primary">جاري التحميل...</span>}
-          </div>
-        </div>
-
-        {/* Desktop Table */}
-        <div className="hidden md:block overflow-x-auto">
-          <table className="w-full text-right">
-            <thead className="bg-gray-50 text-gray-600 text-sm font-medium">
-              <tr>
-                <th className="px-6 py-4">المنتج</th>
-                <th className="px-6 py-4">القسم</th>
-                <th className="px-6 py-4">السعر</th>
-                <th className="px-6 py-4">المخزون</th>
-                <th className="px-6 py-4">الحالة</th>
-                <th className="px-6 py-4">إجراءات</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {products.map((product) => (
-                <tr key={product.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 flex items-center gap-3">
-                    <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
-                      {product.image_url ? (
-                        <img src={product.image_url} alt={product.name_ar} className="w-full h-full object-cover" />
-                      ) : (
-                        <Image className="text-gray-400" size={24} />
-                      )}
-                    </div>
-                    <div>
-                      <p className="font-bold text-gray-800">{product.name_ar}</p>
-                      <p className="text-xs text-gray-500">{product.name}</p>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-gray-600">{product.categories?.name_ar}</td>
-                  <td className="px-6 py-4 font-bold text-primary">{formatIQD(product.price_iqd)}</td>
-                  <td className="px-6 py-4">
-                    <span className={`px-2 py-1 rounded text-xs font-bold ${product.stock_quantity < 10 ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
-                      {product.stock_quantity}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={`w-2 h-2 rounded-full inline-block ml-2 ${product.is_active ? 'bg-green-500' : 'bg-gray-400'}`}></span>
-                    {product.is_active ? 'نشط' : 'غير نشط'}
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2">
-                      <Link
-                        href={`/products/${product.id}`}
-                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                      >
-                        <Edit size={18} />
-                      </Link>
-                      <button
-                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                        onClick={() => handleDelete(product.id)}
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Mobile Card View */}
-        <div className="md:hidden divide-y divide-gray-100">
-          {products.map((product) => (
-            <div key={product.id} className="p-3 hover:bg-gray-50">
-              <div className="flex items-start gap-3">
-                <div className="w-14 h-14 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
-                  {product.image_url ? (
-                    <img src={product.image_url} alt={product.name_ar} className="w-full h-full object-cover" />
-                  ) : (
-                    <Image className="text-gray-400" size={24} />
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      <p className="font-bold text-gray-800 text-sm truncate">{product.name_ar}</p>
-                      <p className="text-xs text-gray-500 truncate">{product.categories?.name_ar}</p>
-                    </div>
-                    <div className="flex items-center gap-1 flex-shrink-0">
-                      <Link
-                        href={`/products/${product.id}`}
-                        className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                      >
-                        <Edit size={16} />
-                      </Link>
-                      <button
-                        className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                        onClick={() => handleDelete(product.id)}
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 mt-1.5">
-                    <span className="font-bold text-primary text-sm">{formatIQD(product.price_iqd)}</span>
-                    <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${product.stock_quantity < 10 ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
-                      مخزون: {product.stock_quantity}
-                    </span>
-                    <span className={`w-1.5 h-1.5 rounded-full inline-block ${product.is_active ? 'bg-green-500' : 'bg-gray-400'}`}></span>
-                  </div>
-                </div>
-              </div>
+          {loading && (
+            <div className="p-6 md:p-8 text-center text-gray-500">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+              <p className="mt-2 text-sm">جاري تحميل المنتجات...</p>
             </div>
-          ))}
-        </div>
+          )}
 
-        {!loading && products.length === 0 && (
-          <div className="p-6 md:p-8 text-center text-gray-500 text-sm md:text-base">
-            {hasActiveFilters ? 'لا توجد منتجات مطابقة للفلاتر' : 'لا توجد منتجات'}
-          </div>
-        )}
-
-        {loading && (
-          <div className="p-6 md:p-8 text-center text-gray-500">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-            <p className="mt-2 text-sm">جاري تحميل المنتجات...</p>
-          </div>
-        )}
-
-        {totalCount > 0 && (
-          <div className="p-3 md:p-4 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-2">
-            <div className="text-xs md:text-sm text-gray-600">
-              عرض {startIndex + 1} - {endIndex} من {totalCount.toLocaleString()} منتج
-            </div>
-
-            <div className="flex items-center gap-1 md:gap-2">
-              <button
-                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                disabled={currentPage === 1}
-                className="px-2 py-1.5 md:px-3 md:py-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                <ChevronRight size={16} />
-              </button>
-
-              <div className="flex items-center gap-0.5 md:gap-1">
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
-                  if (
-                    page === 1 ||
-                    page === totalPages ||
-                    (page >= currentPage - 1 && page <= currentPage + 1)
-                  ) {
-                    return (
-                      <button
-                        key={page}
-                        onClick={() => setCurrentPage(page)}
-                        className={`px-2 py-1 md:px-3 rounded-lg text-sm font-medium transition-colors ${currentPage === page
-                          ? 'bg-primary text-white'
-                          : 'hover:bg-gray-100 text-gray-700'
-                          }`}
-                      >
-                        {page}
-                      </button>
-                    );
-                  } else if (
-                    page === currentPage - 2 ||
-                    page === currentPage + 2
-                  ) {
-                    return <span key={page} className="px-1 text-gray-400">...</span>;
-                  }
-                  return null;
-                })}
+          {totalCount > 0 && (
+            <div className="p-3 md:p-4 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-2">
+              <div className="text-xs md:text-sm text-gray-600">
+                عرض {startIndex + 1} - {endIndex} من {totalCount.toLocaleString()} منتج
               </div>
 
-              <button
-                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                disabled={currentPage === totalPages}
-                className="px-2 py-1.5 md:px-3 md:py-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                <ChevronLeft size={18} />
-              </button>
+              <div className="flex items-center gap-1 md:gap-2">
+                <button
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1}
+                  className="px-2 py-1.5 md:px-3 md:py-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  <ChevronRight size={16} />
+                </button>
+
+                <div className="flex items-center gap-0.5 md:gap-1">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+                    if (
+                      page === 1 ||
+                      page === totalPages ||
+                      (page >= currentPage - 1 && page <= currentPage + 1)
+                    ) {
+                      return (
+                        <button
+                          key={page}
+                          onClick={() => setCurrentPage(page)}
+                          className={`px-2 py-1 md:px-3 rounded-lg text-sm font-medium transition-colors ${currentPage === page
+                            ? 'bg-primary text-white'
+                            : 'hover:bg-gray-100 text-gray-700'
+                            }`}
+                        >
+                          {page}
+                        </button>
+                      );
+                    } else if (
+                      page === currentPage - 2 ||
+                      page === currentPage + 2
+                    ) {
+                      return <span key={page} className="px-1 text-gray-400">...</span>;
+                    }
+                    return null;
+                  })}
+                </div>
+
+                <button
+                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                  disabled={currentPage === totalPages}
+                  className="px-2 py-1.5 md:px-3 md:py-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  <ChevronLeft size={18} />
+                </button>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
-    </div>
     </>
   );
 }

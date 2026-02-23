@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { ArrowRight, Upload, Loader2, Save, Sparkles, Camera, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, Upload, Loader2, Save, Sparkles, Camera, CheckCircle2, Edit2 } from 'lucide-react';
 
 interface AIProductFormProps {
   onBack: () => void;
@@ -14,12 +14,12 @@ export default function AIProductForm({ onBack }: AIProductFormProps) {
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState<'upload' | 'input' | 'review'>('upload');
   const [categories, setCategories] = useState<any[]>([]);
-  
+
   const [frontImage, setFrontImage] = useState<File | null>(null);
   const [backImage, setBackImage] = useState<File | null>(null);
   const [frontImagePreview, setFrontImagePreview] = useState<string | null>(null);
   const [backImagePreview, setBackImagePreview] = useState<string | null>(null);
-  
+
   const [aiData, setAiData] = useState({
     name_ar: '',
     name_en: '',
@@ -39,7 +39,7 @@ export default function AIProductForm({ onBack }: AIProductFormProps) {
   }, []);
 
   const fetchCategories = async () => {
-    const { data } = await supabase.from('categories').select('*').eq('is_active', true);
+    const { data } = await supabase.from('categories').select('*').eq('is_active', true).order('name_ar');
     setCategories(data || []);
   };
 
@@ -47,7 +47,7 @@ export default function AIProductForm({ onBack }: AIProductFormProps) {
     if (!e.target.files || e.target.files.length === 0) return;
 
     const file = e.target.files[0];
-    
+
     if (!file.type.startsWith('image/')) {
       alert('يرجى اختيار ملف صورة صالح');
       return;
@@ -81,15 +81,13 @@ export default function AIProductForm({ onBack }: AIProductFormProps) {
 
     try {
       console.log('Converting images to base64...');
-      // تحويل الصور إلى base64
       const frontBase64 = await fileToBase64(frontImage);
       const backBase64 = await fileToBase64(backImage);
-      
+
       console.log('Front image size:', frontBase64.length, 'chars');
       console.log('Back image size:', backBase64.length, 'chars');
       console.log('Categories:', categories.length);
 
-      // استدعاء Gemini API لتحليل الصور
       console.log('Calling API...');
       const response = await fetch('/api/ai/analyze-product', {
         method: 'POST',
@@ -102,7 +100,7 @@ export default function AIProductForm({ onBack }: AIProductFormProps) {
       });
 
       console.log('Response status:', response.status);
-      
+
       if (!response.ok) {
         const errorData = await response.json();
         console.error('API Error:', errorData);
@@ -112,7 +110,6 @@ export default function AIProductForm({ onBack }: AIProductFormProps) {
       const data = await response.json();
       console.log('AI analysis completed:', data);
 
-      // إزالة خلفية الصورة الأمامية
       console.log('Starting background removal...');
       const removeBgResponse = await fetch('/api/ai/remove-background', {
         method: 'POST',
@@ -130,7 +127,7 @@ export default function AIProductForm({ onBack }: AIProductFormProps) {
 
       const bgResult = await removeBgResponse.json();
       console.log('Background removal result:', bgResult);
-      
+
       const { imageUrl } = bgResult;
 
       setAiData({
@@ -163,7 +160,6 @@ export default function AIProductForm({ onBack }: AIProductFormProps) {
           let width = img.width;
           let height = img.height;
 
-          // تصغير الصورة إذا كانت كبيرة
           if (width > maxWidth) {
             height = (height * maxWidth) / width;
             width = maxWidth;
@@ -174,7 +170,6 @@ export default function AIProductForm({ onBack }: AIProductFormProps) {
           const ctx = canvas.getContext('2d');
           ctx?.drawImage(img, 0, 0, width, height);
 
-          // تحويل إلى base64 بجودة 0.8
           const base64 = canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
           resolve(base64);
         };
@@ -211,7 +206,7 @@ export default function AIProductForm({ onBack }: AIProductFormProps) {
       });
 
       if (error) throw error;
-      
+
       router.push('/products');
       router.refresh();
     } catch (error: any) {
@@ -243,23 +238,23 @@ export default function AIProductForm({ onBack }: AIProductFormProps) {
             </div>
             <span className="font-medium">رفع الصور</span>
           </div>
-          
+
           <div className="w-12 h-0.5 bg-gray-300"></div>
-          
+
           <div className={`flex items-center gap-2 ${step === 'input' ? 'text-purple-600' : step === 'review' ? 'text-green-600' : 'text-gray-400'}`}>
             <div className={`w-8 h-8 rounded-full flex items-center justify-center ${step === 'input' ? 'bg-purple-600 text-white' : step === 'review' ? 'bg-green-600 text-white' : 'bg-gray-200'}`}>
               {step === 'review' ? <CheckCircle2 size={18} /> : '2'}
             </div>
-            <span className="font-medium">إدخال البيانات</span>
+            <span className="font-medium">تعديل البيانات</span>
           </div>
-          
+
           <div className="w-12 h-0.5 bg-gray-300"></div>
-          
+
           <div className={`flex items-center gap-2 ${step === 'review' ? 'text-purple-600' : 'text-gray-400'}`}>
             <div className={`w-8 h-8 rounded-full flex items-center justify-center ${step === 'review' ? 'bg-purple-600 text-white' : 'bg-gray-200'}`}>
               3
             </div>
-            <span className="font-medium">المراجعة</span>
+            <span className="font-medium">المراجعة والحفظ</span>
           </div>
         </div>
 
@@ -350,70 +345,141 @@ export default function AIProductForm({ onBack }: AIProductFormProps) {
           </div>
         )}
 
-        {/* Step 2: User Input */}
+        {/* Step 2: Edit AI Data + User Input */}
         {step === 'input' && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-            <div className="text-center mb-6">
-              <h2 className="text-xl font-bold text-gray-800 mb-2">أدخل السعر والكمية</h2>
-              <p className="text-gray-600">تم استخراج باقي المعلومات تلقائياً</p>
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 md:p-8">
+            <div className="flex items-center gap-2 mb-6">
+              <div className="bg-purple-100 p-2 rounded-lg">
+                <Edit2 className="text-purple-600" size={20} />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-gray-800">راجع وعدّل البيانات</h2>
+                <p className="text-sm text-gray-500">يمكنك تعديل أي معلومة استخرجها الذكاء الاصطناعي</p>
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            {/* AI Extracted - Editable */}
+            <div className="bg-purple-50 border border-purple-200 rounded-xl p-5 mb-6">
+              <p className="text-xs font-bold text-purple-700 uppercase tracking-wider mb-4 flex items-center gap-1">
+                <Sparkles size={14} /> بيانات مستخرجة بالذكاء الاصطناعي (قابلة للتعديل)
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Name AR */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">الاسم بالعربي</label>
+                  <input
+                    type="text"
+                    className="w-full px-4 py-2.5 border border-purple-200 bg-white rounded-lg focus:ring-2 focus:ring-purple-400/30 focus:border-purple-400 outline-none text-sm"
+                    value={aiData.name_ar}
+                    onChange={(e) => setAiData({ ...aiData, name_ar: e.target.value })}
+                    placeholder="الاسم بالعربي"
+                    dir="rtl"
+                  />
+                </div>
+
+                {/* Name EN */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">الاسم بالإنجليزي</label>
+                  <input
+                    type="text"
+                    className="w-full px-4 py-2.5 border border-purple-200 bg-white rounded-lg focus:ring-2 focus:ring-purple-400/30 focus:border-purple-400 outline-none text-sm"
+                    value={aiData.name_en}
+                    onChange={(e) => setAiData({ ...aiData, name_en: e.target.value })}
+                    placeholder="Product name in English"
+                    dir="ltr"
+                  />
+                </div>
+
+                {/* Category Dropdown */}
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">القسم</label>
+                  <select
+                    className="w-full px-4 py-2.5 border border-purple-200 bg-white rounded-lg focus:ring-2 focus:ring-purple-400/30 focus:border-purple-400 outline-none text-sm"
+                    value={aiData.category_id}
+                    onChange={(e) => setAiData({ ...aiData, category_id: e.target.value })}
+                  >
+                    <option value="">-- اختر القسم --</option>
+                    {categories.map((cat) => (
+                      <option key={cat.id} value={cat.id}>
+                        {cat.name_ar}
+                        {cat.name ? ` — ${cat.name}` : ''}
+                      </option>
+                    ))}
+                  </select>
+                  {aiData.category_id && (
+                    <p className="text-xs text-purple-600 mt-1">
+                      ✓ القسم المختار: <strong>{getCategoryName(aiData.category_id)}</strong>
+                    </p>
+                  )}
+                </div>
+
+                {/* Description AR */}
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">الوصف بالعربي</label>
+                  <textarea
+                    rows={3}
+                    className="w-full px-4 py-2.5 border border-purple-200 bg-white rounded-lg focus:ring-2 focus:ring-purple-400/30 focus:border-purple-400 outline-none text-sm resize-none"
+                    value={aiData.description_ar}
+                    onChange={(e) => setAiData({ ...aiData, description_ar: e.target.value })}
+                    placeholder="وصف المنتج بالعربي"
+                    dir="rtl"
+                  />
+                </div>
+
+                {/* Description EN */}
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">الوصف بالإنجليزي</label>
+                  <textarea
+                    rows={3}
+                    className="w-full px-4 py-2.5 border border-purple-200 bg-white rounded-lg focus:ring-2 focus:ring-purple-400/30 focus:border-purple-400 outline-none text-sm resize-none"
+                    value={aiData.description_en}
+                    onChange={(e) => setAiData({ ...aiData, description_en: e.target.value })}
+                    placeholder="Product description in English"
+                    dir="ltr"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Price & Stock */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">السعر (د.ع)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  السعر (د.ع) <span className="text-red-500">*</span>
+                </label>
                 <input
                   type="number"
                   required
                   min="0"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 outline-none text-lg"
                   value={userInput.price_iqd}
-                  onChange={(e) => setUserInput({...userInput, price_iqd: e.target.value})}
+                  onChange={(e) => setUserInput({ ...userInput, price_iqd: e.target.value })}
                   placeholder="مثال: 25000"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">الكمية المتوفرة</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  الكمية المتوفرة <span className="text-red-500">*</span>
+                </label>
                 <input
                   type="number"
                   required
                   min="0"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 outline-none text-lg"
                   value={userInput.stock_quantity}
-                  onChange={(e) => setUserInput({...userInput, stock_quantity: e.target.value})}
+                  onChange={(e) => setUserInput({ ...userInput, stock_quantity: e.target.value })}
                   placeholder="مثال: 100"
                 />
               </div>
             </div>
 
-            <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-6">
-              <h3 className="font-bold text-purple-900 mb-3">المعلومات المستخرجة تلقائياً:</h3>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">الاسم بالعربي:</span>
-                  <span className="font-medium text-gray-800">{aiData.name_ar}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">الاسم بالإنجليزي:</span>
-                  <span className="font-medium text-gray-800">{aiData.name_en}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">القسم:</span>
-                  <span className="font-medium text-gray-800">{getCategoryName(aiData.category_id)}</span>
-                </div>
-                <div className="flex justify-between items-start">
-                  <span className="text-gray-600">الوصف:</span>
-                  <span className="font-medium text-gray-800 text-left max-w-xs">{aiData.description_ar.substring(0, 100)}...</span>
-                </div>
-              </div>
-            </div>
-
             <button
               onClick={() => setStep('review')}
-              disabled={!userInput.price_iqd || !userInput.stock_quantity}
+              disabled={!userInput.price_iqd || !userInput.stock_quantity || !aiData.name_ar || !aiData.category_id}
               className="w-full bg-purple-600 text-white px-8 py-4 rounded-lg font-bold hover:bg-purple-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <span>التالي: المراجعة</span>
+              <span>التالي: مراجعة المنتج</span>
             </button>
           </div>
         )}
@@ -428,47 +494,54 @@ export default function AIProductForm({ onBack }: AIProductFormProps) {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               <div className="space-y-4">
-                <div>
-                  <label className="text-sm text-gray-600">الاسم بالعربي</label>
-                  <p className="font-bold text-gray-800">{aiData.name_ar}</p>
+                <div className="bg-gray-50 rounded-lg p-3">
+                  <label className="text-xs text-gray-500 uppercase tracking-wider">الاسم بالعربي</label>
+                  <p className="font-bold text-gray-800 mt-1">{aiData.name_ar}</p>
                 </div>
-                <div>
-                  <label className="text-sm text-gray-600">الاسم بالإنجليزي</label>
-                  <p className="font-bold text-gray-800">{aiData.name_en}</p>
+                <div className="bg-gray-50 rounded-lg p-3">
+                  <label className="text-xs text-gray-500 uppercase tracking-wider">الاسم بالإنجليزي</label>
+                  <p className="font-bold text-gray-800 mt-1">{aiData.name_en}</p>
                 </div>
-                <div>
-                  <label className="text-sm text-gray-600">السعر</label>
-                  <p className="font-bold text-primary text-xl">{parseFloat(userInput.price_iqd).toLocaleString()} د.ع</p>
+                <div className="bg-gray-50 rounded-lg p-3">
+                  <label className="text-xs text-gray-500 uppercase tracking-wider">السعر</label>
+                  <p className="font-bold text-primary text-xl mt-1">{parseFloat(userInput.price_iqd).toLocaleString()} د.ع</p>
                 </div>
-                <div>
-                  <label className="text-sm text-gray-600">الكمية</label>
-                  <p className="font-bold text-gray-800">{userInput.stock_quantity}</p>
+                <div className="bg-gray-50 rounded-lg p-3">
+                  <label className="text-xs text-gray-500 uppercase tracking-wider">الكمية</label>
+                  <p className="font-bold text-gray-800 mt-1">{userInput.stock_quantity} قطعة</p>
                 </div>
-                <div>
-                  <label className="text-sm text-gray-600">القسم</label>
-                  <p className="font-bold text-gray-800">{getCategoryName(aiData.category_id)}</p>
+                <div className="bg-gray-50 rounded-lg p-3">
+                  <label className="text-xs text-gray-500 uppercase tracking-wider">القسم</label>
+                  <p className="font-bold text-gray-800 mt-1">{getCategoryName(aiData.category_id)}</p>
                 </div>
               </div>
 
               <div>
-                <label className="text-sm text-gray-600 mb-2 block">صورة المنتج</label>
+                <label className="text-sm text-gray-600 mb-2 block">صورة المنتج (بعد إزالة الخلفية)</label>
                 <div className="w-full h-64 bg-gray-100 rounded-xl overflow-hidden border-2 border-gray-200">
                   <img src={aiData.image_url} alt="Product" className="w-full h-full object-contain" />
                 </div>
               </div>
             </div>
 
-            <div className="mb-6">
-              <label className="text-sm text-gray-600 mb-2 block">الوصف</label>
-              <p className="text-gray-700 leading-relaxed bg-gray-50 p-4 rounded-lg">{aiData.description_ar}</p>
+            <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-gray-50 rounded-lg p-3">
+                <label className="text-xs text-gray-500 uppercase tracking-wider mb-1 block">الوصف بالعربي</label>
+                <p className="text-gray-700 leading-relaxed text-sm">{aiData.description_ar}</p>
+              </div>
+              <div className="bg-gray-50 rounded-lg p-3">
+                <label className="text-xs text-gray-500 uppercase tracking-wider mb-1 block">الوصف بالإنجليزي</label>
+                <p className="text-gray-700 leading-relaxed text-sm" dir="ltr">{aiData.description_en}</p>
+              </div>
             </div>
 
             <div className="flex gap-3">
               <button
                 onClick={() => setStep('input')}
-                className="flex-1 bg-gray-200 text-gray-700 px-8 py-4 rounded-lg font-bold hover:bg-gray-300 transition-all"
+                className="flex-1 bg-gray-200 text-gray-700 px-8 py-4 rounded-lg font-bold hover:bg-gray-300 transition-all flex items-center justify-center gap-2"
               >
-                رجوع
+                <Edit2 size={18} />
+                تعديل
               </button>
               <button
                 onClick={handleSubmit}

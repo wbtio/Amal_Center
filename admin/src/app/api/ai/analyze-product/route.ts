@@ -1,34 +1,84 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const GEMINI_API_KEY = 'AIzaSyAo0aQdHC1qYaYcK-HTtaPl3MS0CL1zTR4';
+// ===== مفاتيح API - أضف مفاتيح جديدة هنا =====
+// كل مفتاح له حصة مستقلة، عند نفاد الأول ينتقل للثاني تلقائياً
+const ALL_API_KEYS = [
+  process.env.GEMINI_API_KEY_1 || process.env.GEMINI_API_KEY || 'AIzaSyAo0aQdHC1qYaYcK-HTtaPl3MS0CL1zTR4',
+  process.env.GEMINI_API_KEY_2,
+  process.env.GEMINI_API_KEY_3,
+  process.env.GEMINI_API_KEY_4,
+].filter(Boolean) as string[]; // يحذف المفاتيح الفارغة تلقائياً
+
+// قائمة النماذج مرتبة حسب الأفضلية
+const MODELS = [
+  'gemini-3-flash-preview',
+  'gemini-2.5-flash',
+  'gemini-2.5-flash-lite',
+  'gemini-1.5-flash',
+];
+
+// دالة لاستدعاء نموذج بمفتاح معين
+async function tryWithKeyAndModel(
+  apiKey: string,
+  modelName: string,
+  prompt: string,
+  frontImage: string,
+  backImage: string
+): Promise<string> {
+  const genAI = new GoogleGenerativeAI(apiKey);
+  const model = genAI.getGenerativeModel({
+    model: modelName,
+    generationConfig: {
+      maxOutputTokens: 2048,
+      responseMimeType: 'application/json',
+    }
+  });
+
+  const result = await model.generateContent([
+    prompt,
+    { inlineData: { mimeType: 'image/jpeg', data: frontImage } },
+    { inlineData: { mimeType: 'image/jpeg', data: backImage } },
+  ]);
+
+  return result.response.text();
+}
+
+// دالة لاستخراج JSON من الرد
+function parseAIResponse(text: string): any {
+  try {
+    return JSON.parse(text);
+  } catch {
+    const cleaned = text
+      .replace(/```json\n?/g, '')
+      .replace(/```\n?/g, '')
+      .trim();
+    try {
+      return JSON.parse(cleaned);
+    } catch {
+      const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) throw new Error('لم يُرجع الذكاء الاصطناعي JSON صالح');
+      return JSON.parse(jsonMatch[0]);
+    }
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
     console.log('=== Starting AI Analysis ===');
+    console.log(`Available API keys: ${ALL_API_KEYS.length}`);
+
     const { frontImage, backImage, categories } = await request.json();
     console.log('Categories count:', categories?.length);
 
     if (!frontImage || !backImage) {
-      console.log('Missing images');
       return NextResponse.json(
         { error: 'يرجى إرسال صورتي المنتج' },
         { status: 400 }
       );
     }
 
-    console.log('Initializing Gemini API...');
-    const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-    // استخدام gemini-pro-vision الذي يدعم تحليل الصور
-    const model = genAI.getGenerativeModel({ 
-      model: 'gemini-3-flash-preview',
-      generationConfig: {
-        maxOutputTokens: 2048,
-      }
-    });
-    console.log('Gemini API initialized with gemini-3-flash-preview');
-
-    const categoriesList = categories.map((c: any, index: number) => 
+    const categoriesList = categories.map((c: any, index: number) =>
       `${index + 1}. ${c.name_ar} (${c.name})`
     ).join('\n');
 
@@ -79,85 +129,97 @@ ${categoriesList}
   "category_name": "اسم القسم المناسب بالعربية بالضبط"
 }`;
 
-    console.log('Calling Gemini API...');
-    const result = await model.generateContent([
-      prompt,
-      {
-        inlineData: {
-          mimeType: 'image/jpeg',
-          data: frontImage
-        }
-      },
-      {
-        inlineData: {
-          mimeType: 'image/jpeg',
-          data: backImage
+    // ===== نظام التناوب التلقائي: كل مفتاح × كل نموذج =====
+    let rawText: string | null = null;
+    let usedModel = '';
+    let usedKeyIndex = -1;
+    const allErrors: string[] = [];
+
+    outer:
+    for (let ki = 0; ki < ALL_API_KEYS.length; ki++) {
+      const key = ALL_API_KEYS[ki];
+      const keyLabel = `Key#${ki + 1}`;
+
+      for (const modelName of MODELS) {
+        try {
+          console.log(`🔑 ${keyLabel} × 🤖 ${modelName} — trying...`);
+          rawText = await tryWithKeyAndModel(key, modelName, prompt, frontImage, backImage);
+          usedModel = modelName;
+          usedKeyIndex = ki + 1;
+          console.log(`✅ SUCCESS with ${keyLabel} × ${modelName}`);
+          break outer; // نجح — توقف عن المحاولة
+        } catch (err: any) {
+          const msg = (err.message || '').substring(0, 100);
+          const is429 = err.status === 429 || msg.includes('429') || msg.includes('quota') || msg.includes('Too Many');
+          console.warn(`⚠️ ${keyLabel} × ${modelName} failed${is429 ? ' [QUOTA]' : ''}: ${msg}`);
+          allErrors.push(`${keyLabel}×${modelName}: ${msg}`);
+
+          // إذا كان 429 على هذا المفتاح → جرب النموذج التالي (ثم انتقل للمفتاح التالي)
+          // إذا كان خطأ آخر → جرب النموذج التالي أيضاً
+          continue;
         }
       }
-    ]);
-
-    console.log('Getting response...');
-    const response = await result.response;
-    const text = response.text();
-    console.log('AI Response:', text);
-    
-    // استخراج JSON من النص
-    let jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      console.error('No JSON found in response:', text);
-      throw new Error('فشل استخراج البيانات من الذكاء الاصطناعي');
     }
 
-    console.log('Parsing JSON...');
-    const productData = JSON.parse(jsonMatch[0]);
-    console.log('Product data:', productData);
+    // إذا فشلت كل المحاولات
+    if (!rawText) {
+      const isAllQuota = allErrors.every(e => e.includes('quota') || e.includes('429') || e.includes('Too Many'));
+      console.error('❌ All combinations failed:', allErrors.length, 'attempts');
 
-    // البحث عن القسم المناسب بدقة عالية
-    console.log('Searching for category:', productData.category_name);
-    
-    // تنظيف اسم القسم من المسافات الزائدة
-    const cleanCategoryName = productData.category_name?.trim();
-    
-    // البحث بالمطابقة الدقيقة أولاً
-    let category = categories.find((c: any) => 
-      c.name_ar === cleanCategoryName || 
-      c.name === cleanCategoryName
-    );
-    
-    // إذا لم نجد مطابقة دقيقة، نبحث بالتضمين
-    if (!category) {
-      category = categories.find((c: any) => 
-        c.name_ar.includes(cleanCategoryName) ||
-        cleanCategoryName.includes(c.name_ar) ||
-        c.name.toLowerCase().includes(cleanCategoryName.toLowerCase()) ||
-        cleanCategoryName.toLowerCase().includes(c.name.toLowerCase())
+      return NextResponse.json(
+        {
+          error: isAllQuota
+            ? 'تجاوزت الحصة اليومية لجميع مفاتيح API. يرجى الانتظار حتى تتجدد الحصة أو إضافة مفتاح جديد.'
+            : 'فشلت جميع نماذج الذكاء الاصطناعي. يرجى المحاولة لاحقاً.',
+          details: allErrors.slice(0, 4).join('\n'),
+          quota_exceeded: isAllQuota,
+          keys_count: ALL_API_KEYS.length,
+        },
+        { status: 503 }
       );
     }
-    
-    // إذا لم نجد أي مطابقة، نستخدم أول قسم كقيمة افتراضية
+
+    // استخراج JSON
+    let productData: any;
+    try {
+      productData = parseAIResponse(rawText);
+    } catch {
+      return NextResponse.json(
+        { error: 'فشل تحليل رد الذكاء الاصطناعي. يرجى المحاولة مرة أخرى.' },
+        { status: 500 }
+      );
+    }
+
+    // البحث عن القسم
+    const cleanCategoryName = productData.category_name?.trim();
+    let category = categories.find((c: any) =>
+      c.name_ar === cleanCategoryName || c.name === cleanCategoryName
+    );
+    if (!category && cleanCategoryName) {
+      category = categories.find((c: any) =>
+        c.name_ar?.includes(cleanCategoryName) ||
+        cleanCategoryName.includes(c.name_ar) ||
+        c.name?.toLowerCase().includes(cleanCategoryName.toLowerCase()) ||
+        cleanCategoryName.toLowerCase().includes(c.name?.toLowerCase())
+      );
+    }
     const category_id = category?.id || categories[0]?.id;
-    
-    console.log('Selected category:', category?.name_ar || 'Default (first category)', 'ID:', category_id);
+
+    console.log(`🎯 Done | Model: ${usedModel} | Key: #${usedKeyIndex} | Category: ${category?.name_ar || 'Default'}`);
 
     return NextResponse.json({
       name_ar: productData.name_ar,
       name_en: productData.name_en,
       description_ar: productData.description_ar,
       description_en: productData.description_en,
-      category_id: category_id
+      category_id,
+      _debug: { model: usedModel, key_index: usedKeyIndex },
     });
 
   } catch (error: any) {
-    console.error('=== ERROR ===');
-    console.error('Error message:', error.message);
-    console.error('Error stack:', error.stack);
-    console.error('Full error:', JSON.stringify(error, null, 2));
-    
+    console.error('=== UNEXPECTED ERROR ===', error.message);
     return NextResponse.json(
-      { 
-        error: 'حدث خطأ أثناء تحليل المنتج: ' + error.message,
-        details: error.stack
-      },
+      { error: 'حدث خطأ غير متوقع: ' + error.message },
       { status: 500 }
     );
   }
