@@ -10,10 +10,10 @@ const ALL_API_KEYS = [
 // قائمة النماذج مرتبة حسب الأفضلية
 // كل نموذج له حصة يومية، إذا خلصت ينتقل للنموذج التالي
 const MODELS = [
-  'gemini-2.5-flash',
-  'gemini-2.5-flash-lite',
-  'gemini-3-flash-preview',
-  'gemini-3-pro-preview',
+  'gemini-2.5-flash-002',           // Gemini 2.5 Flash - مستقر
+  'gemini-2.5-flash-lite-002',      // Gemini 2.5 Flash Lite - أسرع
+  'gemini-3-flash-preview',         // Gemini 3 Flash Preview
+  'gemini-3.1-pro-preview',         // Gemini 3.1 Pro Preview - الأقوى
 ];
 
 // دالة لاستدعاء نموذج بمفتاح معين
