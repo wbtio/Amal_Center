@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { ArrowRight, Upload, Loader2, Save, Sparkles, Camera, CheckCircle2, Edit2 } from 'lucide-react';
+import { ArrowRight, Upload, Loader2, Save, Sparkles, Camera, CheckCircle2, Edit2, AlertTriangle, ImageIcon } from 'lucide-react';
 
 interface AIProductFormProps {
   onBack: () => void;
@@ -19,6 +19,8 @@ export default function AIProductForm({ onBack }: AIProductFormProps) {
   const [backImage, setBackImage] = useState<File | null>(null);
   const [frontImagePreview, setFrontImagePreview] = useState<string | null>(null);
   const [backImagePreview, setBackImagePreview] = useState<string | null>(null);
+
+  const [bgRemoved, setBgRemoved] = useState(true);
 
   const [aiData, setAiData] = useState({
     name_ar: '',
@@ -111,31 +113,69 @@ export default function AIProductForm({ onBack }: AIProductFormProps) {
       console.log('AI analysis completed:', data);
 
       console.log('Starting background removal...');
-      const removeBgResponse = await fetch('/api/ai/remove-background', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ image: frontBase64 })
-      });
+      let imageUrl = '';
+      let bgWasRemoved = false;
 
-      console.log('Background removal response status:', removeBgResponse.status);
+      try {
+        const removeBgResponse = await fetch('/api/ai/remove-background', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image: frontBase64 })
+        });
 
-      if (!removeBgResponse.ok) {
-        const errorData = await removeBgResponse.json();
-        console.error('Background removal failed:', errorData);
-        throw new Error(errorData.error || 'فشل إزالة الخلفية');
+        console.log('Background removal response status:', removeBgResponse.status);
+
+        if (removeBgResponse.ok) {
+          const bgResult = await removeBgResponse.json();
+          console.log('Background removal result:', bgResult);
+          if (bgResult.imageUrl) {
+            imageUrl = bgResult.imageUrl;
+            bgWasRemoved = true;
+          }
+        } else {
+          const errorData = await removeBgResponse.json();
+          console.error('Background removal failed:', errorData);
+        }
+      } catch (bgError: any) {
+        console.error('Background removal error:', bgError.message);
       }
 
-      const bgResult = await removeBgResponse.json();
-      console.log('Background removal result:', bgResult);
+      // إذا فشلت إزالة الخلفية، ارفع الصورة الأصلية مباشرة
+      if (!imageUrl) {
+        console.log('Uploading original image as fallback...');
+        try {
+          const imageBuffer = Uint8Array.from(atob(frontBase64), c => c.charCodeAt(0));
+          const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.jpg`;
+          const filePath = fileName;
 
-      const { imageUrl } = bgResult;
+          const { error: uploadError } = await supabase.storage
+            .from('products')
+            .upload(filePath, imageBuffer, {
+              contentType: 'image/jpeg',
+              upsert: true
+            });
+
+          if (uploadError) throw uploadError;
+
+          const { data: urlData } = supabase.storage
+            .from('products')
+            .getPublicUrl(filePath);
+
+          imageUrl = urlData.publicUrl;
+          console.log('Original image uploaded:', imageUrl);
+        } catch (uploadErr: any) {
+          console.error('Fallback upload failed:', uploadErr.message);
+        }
+      }
+
+      setBgRemoved(bgWasRemoved);
 
       setAiData({
-        name_ar: data.name_ar,
-        name_en: data.name_en,
-        description_ar: data.description_ar,
-        description_en: data.description_en,
-        category_id: data.category_id,
+        name_ar: data.name_ar || '',
+        name_en: data.name_en || '',
+        description_ar: data.description_ar || '',
+        description_en: data.description_en || '',
+        category_id: data.category_id || '',
         image_url: imageUrl
       });
 
@@ -184,8 +224,19 @@ export default function AIProductForm({ onBack }: AIProductFormProps) {
   };
 
   const handleSubmit = async () => {
-    if (!userInput.price_iqd || !userInput.stock_quantity) {
-      alert('يرجى إدخال السعر والكمية');
+    // التحقق من كل التفاصيل المطلوبة
+    const missingFields: string[] = [];
+    if (!aiData.name_ar.trim()) missingFields.push('الاسم بالعربي');
+    if (!aiData.name_en.trim()) missingFields.push('الاسم بالإنجليزي');
+    if (!aiData.description_ar.trim()) missingFields.push('الوصف بالعربي');
+    if (!aiData.description_en.trim()) missingFields.push('الوصف بالإنجليزي');
+    if (!aiData.category_id) missingFields.push('القسم');
+    if (!aiData.image_url) missingFields.push('صورة المنتج');
+    if (!userInput.price_iqd || parseFloat(userInput.price_iqd) <= 0) missingFields.push('السعر');
+    if (!userInput.stock_quantity || parseInt(userInput.stock_quantity) < 0) missingFields.push('الكمية');
+
+    if (missingFields.length > 0) {
+      alert('يرجى إكمال الحقول التالية:\n' + missingFields.join('\n'));
       return;
     }
 
@@ -193,10 +244,10 @@ export default function AIProductForm({ onBack }: AIProductFormProps) {
 
     try {
       const { error } = await supabase.from('products').insert({
-        name_ar: aiData.name_ar,
-        name: aiData.name_en,
-        description_ar: aiData.description_ar,
-        description: aiData.description_en,
+        name_ar: aiData.name_ar.trim(),
+        name: aiData.name_en.trim(),
+        description_ar: aiData.description_ar.trim(),
+        description: aiData.description_en.trim(),
         price_iqd: parseFloat(userInput.price_iqd),
         price_usd: parseFloat(userInput.price_iqd) / 1500,
         category_id: aiData.category_id,
@@ -210,7 +261,7 @@ export default function AIProductForm({ onBack }: AIProductFormProps) {
       router.push('/products');
       router.refresh();
     } catch (error: any) {
-      alert('حدث خطأ: ' + error.message);
+      alert('حدث خطأ أثناء حفظ المنتج: ' + error.message);
     } finally {
       setLoading(false);
     }
@@ -226,7 +277,7 @@ export default function AIProductForm({ onBack }: AIProductFormProps) {
         <button onClick={onBack} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
           <ArrowRight size={24} className="text-gray-600" />
         </button>
-        <h1 className="text-2xl font-bold text-gray-800">إضافة منتج بالذكاء الاصطناعي</h1>
+        <h1 className="text-2xl font-bold text-gray-800">الإضافة السريعة</h1>
       </div>
 
       <div className="max-w-4xl mx-auto">
@@ -263,8 +314,17 @@ export default function AIProductForm({ onBack }: AIProductFormProps) {
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
             <div className="text-center mb-6">
               <Sparkles className="mx-auto text-purple-600 mb-3" size={48} />
-              <h2 className="text-xl font-bold text-gray-800 mb-2">صور المنتج من جميع الجوانب</h2>
-              <p className="text-gray-600">سيقوم الذكاء الاصطناعي باستخراج جميع المعلومات تلقائياً</p>
+              <h2 className="text-xl font-bold text-gray-800 mb-2">ارفع صور المنتج</h2>
+              <p className="text-gray-600">ارفع الصورة الأمامية والخلفية وسيقوم الذكاء الاصطناعي باستخراج جميع المعلومات تلقائياً</p>
+              <div className="mt-3 bg-amber-50 border border-amber-200 rounded-lg p-3 text-right text-sm text-amber-800">
+                <div className="flex items-center gap-1.5 mb-1 font-bold"><AlertTriangle size={14} /> تعليمات مهمة:</div>
+                <ul className="space-y-1 mr-5 list-disc">
+                  <li>يجب أن تكون الصورة <strong>واضحة</strong> وبإضاءة جيدة</li>
+                  <li>يفضل أن تحتوي على <strong>منتج واحد فقط</strong></li>
+                  <li>الصورة الأمامية: واجهة المنتج مع الاسم</li>
+                  <li>الصورة الخلفية: المكونات والتفاصيل</li>
+                </ul>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -474,9 +534,32 @@ export default function AIProductForm({ onBack }: AIProductFormProps) {
               </div>
             </div>
 
+            {/* Image Preview */}
+            {aiData.image_url && (
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">صورة المنتج {bgRemoved ? '(تم إزالة الخلفية)' : '(الصورة الأصلية)'}</label>
+                {!bgRemoved && (
+                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-2 mb-2 flex items-center gap-2 text-sm text-amber-700">
+                    <AlertTriangle size={16} />
+                    <span>لم تتم إزالة الخلفية - تم رفع الصورة الأصلية</span>
+                  </div>
+                )}
+                <div className="w-40 h-40 bg-gray-100 rounded-xl overflow-hidden border-2 border-gray-200">
+                  <img src={aiData.image_url} alt="Product" className="w-full h-full object-contain" />
+                </div>
+              </div>
+            )}
+
+            {!aiData.image_url && (
+              <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-3 flex items-center gap-2 text-sm text-red-700">
+                <AlertTriangle size={16} />
+                <span>لم يتم رفع صورة المنتج. يرجى العودة لرفع الصور مرة أخرى.</span>
+              </div>
+            )}
+
             <button
               onClick={() => setStep('review')}
-              disabled={!userInput.price_iqd || !userInput.stock_quantity || !aiData.name_ar || !aiData.category_id}
+              disabled={!userInput.price_iqd || !userInput.stock_quantity || !aiData.name_ar || !aiData.name_en || !aiData.category_id || !aiData.image_url}
               className="w-full bg-purple-600 text-white px-8 py-4 rounded-lg font-bold hover:bg-purple-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <span>التالي: مراجعة المنتج</span>
@@ -517,9 +600,16 @@ export default function AIProductForm({ onBack }: AIProductFormProps) {
               </div>
 
               <div>
-                <label className="text-sm text-gray-600 mb-2 block">صورة المنتج (بعد إزالة الخلفية)</label>
+                <label className="text-sm text-gray-600 mb-2 block">صورة المنتج {bgRemoved ? '(بعد إزالة الخلفية)' : '(الصورة الأصلية)'}</label>
                 <div className="w-full h-64 bg-gray-100 rounded-xl overflow-hidden border-2 border-gray-200">
-                  <img src={aiData.image_url} alt="Product" className="w-full h-full object-contain" />
+                  {aiData.image_url ? (
+                    <img src={aiData.image_url} alt="Product" className="w-full h-full object-contain" />
+                  ) : (
+                    <div className="w-full h-full flex flex-col items-center justify-center text-gray-400">
+                      <ImageIcon size={48} />
+                      <span className="text-sm mt-2">لا توجد صورة</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
