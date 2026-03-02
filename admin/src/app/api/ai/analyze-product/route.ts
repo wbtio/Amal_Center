@@ -3,11 +3,9 @@ import { NextRequest, NextResponse } from 'next/server';
 // ===== OpenRouter API =====
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 
-// النماذج المتاحة عبر OpenRouter بالترتيب
+// النموذج المستخدم
 const MODELS = [
   'google/gemini-2.5-flash-lite-preview-09-2025',
-  'google/gemini-2.5-flash',
-  'google/gemini-2.0-flash-001',
 ];
 
 // استدعاء OpenRouter API
