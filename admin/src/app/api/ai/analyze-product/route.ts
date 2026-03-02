@@ -8,12 +8,11 @@ const ALL_API_KEYS = [
 ].filter(Boolean) as string[]; // يحذف المفاتيح الفارغة تلقائياً
 
 // قائمة النماذج مرتبة حسب الأفضلية
-// كل نموذج له حصة يومية، إذا خلصت ينتقل للنموذج التالي
+// استخدام النماذج المؤكدة والتي تعمل فعلياً
 const MODELS = [
-  'gemini-2.5-flash-002',           // Gemini 2.5 Flash - مستقر
-  'gemini-2.5-flash-lite-002',      // Gemini 2.5 Flash Lite - أسرع
-  'gemini-3-flash-preview',         // Gemini 3 Flash Preview
-  'gemini-3.1-pro-preview',         // Gemini 3.1 Pro Preview - الأقوى
+  'gemini-1.5-flash-latest',        // مستقر وسريع
+  'gemini-1.5-pro-latest',          // أقوى لكن أبطأ
+  'gemini-1.5-flash',               // احتياطي
 ];
 
 // دالة لاستدعاء نموذج بمفتاح معين
