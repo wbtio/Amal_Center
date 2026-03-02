@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 // ===== مفاتيح API =====
 const ALL_API_KEYS = [
+  process.env.GEMINI_API_KEY_3,
   process.env.GEMINI_API_KEY_2,
 ].filter(Boolean) as string[];
 
