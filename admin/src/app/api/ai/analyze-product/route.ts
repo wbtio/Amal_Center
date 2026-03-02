@@ -1,21 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 
-// ===== مفاتيح API - أضف مفاتيح جديدة هنا =====
-// كل مفتاح له حصة مستقلة، عند نفاد الأول ينتقل للثاني تلقائياً
+// ===== مفاتيح API =====
 const ALL_API_KEYS = [
   process.env.GEMINI_API_KEY_2,
-].filter(Boolean) as string[]; // يحذف المفاتيح الفارغة تلقائياً
+].filter(Boolean) as string[];
 
-// قائمة النماذج مرتبة حسب الأفضلية
-// استخدام النماذج المؤكدة والتي تعمل فعلياً
+// النماذج المتاحة حالياً
 const MODELS = [
-  'gemini-1.5-flash-latest',        // مستقر وسريع
-  'gemini-1.5-pro-latest',          // أقوى لكن أبطأ
-  'gemini-1.5-flash',               // احتياطي
+  'gemini-2.5-flash',
+  'gemini-2.5-flash-lite',
+  'gemini-3-flash-preview',
+  'gemini-3-pro-preview',
 ];
 
-// دالة لاستدعاء نموذج بمفتاح معين
+// استدعاء Gemini API مباشرة عبر REST
 async function tryWithKeyAndModel(
   apiKey: string,
   modelName: string,
@@ -23,22 +21,36 @@ async function tryWithKeyAndModel(
   frontImage: string,
   backImage: string
 ): Promise<string> {
-  const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({
-    model: modelName,
-    generationConfig: {
-      maxOutputTokens: 2048,
-      responseMimeType: 'application/json',
-    }
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{
+        parts: [
+          { text: prompt },
+          { inline_data: { mime_type: 'image/jpeg', data: frontImage } },
+          { inline_data: { mime_type: 'image/jpeg', data: backImage } },
+        ]
+      }],
+      generationConfig: {
+        maxOutputTokens: 2048,
+        responseMimeType: 'application/json',
+      }
+    })
   });
 
-  const result = await model.generateContent([
-    prompt,
-    { inlineData: { mimeType: 'image/jpeg', data: frontImage } },
-    { inlineData: { mimeType: 'image/jpeg', data: backImage } },
-  ]);
+  if (!response.ok) {
+    const errorBody = await response.json().catch(() => ({}));
+    const errorMsg = errorBody?.error?.message || `HTTP ${response.status}`;
+    throw new Error(errorMsg);
+  }
 
-  return result.response.text();
+  const data = await response.json();
+  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!text) throw new Error('No text in response');
+  return text;
 }
 
 // دالة لاستخراج JSON من الرد
