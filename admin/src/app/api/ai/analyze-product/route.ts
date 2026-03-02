@@ -1,44 +1,41 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// ===== مفاتيح API =====
-const ALL_API_KEYS = [
-  process.env.GEMINI_API_KEY_3,
-  process.env.GEMINI_API_KEY_2,
-].filter(Boolean) as string[];
+// ===== OpenRouter API =====
+const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 
-// النماذج المتاحة حالياً
+// النماذج المتاحة عبر OpenRouter بالترتيب
 const MODELS = [
-  'gemini-2.5-flash',
-  'gemini-2.5-flash-lite',
-  'gemini-3-flash-preview',
-  'gemini-3-pro-preview',
+  'google/gemini-2.5-flash-lite-preview-09-2025',
+  'google/gemini-2.5-flash',
+  'google/gemini-2.0-flash-001',
 ];
 
-// استدعاء Gemini API مباشرة عبر REST
-async function tryWithKeyAndModel(
-  apiKey: string,
+// استدعاء OpenRouter API
+async function tryWithModel(
   modelName: string,
   prompt: string,
   frontImage: string,
   backImage: string
 ): Promise<string> {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
-
-  const response = await fetch(url, {
+  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+      'HTTP-Referer': 'https://amal-center.vercel.app',
+      'X-Title': 'Amal Center Admin',
+    },
     body: JSON.stringify({
-      contents: [{
-        parts: [
-          { text: prompt },
-          { inline_data: { mime_type: 'image/jpeg', data: frontImage } },
-          { inline_data: { mime_type: 'image/jpeg', data: backImage } },
+      model: modelName,
+      max_tokens: 2048,
+      messages: [{
+        role: 'user',
+        content: [
+          { type: 'text', text: prompt },
+          { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${frontImage}` } },
+          { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${backImage}` } },
         ]
       }],
-      generationConfig: {
-        maxOutputTokens: 2048,
-        responseMimeType: 'application/json',
-      }
     })
   });
 
@@ -49,7 +46,7 @@ async function tryWithKeyAndModel(
   }
 
   const data = await response.json();
-  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+  const text = data?.choices?.[0]?.message?.content;
   if (!text) throw new Error('No text in response');
   return text;
 }
@@ -75,8 +72,14 @@ function parseAIResponse(text: string): any {
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('=== Starting AI Analysis ===');
-    console.log(`Available API keys: ${ALL_API_KEYS.length}`);
+    console.log('=== Starting AI Analysis (OpenRouter) ===');
+
+    if (!OPENROUTER_API_KEY) {
+      return NextResponse.json(
+        { error: 'مفتاح OpenRouter API غير موجود. أضف OPENROUTER_API_KEY في Environment Variables.' },
+        { status: 500 }
+      );
+    }
 
     const { frontImage, backImage, categories } = await request.json();
     console.log('Categories count:', categories?.length);
@@ -139,51 +142,34 @@ ${categoriesList}
   "category_name": "اسم القسم المناسب بالعربية بالضبط"
 }`;
 
-    // ===== نظام التناوب التلقائي: كل مفتاح × كل نموذج =====
+    // ===== نظام التناوب: جرب النماذج بالترتيب =====
     let rawText: string | null = null;
     let usedModel = '';
-    let usedKeyIndex = -1;
     const allErrors: string[] = [];
 
-    outer:
-    for (let ki = 0; ki < ALL_API_KEYS.length; ki++) {
-      const key = ALL_API_KEYS[ki];
-      const keyLabel = `Key#${ki + 1}`;
-
-      for (const modelName of MODELS) {
-        try {
-          console.log(`🔑 ${keyLabel} × 🤖 ${modelName} — trying...`);
-          rawText = await tryWithKeyAndModel(key, modelName, prompt, frontImage, backImage);
-          usedModel = modelName;
-          usedKeyIndex = ki + 1;
-          console.log(`✅ SUCCESS with ${keyLabel} × ${modelName}`);
-          break outer; // نجح — توقف عن المحاولة
-        } catch (err: any) {
-          const msg = (err.message || '').substring(0, 100);
-          const is429 = err.status === 429 || msg.includes('429') || msg.includes('quota') || msg.includes('Too Many');
-          console.warn(`⚠️ ${keyLabel} × ${modelName} failed${is429 ? ' [QUOTA]' : ''}: ${msg}`);
-          allErrors.push(`${keyLabel}×${modelName}: ${msg}`);
-
-          // إذا كان 429 على هذا المفتاح → جرب النموذج التالي (ثم انتقل للمفتاح التالي)
-          // إذا كان خطأ آخر → جرب النموذج التالي أيضاً
-          continue;
-        }
+    for (const modelName of MODELS) {
+      try {
+        console.log(`🤖 ${modelName} — trying...`);
+        rawText = await tryWithModel(modelName, prompt, frontImage, backImage);
+        usedModel = modelName;
+        console.log(`✅ SUCCESS with ${modelName}`);
+        break;
+      } catch (err: any) {
+        const msg = (err.message || '').substring(0, 150);
+        console.warn(`⚠️ ${modelName} failed: ${msg}`);
+        allErrors.push(`${modelName}: ${msg}`);
+        continue;
       }
     }
 
     // إذا فشلت كل المحاولات
     if (!rawText) {
-      const isAllQuota = allErrors.every(e => e.includes('quota') || e.includes('429') || e.includes('Too Many'));
-      console.error('❌ All combinations failed:', allErrors.length, 'attempts');
+      console.error('❌ All models failed:', allErrors.length, 'attempts');
 
       return NextResponse.json(
         {
-          error: isAllQuota
-            ? 'تجاوزت الحصة اليومية لجميع مفاتيح API. يرجى الانتظار حتى تتجدد الحصة أو إضافة مفتاح جديد.'
-            : 'فشلت جميع نماذج الذكاء الاصطناعي. يرجى المحاولة لاحقاً.',
-          details: allErrors.slice(0, 4).join('\n'),
-          quota_exceeded: isAllQuota,
-          keys_count: ALL_API_KEYS.length,
+          error: 'فشلت جميع نماذج الذكاء الاصطناعي. يرجى المحاولة لاحقاً.',
+          details: allErrors.join('\n'),
         },
         { status: 503 }
       );
@@ -215,7 +201,7 @@ ${categoriesList}
     }
     const category_id = category?.id || categories[0]?.id;
 
-    console.log(`🎯 Done | Model: ${usedModel} | Key: #${usedKeyIndex} | Category: ${category?.name_ar || 'Default'}`);
+    console.log(`🎯 Done | Model: ${usedModel} | Category: ${category?.name_ar || 'Default'}`);
 
     return NextResponse.json({
       name_ar: productData.name_ar,
@@ -223,7 +209,7 @@ ${categoriesList}
       description_ar: productData.description_ar,
       description_en: productData.description_en,
       category_id,
-      _debug: { model: usedModel, key_index: usedKeyIndex },
+      _debug: { model: usedModel },
     });
 
   } catch (error: any) {
