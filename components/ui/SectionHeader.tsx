@@ -39,7 +39,7 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
 
         {/* Title */}
         <Text
-          className={`text-base font-cairo-bold text-text-primary ${isRTL ? 'text-right' : 'text-left'}`}
+          className={`text-base font-ibm-bold text-text-primary ${isRTL ? 'text-right' : 'text-left'}`}
         >
           {title}
         </Text>
@@ -57,7 +57,7 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
           className={`px-3 py-1.5 rounded-full bg-gray-100 ${isRTL ? 'flex-row-reverse' : ''}`}
           activeOpacity={0.7}
         >
-          <Text className="text-text-primary font-cairo-bold text-xs">
+          <Text className="text-text-primary font-ibm-bold text-xs">
             {t('common.seeAll')}
           </Text>
         </TouchableOpacity>

@@ -6,10 +6,10 @@ import { useEffect, useState } from 'react';
 import '../global.css';
 import { I18nManager, View, ActivityIndicator } from 'react-native';
 import {
-  Cairo_400Regular,
-  Cairo_600SemiBold,
-  Cairo_700Bold
-} from '@expo-google-fonts/cairo';
+  IBMPlexSansArabic_400Regular,
+  IBMPlexSansArabic_600SemiBold,
+  IBMPlexSansArabic_700Bold
+} from '@expo-google-fonts/ibm-plex-sans-arabic';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 
@@ -32,9 +32,9 @@ try {
 export default function RootLayout() {
   const [showSplash, setShowSplash] = useState(true);
   const [loaded, error] = useFonts({
-    Cairo_400Regular,
-    Cairo_600SemiBold,
-    Cairo_700Bold,
+    IBMPlexSansArabic_400Regular,
+    IBMPlexSansArabic_600SemiBold,
+    IBMPlexSansArabic_700Bold,
   });
 
   useEffect(() => {
@@ -47,44 +47,50 @@ export default function RootLayout() {
     }
   }, [loaded]);
 
-  if (!loaded) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#2E7D32' }}>
-        <ActivityIndicator size="large" color="#FFFFFF" />
-      </View>
-    );
-  }
-
-  if (showSplash) {
-    return <SplashScreen onFinish={() => setShowSplash(false)} />;
-  }
-
+  // Always render the Stack navigator to maintain the navigation context.
+  // Show splash/loading as overlays on top instead of conditional early returns.
   return (
     <SafeAreaProvider>
       <QueryClientProvider client={queryClient}>
         <LanguageProvider>
           <CurrencyProvider>
-            <Stack
-              screenOptions={{
-                headerShown: false,
-                animation: 'fade',
-              }}
-            >
-              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-              <Stack.Screen name="orders" options={{ headerShown: false }} />
-              <Stack.Screen name="auth/login" options={{ headerShown: false }} />
-              <Stack.Screen name="auth/register" options={{ headerShown: false }} />
-              <Stack.Screen name="auth/verify" options={{ headerShown: false }} />
-              <Stack.Screen name="order/[id]" options={{ headerShown: false }} />
-              <Stack.Screen name="addresses" options={{ headerShown: false }} />
-              <Stack.Screen name="address/add" options={{ headerShown: false }} />
-              <Stack.Screen name="wishlist" options={{ headerShown: false }} />
-              <Stack.Screen name="notifications" options={{ headerShown: false }} />
-              <Stack.Screen name="checkout" options={{ headerShown: false }} />
-              <Stack.Screen name="search" options={{ headerShown: false }} />
-              <Stack.Screen name="category/[id]" options={{ headerShown: false }} />
-              <Stack.Screen name="product/[id]" options={{ headerShown: false }} />
-            </Stack>
+            <View style={{ flex: 1 }}>
+              <Stack
+                screenOptions={{
+                  headerShown: false,
+                  animation: 'fade',
+                }}
+              >
+                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                <Stack.Screen name="orders" options={{ headerShown: false }} />
+                <Stack.Screen name="auth/login" options={{ headerShown: false }} />
+                <Stack.Screen name="auth/register" options={{ headerShown: false }} />
+                <Stack.Screen name="auth/verify" options={{ headerShown: false }} />
+                <Stack.Screen name="order/[id]" options={{ headerShown: false }} />
+                <Stack.Screen name="addresses" options={{ headerShown: false }} />
+                <Stack.Screen name="address/add" options={{ headerShown: false }} />
+                <Stack.Screen name="wishlist" options={{ headerShown: false }} />
+                <Stack.Screen name="notifications" options={{ headerShown: false }} />
+                <Stack.Screen name="checkout" options={{ headerShown: false }} />
+                <Stack.Screen name="search" options={{ headerShown: false }} />
+                <Stack.Screen name="category/[id]" options={{ headerShown: false }} />
+                <Stack.Screen name="product/[id]" options={{ headerShown: false }} />
+              </Stack>
+
+              {/* Loading overlay - shown while fonts are loading */}
+              {!loaded && (
+                <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center', backgroundColor: '#2E7D32', zIndex: 100 }}>
+                  <ActivityIndicator size="large" color="#FFFFFF" />
+                </View>
+              )}
+
+              {/* Splash screen overlay - shown after fonts load */}
+              {loaded && showSplash && (
+                <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 99 }}>
+                  <SplashScreen onFinish={() => setShowSplash(false)} />
+                </View>
+              )}
+            </View>
           </CurrencyProvider>
         </LanguageProvider>
       </QueryClientProvider>

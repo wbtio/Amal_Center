@@ -106,74 +106,146 @@ export default function AddressesScreen() {
     const renderAddress = ({ item }: { item: any }) => (
         <View style={{
             backgroundColor: '#FFFFFF',
-            padding: 16,
-            borderRadius: 12,
+            borderRadius: 16,
             marginBottom: 12,
-            borderWidth: 1,
+            borderWidth: item.is_default ? 1.5 : 1,
             borderColor: item.is_default ? '#2E7D32' : '#F3F4F6',
+            overflow: 'hidden',
             shadowColor: '#000',
             shadowOffset: { width: 0, height: 1 },
-            shadowOpacity: 0.05,
-            shadowRadius: 2,
+            shadowOpacity: 0.04,
+            shadowRadius: 3,
             elevation: 1,
         }}>
-            <View style={{
-                flexDirection: isRTL ? 'row-reverse' : 'row',
-                justifyContent: 'space-between',
-                alignItems: 'flex-start'
-            }}>
-                <View style={{ flex: 1, alignItems: isRTL ? 'flex-end' : 'flex-start' }}>
-                    <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', marginBottom: 8 }}>
-                        <Ionicons name={item.type === 'home' ? 'home-outline' : 'business-outline'} size={18} color="#2E7D32" style={{ marginLeft: isRTL ? 8 : 0, marginRight: isRTL ? 0 : 8 }} />
-                        <Text style={{ fontFamily: 'Cairo_700Bold', fontSize: 16, color: '#212121' }}>
-                            {item.name}
-                        </Text>
-                        {item.is_default && (
-                            <View style={{
-                                backgroundColor: '#E8F5E9',
-                                paddingHorizontal: 8,
-                                paddingVertical: 2,
-                                borderRadius: 4,
-                                marginLeft: isRTL ? 0 : 8,
-                                marginRight: isRTL ? 8 : 0
+            <View style={{ padding: 14 }}>
+                <View style={{
+                    flexDirection: isRTL ? 'row-reverse' : 'row',
+                    alignItems: 'flex-start',
+                }}>
+                    {/* Type Icon */}
+                    <View style={{
+                        width: 42,
+                        height: 42,
+                        borderRadius: 12,
+                        backgroundColor: item.is_default ? '#E8F5E9' : '#F3F4F6',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        marginRight: isRTL ? 0 : 12,
+                        marginLeft: isRTL ? 12 : 0,
+                    }}>
+                        <Ionicons
+                            name={item.type === 'home' ? 'home' : 'briefcase'}
+                            size={20}
+                            color={item.is_default ? '#2E7D32' : '#6B7280'}
+                        />
+                    </View>
+
+                    {/* Address Info */}
+                    <View style={{ flex: 1, alignItems: isRTL ? 'flex-end' : 'flex-start' }}>
+                        <View style={{
+                            flexDirection: isRTL ? 'row-reverse' : 'row',
+                            alignItems: 'center',
+                            marginBottom: 4,
+                        }}>
+                            <Text style={{
+                                fontFamily: 'IBMPlexSansArabic_700Bold',
+                                fontSize: 15,
+                                color: '#1F2937',
                             }}>
-                                <Text style={{ fontFamily: 'Cairo_600SemiBold', fontSize: 10, color: '#2E7D32' }}>
-                                    {language === 'ar' ? 'الافتراضي' : 'Default'}
+                                {item.name}
+                            </Text>
+                            {item.is_default && (
+                                <View style={{
+                                    backgroundColor: '#E8F5E9',
+                                    paddingHorizontal: 8,
+                                    paddingVertical: 2,
+                                    borderRadius: 10,
+                                    marginLeft: isRTL ? 0 : 8,
+                                    marginRight: isRTL ? 8 : 0,
+                                }}>
+                                    <Text style={{
+                                        fontFamily: 'IBMPlexSansArabic_700Bold',
+                                        fontSize: 9,
+                                        color: '#2E7D32',
+                                    }}>
+                                        {language === 'ar' ? 'الافتراضي' : 'DEFAULT'}
+                                    </Text>
+                                </View>
+                            )}
+                        </View>
+
+                        <Text style={{
+                            fontFamily: 'IBMPlexSansArabic_400Regular',
+                            fontSize: 13,
+                            color: '#6B7280',
+                            textAlign: isRTL ? 'right' : 'left',
+                            lineHeight: 20,
+                        }}>
+                            {[item.city, item.area, item.street].filter(Boolean).join(', ')}
+                        </Text>
+
+                        {item.phone && (
+                            <View style={{
+                                flexDirection: isRTL ? 'row-reverse' : 'row',
+                                alignItems: 'center',
+                                marginTop: 6,
+                            }}>
+                                <Ionicons name="call-outline" size={12} color="#9CA3AF" style={isRTL ? { marginLeft: 4 } : { marginRight: 4 }} />
+                                <Text style={{
+                                    fontFamily: 'IBMPlexSansArabic_400Regular',
+                                    fontSize: 12,
+                                    color: '#9CA3AF',
+                                }}>
+                                    {item.phone}
                                 </Text>
                             </View>
                         )}
                     </View>
-
-                    <Text style={{ fontFamily: 'Cairo_400Regular', fontSize: 14, color: '#616161', textAlign: isRTL ? 'right' : 'left', marginBottom: 4 }}>
-                        {item.city}, {item.area}
-                    </Text>
-                    <Text style={{ fontFamily: 'Cairo_400Regular', fontSize: 14, color: '#757575', textAlign: isRTL ? 'right' : 'left' }}>
-                        {item.street}, {item.details}
-                    </Text>
-                    <Text style={{ fontFamily: 'Cairo_400Regular', fontSize: 14, color: '#757575', textAlign: isRTL ? 'right' : 'left', marginTop: 4 }}>
-                        {item.phone}
-                    </Text>
                 </View>
 
-                <View style={{ alignItems: 'center' }}>
+                {/* Action buttons */}
+                <View style={{
+                    flexDirection: isRTL ? 'row-reverse' : 'row',
+                    marginTop: 12,
+                    paddingTop: 12,
+                    borderTopWidth: 1,
+                    borderTopColor: '#F3F4F6',
+                    justifyContent: isRTL ? 'flex-start' : 'flex-end',
+                    gap: 8,
+                }}>
                     {!item.is_default && (
                         <TouchableOpacity
                             onPress={() => setAsDefault(item.id)}
-                            style={{ 
-                                padding: 8,
+                            style={{
+                                flexDirection: isRTL ? 'row-reverse' : 'row',
+                                alignItems: 'center',
+                                paddingHorizontal: 12,
+                                paddingVertical: 7,
                                 backgroundColor: '#E8F5E9',
                                 borderRadius: 8,
-                                marginBottom: 8
                             }}
                         >
-                            <Ionicons name="checkmark-circle-outline" size={20} color="#2E7D32" />
+                            <Ionicons name="checkmark-circle-outline" size={14} color="#2E7D32" style={isRTL ? { marginLeft: 4 } : { marginRight: 4 }} />
+                            <Text style={{ fontFamily: 'IBMPlexSansArabic_600SemiBold', fontSize: 11, color: '#2E7D32' }}>
+                                {language === 'ar' ? 'تعيين كافتراضي' : 'Set Default'}
+                            </Text>
                         </TouchableOpacity>
                     )}
                     <TouchableOpacity
                         onPress={() => handleDelete(item.id)}
-                        style={{ padding: 8 }}
+                        style={{
+                            flexDirection: isRTL ? 'row-reverse' : 'row',
+                            alignItems: 'center',
+                            paddingHorizontal: 12,
+                            paddingVertical: 7,
+                            backgroundColor: '#FEF2F2',
+                            borderRadius: 8,
+                        }}
                     >
-                        <Ionicons name="trash-outline" size={20} color="#D32F2F" />
+                        <Ionicons name="trash-outline" size={14} color="#EF4444" style={isRTL ? { marginLeft: 4 } : { marginRight: 4 }} />
+                        <Text style={{ fontFamily: 'IBMPlexSansArabic_600SemiBold', fontSize: 11, color: '#EF4444' }}>
+                            {language === 'ar' ? 'حذف' : 'Delete'}
+                        </Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -181,7 +253,7 @@ export default function AddressesScreen() {
     );
 
     return (
-        <View style={{ flex: 1, backgroundColor: '#F5F5F5', paddingTop: insets.top }}>
+        <View style={{ flex: 1, backgroundColor: '#F8F9FA', paddingTop: insets.top }}>
             {/* Header */}
             <View style={{
                 flexDirection: isRTL ? 'row-reverse' : 'row',
@@ -192,20 +264,26 @@ export default function AddressesScreen() {
                 borderBottomWidth: 1,
                 borderBottomColor: '#F3F4F6'
             }}>
-                <TouchableOpacity onPress={() => router.back()}>
-                    <Ionicons name={isRTL ? "arrow-forward" : "arrow-back"} size={24} color="#212121" />
+                <TouchableOpacity
+                    onPress={() => router.back()}
+                    style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#F3F4F6', alignItems: 'center', justifyContent: 'center' }}
+                >
+                    <Ionicons name={isRTL ? "arrow-forward" : "arrow-back"} size={20} color="#374151" />
                 </TouchableOpacity>
                 <Text style={{
                     flex: 1,
                     textAlign: 'center',
-                    fontFamily: 'Cairo_700Bold',
-                    fontSize: 18,
-                    color: '#212121'
+                    fontFamily: 'IBMPlexSansArabic_700Bold',
+                    fontSize: 17,
+                    color: '#1F2937'
                 }}>
                     {t('profile.addresses') || (language === 'ar' ? 'عناويني' : 'My Addresses')}
                 </Text>
-                <TouchableOpacity onPress={() => router.push('/address/add')}>
-                    <Ionicons name="add" size={24} color="#2E7D32" />
+                <TouchableOpacity
+                    onPress={() => router.push('/address/add')}
+                    style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E8F5E9', alignItems: 'center', justifyContent: 'center' }}
+                >
+                    <Ionicons name="add" size={20} color="#2E7D32" />
                 </TouchableOpacity>
             </View>
 
@@ -219,22 +297,50 @@ export default function AddressesScreen() {
                     keyExtractor={(item) => item.id}
                     contentContainerStyle={{ padding: 16 }}
                     ListEmptyComponent={
-                        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 80 }}>
-                            <Ionicons name="location-outline" size={64} color="#E0E0E0" />
-                            <Text style={{ fontFamily: 'Cairo_400Regular', color: '#9CA3AF', marginTop: 16 }}>
+                        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 60 }}>
+                            <View style={{
+                                width: 100,
+                                height: 100,
+                                borderRadius: 50,
+                                backgroundColor: '#EEF2FF',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                marginBottom: 20,
+                            }}>
+                                <Ionicons name="location-outline" size={44} color="#818CF8" />
+                            </View>
+                            <Text style={{
+                                fontFamily: 'IBMPlexSansArabic_700Bold',
+                                fontSize: 16,
+                                color: '#374151',
+                                marginBottom: 6,
+                            }}>
                                 {language === 'ar' ? 'لا توجد عناوين محفوظة' : 'No addresses saved'}
+                            </Text>
+                            <Text style={{
+                                fontFamily: 'IBMPlexSansArabic_400Regular',
+                                fontSize: 13,
+                                color: '#9CA3AF',
+                                textAlign: 'center',
+                                maxWidth: 250,
+                                lineHeight: 20,
+                                marginBottom: 20,
+                            }}>
+                                {language === 'ar' ? 'أضف عنوانك لتسريع عملية الطلب' : 'Add your address to speed up checkout'}
                             </Text>
                             <TouchableOpacity
                                 onPress={() => router.push('/address/add')}
                                 style={{
-                                    marginTop: 20,
                                     backgroundColor: '#2E7D32',
-                                    paddingHorizontal: 24,
-                                    paddingVertical: 10,
-                                    borderRadius: 8
+                                    paddingHorizontal: 28,
+                                    paddingVertical: 12,
+                                    borderRadius: 12,
+                                    flexDirection: isRTL ? 'row-reverse' : 'row',
+                                    alignItems: 'center',
                                 }}
                             >
-                                <Text style={{ fontFamily: 'Cairo_700Bold', color: '#FFFFFF' }}>
+                                <Ionicons name="add-circle-outline" size={16} color="#FFFFFF" style={isRTL ? { marginLeft: 6 } : { marginRight: 6 }} />
+                                <Text style={{ fontFamily: 'IBMPlexSansArabic_700Bold', color: '#FFFFFF', fontSize: 14 }}>
                                     {language === 'ar' ? 'إضافة عنوان جديد' : 'Add New Address'}
                                 </Text>
                             </TouchableOpacity>

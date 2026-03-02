@@ -64,12 +64,12 @@ export const BannerSlider = memo(({ banners, isLoading, error, onRetry, t }: Ban
         elevation: 3,
       }}>
         <Ionicons name="images-outline" size={40} color="#EF4444" />
-        <Text className="font-cairo-regular text-text-secondary mt-2">{t('errors.loadError')}</Text>
+        <Text className="font-ibm-regular text-text-secondary mt-2">{t('errors.loadError')}</Text>
         <TouchableOpacity
           onPress={onRetry}
           className="mt-3 bg-primary px-6 py-2 rounded-lg"
         >
-          <Text className="font-cairo-semibold text-white">{t('common.retry')}</Text>
+          <Text className="font-ibm-semibold text-white">{t('common.retry')}</Text>
         </TouchableOpacity>
       </View>
     );

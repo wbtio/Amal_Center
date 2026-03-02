@@ -98,7 +98,7 @@ export default function ContactScreen() {
                 <Text style={{
                     flex: 1,
                     textAlign: 'center',
-                    fontFamily: 'Cairo_700Bold',
+                    fontFamily: 'IBMPlexSansArabic_700Bold',
                     fontSize: 18,
                     color: '#212121'
                 }}>
@@ -132,7 +132,7 @@ export default function ContactScreen() {
                         <Ionicons name="headset-outline" size={32} color="#FFFFFF" />
                     </View>
                     <Text style={{
-                        fontFamily: 'Cairo_700Bold',
+                        fontFamily: 'IBMPlexSansArabic_700Bold',
                         fontSize: 20,
                         color: '#FFFFFF',
                         marginBottom: 8
@@ -140,7 +140,7 @@ export default function ContactScreen() {
                         {language === 'ar' ? 'نحن هنا لمساعدتك' : "We're here to help"}
                     </Text>
                     <Text style={{
-                        fontFamily: 'Cairo_400Regular',
+                        fontFamily: 'IBMPlexSansArabic_400Regular',
                         fontSize: 14,
                         color: 'rgba(255,255,255,0.9)',
                         textAlign: 'center',
@@ -154,7 +154,7 @@ export default function ContactScreen() {
 
                 {/* Contact Options */}
                 <Text style={{
-                    fontFamily: 'Cairo_700Bold',
+                    fontFamily: 'IBMPlexSansArabic_700Bold',
                     fontSize: 16,
                     color: '#212121',
                     marginBottom: 12,
@@ -193,14 +193,14 @@ export default function ContactScreen() {
                         </View>
                         <View style={{ flex: 1, alignItems: isRTL ? 'flex-end' : 'flex-start' }}>
                             <Text style={{
-                                fontFamily: 'Cairo_700Bold',
+                                fontFamily: 'IBMPlexSansArabic_700Bold',
                                 fontSize: 15,
                                 color: '#212121'
                             }}>
                                 {language === 'ar' ? option.title_ar : option.title_en}
                             </Text>
                             <Text style={{
-                                fontFamily: 'Cairo_400Regular',
+                                fontFamily: 'IBMPlexSansArabic_400Regular',
                                 fontSize: 13,
                                 color: '#757575',
                                 marginTop: 2
@@ -237,7 +237,7 @@ export default function ContactScreen() {
                             style={{ marginRight: isRTL ? 0 : 8, marginLeft: isRTL ? 8 : 0 }}
                         />
                         <Text style={{
-                            fontFamily: 'Cairo_700Bold',
+                            fontFamily: 'IBMPlexSansArabic_700Bold',
                             fontSize: 15,
                             color: '#212121'
                         }}>
@@ -252,10 +252,10 @@ export default function ContactScreen() {
                         borderBottomWidth: 1,
                         borderBottomColor: '#F3F4F6'
                     }}>
-                        <Text style={{ fontFamily: 'Cairo_400Regular', fontSize: 14, color: '#616161' }}>
+                        <Text style={{ fontFamily: 'IBMPlexSansArabic_400Regular', fontSize: 14, color: '#616161' }}>
                             {language === 'ar' ? 'السبت - الخميس' : 'Saturday - Thursday'}
                         </Text>
-                        <Text style={{ fontFamily: 'Cairo_600SemiBold', fontSize: 14, color: '#212121' }}>
+                        <Text style={{ fontFamily: 'IBMPlexSansArabic_600SemiBold', fontSize: 14, color: '#212121' }}>
                             {language === 'ar' ? '٨ ص - ١٠ م' : '8 AM - 10 PM'}
                         </Text>
                     </View>
@@ -265,10 +265,10 @@ export default function ContactScreen() {
                         justifyContent: 'space-between',
                         paddingVertical: 8
                     }}>
-                        <Text style={{ fontFamily: 'Cairo_400Regular', fontSize: 14, color: '#616161' }}>
+                        <Text style={{ fontFamily: 'IBMPlexSansArabic_400Regular', fontSize: 14, color: '#616161' }}>
                             {language === 'ar' ? 'الجمعة' : 'Friday'}
                         </Text>
-                        <Text style={{ fontFamily: 'Cairo_600SemiBold', fontSize: 14, color: '#212121' }}>
+                        <Text style={{ fontFamily: 'IBMPlexSansArabic_600SemiBold', fontSize: 14, color: '#212121' }}>
                             {language === 'ar' ? '٢ م - ١٠ م' : '2 PM - 10 PM'}
                         </Text>
                     </View>
@@ -296,7 +296,7 @@ export default function ContactScreen() {
                             style={{ marginRight: isRTL ? 0 : 8, marginLeft: isRTL ? 8 : 0 }}
                         />
                         <Text style={{
-                            fontFamily: 'Cairo_700Bold',
+                            fontFamily: 'IBMPlexSansArabic_700Bold',
                             fontSize: 15,
                             color: '#212121'
                         }}>
@@ -304,7 +304,7 @@ export default function ContactScreen() {
                         </Text>
                     </View>
                     <Text style={{
-                        fontFamily: 'Cairo_400Regular',
+                        fontFamily: 'IBMPlexSansArabic_400Regular',
                         fontSize: 14,
                         color: '#616161',
                         textAlign: isRTL ? 'right' : 'left',

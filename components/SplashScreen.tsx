@@ -94,7 +94,7 @@ export default function SplashScreen({ onFinish }: SplashScreenProps) {
         <View style={{ marginTop: 30 }}>
         <Text
           style={{
-            fontFamily: 'Cairo_700Bold',
+            fontFamily: 'IBMPlexSansArabic_700Bold',
             fontSize: 32,
             color: '#FFFFFF',
             textAlign: 'center',
@@ -111,7 +111,7 @@ export default function SplashScreen({ onFinish }: SplashScreenProps) {
         <View style={{ marginTop: 10 }}>
         <Text
           style={{
-            fontFamily: 'Cairo_400Regular',
+            fontFamily: 'IBMPlexSansArabic_400Regular',
             fontSize: 16,
             color: '#E8F5E9',
             textAlign: 'center',

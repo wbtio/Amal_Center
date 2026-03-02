@@ -48,7 +48,7 @@ export const CountdownTimer: React.FC<CountdownTimerProps> = ({ initialSeconds =
 
       {/* Time */}
       <Text
-        className="text-danger font-cairo-bold text-xs"
+        className="text-danger font-ibm-bold text-xs"
         style={{
           direction: 'ltr',
           marginRight: isRTL ? 0 : 4,
@@ -59,7 +59,7 @@ export const CountdownTimer: React.FC<CountdownTimerProps> = ({ initialSeconds =
       </Text>
 
       {/* Text */}
-      <Text className="text-danger font-cairo text-xs">
+      <Text className="text-danger font-ibm text-xs">
         {t('home.endsIn')}
       </Text>
     </View>

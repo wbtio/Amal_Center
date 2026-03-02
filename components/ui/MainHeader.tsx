@@ -34,7 +34,7 @@ export function MainHeader() {
                             color="#757575" 
                         />
                         <Text 
-                            className={`flex-1 font-cairo text-gray-400 text-sm include-font-padding-false ${isRTL ? 'text-right mr-2' : 'text-left ml-2'}`}
+                            className={`flex-1 font-ibm text-gray-400 text-sm include-font-padding-false ${isRTL ? 'text-right mr-2' : 'text-left ml-2'}`}
                             numberOfLines={1}
                             style={{ textAlignVertical: 'center' }}
                         >

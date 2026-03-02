@@ -106,7 +106,7 @@ export default function FAQScreen() {
                 <Text style={{
                     flex: 1,
                     textAlign: 'center',
-                    fontFamily: 'Cairo_700Bold',
+                    fontFamily: 'IBMPlexSansArabic_700Bold',
                     fontSize: 18,
                     color: '#212121'
                 }}>
@@ -137,7 +137,7 @@ export default function FAQScreen() {
                     />
                     <View style={{ flex: 1 }}>
                         <Text style={{
-                            fontFamily: 'Cairo_700Bold',
+                            fontFamily: 'IBMPlexSansArabic_700Bold',
                             fontSize: 16,
                             color: '#1B5E20',
                             textAlign: isRTL ? 'right' : 'left'
@@ -145,7 +145,7 @@ export default function FAQScreen() {
                             {language === 'ar' ? 'كيف يمكننا مساعدتك؟' : 'How can we help you?'}
                         </Text>
                         <Text style={{
-                            fontFamily: 'Cairo_400Regular',
+                            fontFamily: 'IBMPlexSansArabic_400Regular',
                             fontSize: 13,
                             color: '#2E7D32',
                             textAlign: isRTL ? 'right' : 'left',
@@ -187,7 +187,7 @@ export default function FAQScreen() {
                                 marginLeft: isRTL ? 12 : 0
                             }}>
                                 <Text style={{
-                                    fontFamily: 'Cairo_700Bold',
+                                    fontFamily: 'IBMPlexSansArabic_700Bold',
                                     fontSize: 14,
                                     color: expandedId === item.id ? '#FFFFFF' : '#757575'
                                 }}>
@@ -196,7 +196,7 @@ export default function FAQScreen() {
                             </View>
                             <Text style={{
                                 flex: 1,
-                                fontFamily: 'Cairo_600SemiBold',
+                                fontFamily: 'IBMPlexSansArabic_600SemiBold',
                                 fontSize: 14,
                                 color: '#212121',
                                 textAlign: isRTL ? 'right' : 'left'
@@ -219,7 +219,7 @@ export default function FAQScreen() {
                                 borderTopColor: '#F3F4F6'
                             }}>
                                 <Text style={{
-                                    fontFamily: 'Cairo_400Regular',
+                                    fontFamily: 'IBMPlexSansArabic_400Regular',
                                     fontSize: 14,
                                     color: '#616161',
                                     textAlign: isRTL ? 'right' : 'left',
@@ -245,7 +245,7 @@ export default function FAQScreen() {
                 }}>
                     <Ionicons name="chatbubbles-outline" size={40} color="#2E7D32" />
                     <Text style={{
-                        fontFamily: 'Cairo_700Bold',
+                        fontFamily: 'IBMPlexSansArabic_700Bold',
                         fontSize: 16,
                         color: '#212121',
                         marginTop: 12
@@ -253,7 +253,7 @@ export default function FAQScreen() {
                         {language === 'ar' ? 'لم تجد إجابتك؟' : "Didn't find your answer?"}
                     </Text>
                     <Text style={{
-                        fontFamily: 'Cairo_400Regular',
+                        fontFamily: 'IBMPlexSansArabic_400Regular',
                         fontSize: 13,
                         color: '#757575',
                         textAlign: 'center',
@@ -272,7 +272,7 @@ export default function FAQScreen() {
                         onPress={() => router.push('/help/contact')}
                     >
                         <Text style={{
-                            fontFamily: 'Cairo_700Bold',
+                            fontFamily: 'IBMPlexSansArabic_700Bold',
                             fontSize: 14,
                             color: '#FFFFFF'
                         }}>

@@ -1,4 +1,4 @@
-import { View, Text, TextInput, TouchableOpacity, Alert, ActivityIndicator, ScrollView, Image, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert, ActivityIndicator, Image, Platform, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -87,7 +87,7 @@ export default function EditProfileScreen() {
     const pickImage = async () => {
         try {
             const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-            
+
             if (!permissionResult.granted) {
                 Alert.alert(
                     language === 'ar' ? 'صلاحية مطلوبة' : 'Permission Required',
@@ -118,7 +118,7 @@ export default function EditProfileScreen() {
     const uploadImage = async (uri: string) => {
         try {
             setUploadingImage(true);
-            
+
             const { data: { session } } = await supabase.auth.getSession();
             if (!session) return;
 
@@ -178,7 +178,7 @@ export default function EditProfileScreen() {
     const onSubmit = async (data: ProfileFormData) => {
         try {
             setSaving(true);
-            
+
             const { data: { session } } = await supabase.auth.getSession();
             if (!session) {
                 router.replace('/auth/login');
@@ -251,7 +251,7 @@ export default function EditProfileScreen() {
                 <Text style={{
                     flex: 1,
                     textAlign: 'center',
-                    fontFamily: 'Cairo_700Bold',
+                    fontFamily: 'IBMPlexSansArabic_700Bold',
                     fontSize: 18,
                     color: '#212121'
                 }}>
@@ -260,15 +260,13 @@ export default function EditProfileScreen() {
                 <View style={{ width: 24 }} />
             </View>
 
-            <KeyboardAvoidingView
-                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            <ScrollView
                 style={{ flex: 1 }}
-            >
-            <ScrollView 
-                style={{ flex: 1 }} 
-                contentContainerStyle={{ padding: 16 }}
+                contentContainerStyle={{ padding: 16, paddingBottom: 140 }}
                 showsVerticalScrollIndicator={false}
                 keyboardShouldPersistTaps="handled"
+                keyboardDismissMode="interactive"
+                automaticallyAdjustKeyboardInsets={true}
             >
                 {/* Avatar Section */}
                 <View style={{
@@ -280,7 +278,7 @@ export default function EditProfileScreen() {
                     borderWidth: 1,
                     borderColor: '#F3F4F6'
                 }}>
-                    <TouchableOpacity 
+                    <TouchableOpacity
                         onPress={pickImage}
                         disabled={uploadingImage}
                         style={{ position: 'relative' }}
@@ -309,7 +307,7 @@ export default function EditProfileScreen() {
                                 <Ionicons name="person" size={48} color="#2E7D32" />
                             </View>
                         )}
-                        
+
                         <View style={{
                             position: 'absolute',
                             bottom: 0,
@@ -328,9 +326,9 @@ export default function EditProfileScreen() {
                             )}
                         </View>
                     </TouchableOpacity>
-                    
+
                     <Text style={{
-                        fontFamily: 'Cairo_400Regular',
+                        fontFamily: 'IBMPlexSansArabic_400Regular',
                         fontSize: 14,
                         color: '#757575',
                         marginTop: 12
@@ -351,7 +349,7 @@ export default function EditProfileScreen() {
                     {/* Full Name */}
                     <View style={{ marginBottom: 16 }}>
                         <Text style={{
-                            fontFamily: 'Cairo_600SemiBold',
+                            fontFamily: 'IBMPlexSansArabic_600SemiBold',
                             fontSize: 14,
                             color: '#212121',
                             marginBottom: 8,
@@ -370,7 +368,7 @@ export default function EditProfileScreen() {
                                         borderColor: errors.fullName ? '#D32F2F' : '#E5E7EB',
                                         borderRadius: 12,
                                         padding: 14,
-                                        fontFamily: 'Cairo_400Regular',
+                                        fontFamily: 'IBMPlexSansArabic_400Regular',
                                         fontSize: 16,
                                         textAlign: isRTL ? 'right' : 'left',
                                         color: '#212121'
@@ -384,7 +382,7 @@ export default function EditProfileScreen() {
                         />
                         {errors.fullName && (
                             <Text style={{
-                                fontFamily: 'Cairo_400Regular',
+                                fontFamily: 'IBMPlexSansArabic_400Regular',
                                 fontSize: 12,
                                 color: '#D32F2F',
                                 marginTop: 4,
@@ -398,7 +396,7 @@ export default function EditProfileScreen() {
                     {/* Email (Read Only) */}
                     <View style={{ marginBottom: 16 }}>
                         <Text style={{
-                            fontFamily: 'Cairo_600SemiBold',
+                            fontFamily: 'IBMPlexSansArabic_600SemiBold',
                             fontSize: 14,
                             color: '#212121',
                             marginBottom: 8,
@@ -415,14 +413,14 @@ export default function EditProfileScreen() {
                             flexDirection: isRTL ? 'row-reverse' : 'row',
                             alignItems: 'center'
                         }}>
-                            <Ionicons 
-                                name="lock-closed-outline" 
-                                size={18} 
-                                color="#9CA3AF" 
+                            <Ionicons
+                                name="lock-closed-outline"
+                                size={18}
+                                color="#9CA3AF"
                                 style={{ marginRight: isRTL ? 0 : 8, marginLeft: isRTL ? 8 : 0 }}
                             />
                             <Text style={{
-                                fontFamily: 'Cairo_400Regular',
+                                fontFamily: 'IBMPlexSansArabic_400Regular',
                                 fontSize: 16,
                                 color: '#6B7280',
                                 flex: 1,
@@ -432,7 +430,7 @@ export default function EditProfileScreen() {
                             </Text>
                         </View>
                         <Text style={{
-                            fontFamily: 'Cairo_400Regular',
+                            fontFamily: 'IBMPlexSansArabic_400Regular',
                             fontSize: 11,
                             color: '#9CA3AF',
                             marginTop: 4,
@@ -445,7 +443,7 @@ export default function EditProfileScreen() {
                     {/* Phone */}
                     <View style={{ marginBottom: 8 }}>
                         <Text style={{
-                            fontFamily: 'Cairo_600SemiBold',
+                            fontFamily: 'IBMPlexSansArabic_600SemiBold',
                             fontSize: 14,
                             color: '#212121',
                             marginBottom: 8,
@@ -464,7 +462,7 @@ export default function EditProfileScreen() {
                                         borderColor: '#E5E7EB',
                                         borderRadius: 12,
                                         padding: 14,
-                                        fontFamily: 'Cairo_400Regular',
+                                        fontFamily: 'IBMPlexSansArabic_400Regular',
                                         fontSize: 16,
                                         textAlign: 'left',
                                         color: '#212121'
@@ -479,35 +477,6 @@ export default function EditProfileScreen() {
                         />
                     </View>
                 </View>
-
-                {/* Save Button */}
-                <TouchableOpacity
-                    style={{
-                        backgroundColor: '#2E7D32',
-                        borderRadius: 12,
-                        padding: 16,
-                        alignItems: 'center',
-                        marginBottom: 16,
-                        shadowColor: '#2E7D32',
-                        shadowOpacity: 0.3,
-                        shadowRadius: 8,
-                        elevation: 4
-                    }}
-                    onPress={handleSubmit(onSubmit)}
-                    disabled={saving}
-                >
-                    {saving ? (
-                        <ActivityIndicator color="#FFFFFF" />
-                    ) : (
-                        <Text style={{
-                            fontFamily: 'Cairo_700Bold',
-                            fontSize: 16,
-                            color: '#FFFFFF'
-                        }}>
-                            {language === 'ar' ? 'حفظ التغييرات' : 'Save Changes'}
-                        </Text>
-                    )}
-                </TouchableOpacity>
 
                 {/* Change Password Link */}
                 <TouchableOpacity
@@ -537,7 +506,7 @@ export default function EditProfileScreen() {
                             <Ionicons name="key-outline" size={20} color="#D97706" />
                         </View>
                         <Text style={{
-                            fontFamily: 'Cairo_600SemiBold',
+                            fontFamily: 'IBMPlexSansArabic_600SemiBold',
                             fontSize: 15,
                             color: '#212121'
                         }}>
@@ -547,7 +516,50 @@ export default function EditProfileScreen() {
                     <Ionicons name={isRTL ? "chevron-back" : "chevron-forward"} size={20} color="#9CA3AF" />
                 </TouchableOpacity>
             </ScrollView>
-            </KeyboardAvoidingView>
+
+            {/* Save Button (Fixed Bottom) */}
+            <View style={{
+                backgroundColor: '#FFFFFF',
+                borderTopWidth: 1,
+                borderTopColor: '#F3F4F6',
+                padding: 16,
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: -4 },
+                shadowOpacity: 0.08,
+                shadowRadius: 6,
+                elevation: 6,
+            }}>
+                <TouchableOpacity
+                    style={{
+                        backgroundColor: saving ? '#9CA3AF' : '#2E7D32',
+                        borderRadius: 12,
+                        padding: 16,
+                        alignItems: 'center',
+                        shadowColor: '#2E7D32',
+                        shadowOpacity: saving ? 0 : 0.3,
+                        shadowRadius: 8,
+                        elevation: saving ? 0 : 4
+                    }}
+                    onPress={handleSubmit(onSubmit)}
+                    disabled={saving}
+                    activeOpacity={0.8}
+                >
+                    {saving ? (
+                        <ActivityIndicator color="#FFFFFF" />
+                    ) : (
+                        <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center' }}>
+                            <Ionicons name="checkmark-circle" size={20} color="#FFFFFF" style={{ marginRight: isRTL ? 0 : 8, marginLeft: isRTL ? 8 : 0 }} />
+                            <Text style={{
+                                fontFamily: 'IBMPlexSansArabic_700Bold',
+                                fontSize: 16,
+                                color: '#FFFFFF'
+                            }}>
+                                {language === 'ar' ? 'حفظ التغييرات' : 'Save Changes'}
+                            </Text>
+                        </View>
+                    )}
+                </TouchableOpacity>
+            </View>
         </View>
     );
 }

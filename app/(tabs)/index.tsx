@@ -92,12 +92,12 @@ export default function HomeScreen() {
       style={fullWidth ? { width: SCREEN_WIDTH - 32 } : { minWidth: SCREEN_WIDTH - 32 }}
     >
       <Ionicons name={icon as any} size={40} color="#EF4444" />
-      <Text className="font-cairo-regular text-text-secondary mt-2">{t('errors.loadError')}</Text>
+      <Text className="font-ibm-regular text-text-secondary mt-2">{t('errors.loadError')}</Text>
       <TouchableOpacity
         onPress={() => onRetry()}
         className="mt-3 bg-primary px-6 py-2 rounded-lg"
       >
-        <Text className="font-cairo-semibold text-white">{t('common.retry')}</Text>
+        <Text className="font-ibm-semibold text-white">{t('common.retry')}</Text>
       </TouchableOpacity>
     </View>
   );
@@ -109,7 +109,7 @@ export default function HomeScreen() {
       style={{ width: SCREEN_WIDTH - 32 }}
     >
       <Ionicons name={icon as any} size={40} color="#E0E0E0" />
-      <Text className="font-cairo-regular text-text-secondary mt-2">{message}</Text>
+      <Text className="font-ibm-regular text-text-secondary mt-2">{message}</Text>
     </View>
   );
 
@@ -144,7 +144,7 @@ export default function HomeScreen() {
               )}
             </View>
             <Text
-              className="font-cairo-semibold text-[10px] text-text-primary text-center mt-1 w-[70px]"
+              className="font-ibm-semibold text-[10px] text-text-primary text-center mt-1 w-[70px]"
               numberOfLines={2}
             >
               {getCategoryName(item)}

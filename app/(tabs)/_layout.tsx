@@ -34,7 +34,7 @@ export default function TabLayout() {
           shadowColor: 'transparent',
         },
         tabBarLabelStyle: {
-          fontFamily: 'Cairo_700Bold',
+          fontFamily: 'IBMPlexSansArabic_700Bold',
           fontSize: 11.5,
           marginTop: -1, // 🔥 أقرب للأيقونة
           marginBottom: 0,
@@ -139,7 +139,7 @@ export default function TabLayout() {
                     borderColor: BG_COLOR,
                   }}
                 >
-                  <Text style={{ fontFamily: 'Cairo_700Bold', fontSize: 9, color: '#FFFFFF', lineHeight: 10 }}>
+                  <Text style={{ fontFamily: 'IBMPlexSansArabic_700Bold', fontSize: 9, color: '#FFFFFF', lineHeight: 10 }}>
                     {cartItemsCount > 9 ? '9+' : cartItemsCount}
                   </Text>
                 </View>

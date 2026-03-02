@@ -112,7 +112,7 @@ export default function CategoryScreen() {
       {/* نص القسم */}
       <View className="flex-1 px-3">
         <Text
-          className="font-cairo text-[14px]"
+          className="font-ibm text-[14px]"
           style={{ 
             color: '#424242',
             textAlign: isRTL ? 'right' : 'left',
@@ -173,7 +173,7 @@ export default function CategoryScreen() {
           <Ionicons name={isRTL ? "chevron-forward" : "chevron-back"} size={26} color="white" />
         </TouchableOpacity>
         
-        <Text className="font-cairo-bold text-[18px] text-white flex-1 text-center">
+        <Text className="font-ibm-bold text-[18px] text-white flex-1 text-center">
           {categoryName || t('home.products')}
         </Text>
         
@@ -211,7 +211,7 @@ export default function CategoryScreen() {
                 color="#3F51B5" 
               />
               <Text
-                className="font-cairo-semibold text-[13px]"
+                className="font-ibm-semibold text-[13px]"
                 style={{ 
                   color: '#3F51B5',
                   marginHorizontal: 4,
@@ -233,7 +233,7 @@ export default function CategoryScreen() {
                 className={`flex-row items-center px-3 py-2 rounded-xl bg-gray-50 ${isRTL ? 'flex-row-reverse' : ''}`}
               >
                 <Ionicons name="swap-vertical" size={18} color="#3F51B5" />
-                <Text className={`font-cairo-semibold text-xs text-gray-700 ${isRTL ? 'mr-1.5' : 'ml-1.5'}`} numberOfLines={1}>
+                <Text className={`font-ibm-semibold text-xs text-gray-700 ${isRTL ? 'mr-1.5' : 'ml-1.5'}`} numberOfLines={1}>
                   {getCurrentSortLabel()}
                 </Text>
               </TouchableOpacity>
@@ -245,7 +245,7 @@ export default function CategoryScreen() {
                 className={`flex-row items-center px-3 py-2 rounded-xl ${hasActiveFilters ? 'bg-primary/10 border border-primary/30' : 'bg-gray-50'} ${isRTL ? 'flex-row-reverse' : ''}`}
               >
                 <Ionicons name="options-outline" size={18} color={hasActiveFilters ? '#3F51B5' : '#6B7280'} />
-                <Text className={`font-cairo-semibold text-xs ${isRTL ? 'mr-1.5' : 'ml-1.5'} ${hasActiveFilters ? 'text-[#3F51B5]' : 'text-gray-700'}`}>
+                <Text className={`font-ibm-semibold text-xs ${isRTL ? 'mr-1.5' : 'ml-1.5'} ${hasActiveFilters ? 'text-[#3F51B5]' : 'text-gray-700'}`}>
                   {language === 'ar' ? 'تصفية' : 'Filter'}
                 </Text>
                 {activeFiltersCount > 0 && (
@@ -274,7 +274,7 @@ export default function CategoryScreen() {
                 <View className="w-24 h-24 rounded-full bg-gray-100 items-center justify-center mb-4">
                   <Ionicons name="basket-outline" size={48} color="#D1D5DB" />
                 </View>
-                <Text className="font-cairo-bold text-gray-400 text-base">
+                <Text className="font-ibm-bold text-gray-400 text-base">
                   {t('category.noProducts')}
                 </Text>
               </View>
@@ -291,7 +291,7 @@ export default function CategoryScreen() {
       >
         {/* Header */}
         <View className={`px-4 pb-4 ${isRTL ? 'items-end' : 'items-start'}`}>
-          <Text className="font-cairo-bold text-lg text-[#1B4D2E]">
+          <Text className="font-ibm-bold text-lg text-[#1B4D2E]">
             {language === 'ar' ? 'ترتيب حسب' : 'Sort by'}
           </Text>
         </View>
@@ -316,7 +316,7 @@ export default function CategoryScreen() {
                   color={sortBy === option.value ? 'white' : '#6B7280'} 
                 />
               </View>
-              <Text className={`font-cairo-semibold text-base flex-1 ${isRTL ? 'mr-3 text-right' : 'ml-3 text-left'} ${
+              <Text className={`font-ibm-semibold text-base flex-1 ${isRTL ? 'mr-3 text-right' : 'ml-3 text-left'} ${
                 sortBy === option.value ? 'text-primary' : 'text-gray-700'
               }`}>
                 {language === 'ar' ? option.labelAr : option.labelEn}
@@ -337,7 +337,7 @@ export default function CategoryScreen() {
       >
         {/* Header */}
         <View className={`px-4 pb-3 border-b border-gray-100 ${isRTL ? 'items-end' : 'items-start'}`}>
-          <Text className="font-cairo-bold text-lg text-[#1B4D2E]">
+          <Text className="font-ibm-bold text-lg text-[#1B4D2E]">
             {language === 'ar' ? 'تصفية النتائج' : 'Filter Results'}
           </Text>
         </View>
@@ -345,7 +345,7 @@ export default function CategoryScreen() {
         <ScrollView className="px-4" showsVerticalScrollIndicator={false}>
           {/* نطاق السعر */}
           <View className="py-3 border-b border-gray-100">
-            <Text className={`font-cairo-bold text-sm text-[#1B4D2E] mb-1 ${isRTL ? 'text-right' : 'text-left'}`}>
+            <Text className={`font-ibm-bold text-sm text-[#1B4D2E] mb-1 ${isRTL ? 'text-right' : 'text-left'}`}>
               {language === 'ar' ? 'نطاق السعر' : 'Price Range'}
             </Text>
             
@@ -377,10 +377,10 @@ export default function CategoryScreen() {
               )}
             </View>
             <View className={`flex-1 ${isRTL ? 'mr-2.5' : 'ml-2.5'}`}>
-              <Text className={`font-cairo-semibold text-sm text-gray-700 ${isRTL ? 'text-right' : 'text-left'}`}>
+              <Text className={`font-ibm-semibold text-sm text-gray-700 ${isRTL ? 'text-right' : 'text-left'}`}>
                 {language === 'ar' ? 'المتوفر فقط' : 'In Stock Only'}
               </Text>
-              <Text className={`font-cairo text-[10px] text-gray-400 ${isRTL ? 'text-right' : 'text-left'}`}>
+              <Text className={`font-ibm text-[10px] text-gray-400 ${isRTL ? 'text-right' : 'text-left'}`}>
                 {language === 'ar' ? 'إخفاء المنتجات غير المتوفرة' : 'Hide out of stock products'}
               </Text>
             </View>
@@ -396,7 +396,7 @@ export default function CategoryScreen() {
             className="flex-1 py-3.5 border border-gray-300 rounded-xl items-center"
             style={{ marginRight: isRTL ? 0 : 8, marginLeft: isRTL ? 8 : 0 }}
           >
-            <Text className="font-cairo-bold text-sm text-gray-600">
+            <Text className="font-ibm-bold text-sm text-gray-600">
               {language === 'ar' ? 'إعادة تعيين' : 'Reset'}
             </Text>
           </TouchableOpacity>
@@ -406,7 +406,7 @@ export default function CategoryScreen() {
             className="flex-1 py-3.5 bg-primary rounded-xl items-center"
             style={{ marginLeft: isRTL ? 0 : 8, marginRight: isRTL ? 8 : 0 }}
           >
-            <Text className="font-cairo-bold text-sm text-white">
+            <Text className="font-ibm-bold text-sm text-white">
               {language === 'ar' ? 'تطبيق الفلاتر' : 'Apply Filters'}
             </Text>
           </TouchableOpacity>

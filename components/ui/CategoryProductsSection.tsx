@@ -47,12 +47,12 @@ export const CategoryProductsSection: React.FC<CategoryProductsSectionProps> = (
                 ) : error ? (
                     <View className="items-center justify-center py-8 mx-4" style={{ minWidth: 300 }}>
                         <Ionicons name="alert-circle-outline" size={40} color="#EF4444" />
-                        <Text className="font-cairo-regular text-text-secondary mt-2">{t('errors.loadError')}</Text>
+                        <Text className="font-ibm-regular text-text-secondary mt-2">{t('errors.loadError')}</Text>
                         <TouchableOpacity
                             onPress={() => refetch()}
                             className="mt-3 bg-primary px-6 py-2 rounded-lg"
                         >
-                            <Text className="font-cairo-semibold text-white">{t('common.retry')}</Text>
+                            <Text className="font-ibm-semibold text-white">{t('common.retry')}</Text>
                         </TouchableOpacity>
                     </View>
                 ) : products && products.length > 0 ? (

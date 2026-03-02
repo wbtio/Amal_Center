@@ -63,16 +63,16 @@ export default function VerifyOtpScreen() {
                 <Ionicons name="shield-checkmark-outline" size={48} color="#2E7D32" />
             </View>
 
-            <Text className="font-cairo-bold text-2xl text-primary text-center mb-2">تأكيد الحساب</Text>
-            <Text className="font-cairo text-text-secondary text-center mb-10 px-4 leading-6">
+            <Text className="font-ibm-bold text-2xl text-primary text-center mb-2">تأكيد الحساب</Text>
+            <Text className="font-ibm text-text-secondary text-center mb-10 px-4 leading-6">
                 الرجاء إدخال رمز التحقق (OTP) المرسل إلى:{'\n'}
-                <Text className="font-cairo-bold text-primary">{email}</Text>
+                <Text className="font-ibm-bold text-primary">{email}</Text>
             </Text>
 
             <View className="w-full mb-8">
-                <Text className="font-cairo text-right mb-2 text-text-secondary">رمز التحقق</Text>
+                <Text className="font-ibm text-right mb-2 text-text-secondary">رمز التحقق</Text>
                 <TextInput
-                    className="bg-gray-50 border border-gray-200 rounded-xl p-4 text-center font-cairo-bold text-3xl tracking-[8px] text-primary"
+                    className="bg-gray-50 border border-gray-200 rounded-xl p-4 text-center font-ibm-bold text-3xl tracking-[8px] text-primary"
                     placeholder="--------"
                     placeholderTextColor="#cbd5e1"
                     keyboardType="number-pad"
@@ -91,7 +91,7 @@ export default function VerifyOtpScreen() {
                 {loading ? (
                     <ActivityIndicator color="white" />
                 ) : (
-                    <Text className="text-white font-cairo-bold text-lg">تأكيد وتفعيل</Text>
+                    <Text className="text-white font-ibm-bold text-lg">تأكيد وتفعيل</Text>
                 )}
             </TouchableOpacity>
 
@@ -100,8 +100,8 @@ export default function VerifyOtpScreen() {
                 disabled={loading}
                 className="p-2"
             >
-                <Text className="font-cairo text-text-secondary">
-                    لم يصلك الرمز؟ <Text className="text-primary font-cairo-bold">أعد الإرسال</Text>
+                <Text className="font-ibm text-text-secondary">
+                    لم يصلك الرمز؟ <Text className="text-primary font-ibm-bold">أعد الإرسال</Text>
                 </Text>
             </TouchableOpacity>
         </SafeAreaView>

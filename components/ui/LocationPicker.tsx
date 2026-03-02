@@ -384,7 +384,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: 12,
-    fontFamily: 'Cairo_400Regular',
+    fontFamily: 'IBMPlexSansArabic_400Regular',
     fontSize: 14,
     color: '#666',
   },
@@ -467,7 +467,7 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   title: {
-    fontFamily: 'Cairo_700Bold',
+    fontFamily: 'IBMPlexSansArabic_700Bold',
     fontSize: 15,
     color: '#333',
     textAlign: 'center',
@@ -526,13 +526,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   addressLabel: {
-    fontFamily: 'Cairo_600SemiBold',
+    fontFamily: 'IBMPlexSansArabic_600SemiBold',
     fontSize: 12,
     color: '#2E7D32',
     marginBottom: 2,
   },
   addressText: {
-    fontFamily: 'Cairo_400Regular',
+    fontFamily: 'IBMPlexSansArabic_400Regular',
     fontSize: 14,
     color: '#333',
   },
@@ -545,7 +545,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   confirmButtonText: {
-    fontFamily: 'Cairo_700Bold',
+    fontFamily: 'IBMPlexSansArabic_700Bold',
     fontSize: 16,
     color: '#fff',
   },

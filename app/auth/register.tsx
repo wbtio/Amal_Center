@@ -134,36 +134,36 @@ export default function RegisterScreen() {
         <Ionicons name="arrow-back" size={24} color="#212121" />
       </TouchableOpacity>
 
-      <Text className="font-cairo-bold text-2xl text-primary text-center mb-2">إنشاء حساب جديد</Text>
-      <Text className="font-cairo text-text-secondary text-center mb-8">انضم إلينا واستمتع بتجربة تسوق مميزة</Text>
+      <Text className="font-ibm-bold text-2xl text-primary text-center mb-2">إنشاء حساب جديد</Text>
+      <Text className="font-ibm text-text-secondary text-center mb-8">انضم إلينا واستمتع بتجربة تسوق مميزة</Text>
 
       {/* Full Name */}
       <View className="mb-4">
-        <Text className="font-cairo text-right mb-1 text-text-secondary">الاسم الكامل</Text>
+        <Text className="font-ibm text-right mb-1 text-text-secondary">الاسم الكامل</Text>
         <Controller
           control={control}
           name="fullName"
           render={({ field: { onChange, value } }) => (
             <TextInput
-              className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-right font-cairo"
+              className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-right font-ibm"
               placeholder="الاسم الكامل"
               value={value}
               onChangeText={onChange}
             />
           )}
         />
-        {errors.fullName && <Text className="text-danger text-xs text-right mt-1 font-cairo">{errors.fullName.message}</Text>}
+        {errors.fullName && <Text className="text-danger text-xs text-right mt-1 font-ibm">{errors.fullName.message}</Text>}
       </View>
 
       {/* Phone Number */}
       <View className="mb-4">
-        <Text className="font-cairo text-right mb-1 text-text-secondary">رقم الهاتف</Text>
+        <Text className="font-ibm text-right mb-1 text-text-secondary">رقم الهاتف</Text>
         <Controller
           control={control}
           name="phone"
           render={({ field: { onChange, value } }) => (
             <TextInput
-              className="bg-gray-50 border border-gray-200 rounded-lg p-3 font-cairo"
+              className="bg-gray-50 border border-gray-200 rounded-lg p-3 font-ibm"
               style={{ textAlign: 'left', writingDirection: 'ltr' }}
               placeholder="07XXXXXXXX"
               keyboardType="phone-pad"
@@ -172,18 +172,18 @@ export default function RegisterScreen() {
             />
           )}
         />
-        {errors.phone && <Text className="text-danger text-xs text-right mt-1 font-cairo">{errors.phone.message}</Text>}
+        {errors.phone && <Text className="text-danger text-xs text-right mt-1 font-ibm">{errors.phone.message}</Text>}
       </View>
 
       {/* Email */}
       <View className="mb-4">
-        <Text className="font-cairo text-right mb-1 text-text-secondary">البريد الإلكتروني</Text>
+        <Text className="font-ibm text-right mb-1 text-text-secondary">البريد الإلكتروني</Text>
         <Controller
           control={control}
           name="email"
           render={({ field: { onChange, value } }) => (
             <TextInput
-              className="bg-gray-50 border border-gray-200 rounded-lg p-3 font-cairo"
+              className="bg-gray-50 border border-gray-200 rounded-lg p-3 font-ibm"
               style={{ textAlign: 'left', writingDirection: 'ltr' }}
               placeholder="example@email.com"
               keyboardType="email-address"
@@ -193,18 +193,18 @@ export default function RegisterScreen() {
             />
           )}
         />
-        {errors.email && <Text className="text-danger text-xs text-right mt-1 font-cairo">{errors.email.message}</Text>}
+        {errors.email && <Text className="text-danger text-xs text-right mt-1 font-ibm">{errors.email.message}</Text>}
       </View>
 
       {/* Password */}
       <View className="mb-4">
-        <Text className="font-cairo text-right mb-1 text-text-secondary">كلمة المرور</Text>
+        <Text className="font-ibm text-right mb-1 text-text-secondary">كلمة المرور</Text>
         <Controller
           control={control}
           name="password"
           render={({ field: { onChange, value } }) => (
             <TextInput
-              className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-right font-cairo"
+              className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-right font-ibm"
               placeholder="******"
               secureTextEntry
               value={value}
@@ -212,18 +212,18 @@ export default function RegisterScreen() {
             />
           )}
         />
-        {errors.password && <Text className="text-danger text-xs text-right mt-1 font-cairo">{errors.password.message}</Text>}
+        {errors.password && <Text className="text-danger text-xs text-right mt-1 font-ibm">{errors.password.message}</Text>}
       </View>
 
       {/* Confirm Password */}
       <View className="mb-6">
-        <Text className="font-cairo text-right mb-1 text-text-secondary">تأكيد كلمة المرور</Text>
+        <Text className="font-ibm text-right mb-1 text-text-secondary">تأكيد كلمة المرور</Text>
         <Controller
           control={control}
           name="confirmPassword"
           render={({ field: { onChange, value } }) => (
             <TextInput
-              className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-right font-cairo"
+              className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-right font-ibm"
               placeholder="******"
               secureTextEntry
               value={value}
@@ -231,7 +231,7 @@ export default function RegisterScreen() {
             />
           )}
         />
-        {errors.confirmPassword && <Text className="text-danger text-xs text-right mt-1 font-cairo">{errors.confirmPassword.message}</Text>}
+        {errors.confirmPassword && <Text className="text-danger text-xs text-right mt-1 font-ibm">{errors.confirmPassword.message}</Text>}
       </View>
 
       <TouchableOpacity
@@ -242,15 +242,15 @@ export default function RegisterScreen() {
         {loading ? (
           <ActivityIndicator color="white" />
         ) : (
-          <Text className="text-white font-cairo-bold text-lg">إنشاء الحساب</Text>
+          <Text className="text-white font-ibm-bold text-lg">إنشاء الحساب</Text>
         )}
       </TouchableOpacity>
 
       <View className="flex-row justify-center">
         <TouchableOpacity onPress={() => router.push('/auth/login')}>
-          <Text className="text-primary font-cairo-bold">سجل دخولك</Text>
+          <Text className="text-primary font-ibm-bold">سجل دخولك</Text>
         </TouchableOpacity>
-        <Text className="font-cairo text-text-secondary mx-1">لديك حساب بالفعل؟</Text>
+        <Text className="font-ibm text-text-secondary mx-1">لديك حساب بالفعل؟</Text>
       </View>
     </SafeAreaView>
   );

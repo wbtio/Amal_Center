@@ -10,57 +10,59 @@ interface PaymentStepProps {
 }
 
 export const PaymentStep: React.FC<PaymentStepProps> = ({ selectedMethod, onSelect }) => {
-  const { t, isRTL } = useLanguage();
+  const { isRTL, language } = useLanguage();
   const alignClass = isRTL ? 'text-right' : 'text-left';
 
+  const paymentOptions = [
+    {
+      id: 'cod' as PaymentMethod,
+      title: language === 'ar' ? 'الدفع عند الاستلام (نقد)' : 'Cash on Delivery (COD)',
+      available: true,
+      icon: 'cash'
+    },
+    {
+      id: 'wallet' as PaymentMethod,
+      title: language === 'ar' ? 'زين كاش (قريباً)' : 'Zain Cash (Soon)',
+      available: false,
+      icon: 'phone-portrait'
+    },
+    {
+      id: 'card' as PaymentMethod,
+      title: language === 'ar' ? 'بطاقة بنكية (قريباً)' : 'Credit Card (Soon)',
+      available: false,
+      icon: 'card'
+    }
+  ];
+
   return (
-    <View className="bg-white p-4 rounded-lg shadow-sm mb-4 border border-gray-100">
-      <Text className={`font-cairo-bold text-lg mb-4 text-primary ${alignClass}`}>{t('checkout.paymentMethod')}</Text>
-
-      {/* COD */}
-      <TouchableOpacity
-        className={`flex-row items-center p-4 rounded-lg border mb-3 ${selectedMethod === 'cod' ? 'bg-primary/5 border-primary' : 'bg-white border-gray-200'} ${isRTL ? 'flex-row-reverse' : ''}`}
-        onPress={() => onSelect('cod')}
-      >
-        <View className={`w-5 h-5 rounded-full border border-primary items-center justify-center ${isRTL ? 'ml-3' : 'mr-3'}`}>
-          {selectedMethod === 'cod' && <View className="w-3 h-3 rounded-full bg-primary" />}
-        </View>
-        <View className={`flex-1 ${isRTL ? 'items-end' : 'items-start'}`}>
-          <Text className={`font-cairo-bold text-text-primary ${alignClass}`}>{t('checkout.cod')}</Text>
-          <Text className={`font-cairo text-text-secondary text-xs mt-1 ${alignClass}`}>{t('checkout.codDesc')}</Text>
-        </View>
-        <Ionicons name="cash-outline" size={24} color={selectedMethod === 'cod' ? '#2E7D32' : '#757575'} className={`${isRTL ? 'mr-3' : 'ml-3'}`} />
-      </TouchableOpacity>
-
-      {/* Credit Card */}
-      <TouchableOpacity
-        className={`flex-row items-center p-4 rounded-lg border mb-3 ${selectedMethod === 'card' ? 'bg-primary/5 border-primary' : 'bg-white border-gray-200'} ${isRTL ? 'flex-row-reverse' : ''}`}
-        onPress={() => onSelect('card')}
-      >
-        <View className={`w-5 h-5 rounded-full border border-primary items-center justify-center ${isRTL ? 'ml-3' : 'mr-3'}`}>
-          {selectedMethod === 'card' && <View className="w-3 h-3 rounded-full bg-primary" />}
-        </View>
-        <View className={`flex-1 ${isRTL ? 'items-end' : 'items-start'}`}>
-          <Text className={`font-cairo-bold text-text-primary ${alignClass}`}>{t('checkout.card')}</Text>
-          <Text className={`font-cairo text-text-secondary text-xs mt-1 ${alignClass}`}>{t('checkout.cardDesc')}</Text>
-        </View>
-        <Ionicons name="card-outline" size={24} color={selectedMethod === 'card' ? '#2E7D32' : '#757575'} className={`${isRTL ? 'mr-3' : 'ml-3'}`} />
-      </TouchableOpacity>
-
-      {/* Wallet */}
-      <TouchableOpacity
-        className={`flex-row items-center p-4 rounded-lg border ${selectedMethod === 'wallet' ? 'bg-primary/5 border-primary' : 'bg-white border-gray-200'} ${isRTL ? 'flex-row-reverse' : ''}`}
-        onPress={() => onSelect('wallet')}
-      >
-        <View className={`w-5 h-5 rounded-full border border-primary items-center justify-center ${isRTL ? 'ml-3' : 'mr-3'}`}>
-          {selectedMethod === 'wallet' && <View className="w-3 h-3 rounded-full bg-primary" />}
-        </View>
-        <View className={`flex-1 ${isRTL ? 'items-end' : 'items-start'}`}>
-          <Text className={`font-cairo-bold text-text-primary ${alignClass}`}>{t('checkout.wallet')}</Text>
-          <Text className={`font-cairo text-text-secondary text-xs mt-1 ${alignClass}`}>{t('checkout.walletDesc')}</Text>
-        </View>
-        <Ionicons name="phone-portrait-outline" size={24} color={selectedMethod === 'wallet' ? '#2E7D32' : '#757575'} className={`${isRTL ? 'mr-3' : 'ml-3'}`} />
-      </TouchableOpacity>
+    <View className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-4">
+      <View className="gap-2">
+        {paymentOptions.map((option) => (
+          <TouchableOpacity
+            key={option.id}
+            className={`flex-row items-center p-3 rounded-xl border ${selectedMethod === option.id
+                ? 'bg-primary/5 border-primary'
+                : 'bg-gray-50 border-gray-100'
+              } ${!option.available ? 'opacity-50' : ''} ${isRTL ? 'flex-row-reverse' : ''}`}
+            onPress={() => option.available && onSelect(option.id)}
+            disabled={!option.available}
+            activeOpacity={0.7}
+          >
+            <Ionicons
+              name={option.icon as any}
+              size={20}
+              color={selectedMethod === option.id ? '#2E7D32' : '#6B7280'}
+              style={isRTL ? { marginLeft: 12 } : { marginRight: 12 }}
+            />
+            <Text className={`flex-1 font-ibm-bold text-sm ${selectedMethod === option.id ? 'text-primary' : 'text-gray-800'} ${alignClass}`}>
+              {option.title}
+            </Text>
+            {selectedMethod === option.id && (
+              <Ionicons name="checkmark-circle" size={18} color="#2E7D32" />
+            )}
+          </TouchableOpacity>
+        ))}
+      </View>
     </View>
   );
 };

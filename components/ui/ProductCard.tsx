@@ -57,7 +57,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, showDiscount 
         {/* شارة الخصم */}
         {showDiscount && (
           <View className={`absolute top-2 ${isRTL ? 'right-2' : 'left-2'} bg-red-500 px-2 py-0.5 rounded-full`}>
-            <Text className="text-white text-[10px] font-cairo-bold">-20%</Text>
+            <Text className="text-white text-[10px] font-ibm-bold">-20%</Text>
           </View>
         )}
       </View>
@@ -65,18 +65,18 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, showDiscount 
       {/* اسم المنتج والسعر تحت الصورة */}
       <View className="pt-2 pb-1">
         <Text 
-          className={`font-cairo-semibold text-sm text-[#1B4D2E] leading-5 ${isRTL ? 'text-right' : 'text-left'}`} 
+          className={`font-ibm-semibold text-sm text-[#1B4D2E] leading-5 ${isRTL ? 'text-right' : 'text-left'}`} 
           numberOfLines={2}
         >
           {language === 'ar' ? product.name_ar : (product.name || product.name_ar)}
         </Text>
         
-        <Text className={`font-cairo-bold text-sm text-primary mt-0.5 ${isRTL ? 'text-right' : 'text-left'}`}>
+        <Text className={`font-ibm-bold text-sm text-primary mt-0.5 ${isRTL ? 'text-right' : 'text-left'}`}>
           {formatPrice(product.price_iqd)}
         </Text>
         
         {showDiscount && (
-          <Text className={`text-gray-400 font-cairo text-[10px] line-through ${isRTL ? 'text-right' : 'text-left'}`}>
+          <Text className={`text-gray-400 font-ibm text-[10px] line-through ${isRTL ? 'text-right' : 'text-left'}`}>
             {formatPrice(product.price_iqd * 1.2)}
           </Text>
         )}

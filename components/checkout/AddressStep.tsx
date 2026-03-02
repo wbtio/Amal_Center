@@ -14,7 +14,7 @@ interface AddressStepProps {
 }
 
 export const AddressStep: React.FC<AddressStepProps> = ({ control, errors, setValue, getValues }) => {
-  const { t, isRTL, language } = useLanguage();
+  const { isRTL, language } = useLanguage();
   const alignClass = isRTL ? 'text-right' : 'text-left';
   const flexDir = isRTL ? 'flex-row-reverse' : 'flex-row';
   const [showLocationPicker, setShowLocationPicker] = useState(false);
@@ -41,10 +41,11 @@ export const AddressStep: React.FC<AddressStepProps> = ({ control, errors, setVa
     placeholder: string,
     required: boolean = false,
     options?: Partial<TextInputProps>,
-    yPosition: number = 0
+    yPosition: number = 0,
+    containerClass: string = "mb-4"
   ) => (
-    <View className="mb-4">
-      <Text className={`font-cairo mb-1 text-text-secondary ${alignClass}`}>
+    <View className={containerClass}>
+      <Text className={`font-ibm-bold text-xs text-gray-700 mb-1.5 ${alignClass}`}>
         {label} {required && <Text className="text-red-500">*</Text>}
       </Text>
       <Controller
@@ -52,7 +53,7 @@ export const AddressStep: React.FC<AddressStepProps> = ({ control, errors, setVa
         name={name}
         render={({ field: { onChange, value } }) => (
           <TextInput
-            className={`bg-gray-50 border border-gray-200 rounded-xl p-4 font-cairo text-base ${alignClass}`}
+            className={`bg-gray-50 border ${errors[name] ? 'border-red-400 bg-red-50/50' : 'border-gray-200 focus:border-primary'} rounded-xl p-3.5 font-ibm text-sm text-gray-900 ${alignClass}`}
             placeholder={placeholder}
             value={typeof value === 'string' ? value : ''}
             onChangeText={onChange}
@@ -64,246 +65,134 @@ export const AddressStep: React.FC<AddressStepProps> = ({ control, errors, setVa
         )}
       />
       {errors[name] && (
-        <Text className={`text-red-500 text-xs mt-1 font-cairo ${alignClass}`}>
-          {errors[name]?.message as string}
-        </Text>
+        <View className={`flex-row items-center mt-1.5 bg-red-50 border border-red-100 py-1.5 px-2.5 rounded-lg ${isRTL ? 'flex-row-reverse' : ''}`}>
+          <Ionicons name="warning" size={14} color="#EF4444" />
+          <Text className={`text-red-600 text-[11px] font-ibm-bold flex-1 px-1.5 ${alignClass}`}>
+            {errors[name]?.message as string}
+          </Text>
+        </View>
       )}
     </View>
   );
 
   return (
-    <View className="flex-1">
+    <View className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+
       {/* Address Type Selection */}
-      <View className="bg-white p-4 rounded-2xl shadow-sm mb-3 border border-gray-100">
-        <Text className={`font-cairo-bold text-base mb-3 text-gray-800 ${alignClass}`}>
-          {language === 'ar' ? 'نوع العنوان' : 'Address Type'}
+      <Controller
+        control={control}
+        name="type"
+        render={({ field: { onChange, value } }) => (
+          <View className={`flex-row gap-3 mb-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
+            <TouchableOpacity
+              onPress={() => onChange('home')}
+              className={`flex-1 flex-row items-center justify-center py-3 rounded-xl border-2 ${value === 'home' ? 'bg-primary/5 border-primary' : 'bg-gray-50 border-gray-100'
+                } ${isRTL ? 'flex-row-reverse' : ''}`}
+              activeOpacity={0.7}
+            >
+              <Ionicons name={value === 'home' ? "home" : "home-outline"} size={18} color={value === 'home' ? '#2E7D32' : '#6B7280'} />
+              <Text className={`font-ibm-bold mx-2 text-sm ${value === 'home' ? 'text-primary' : 'text-gray-600'}`}>
+                {language === 'ar' ? 'المنزل' : 'Home'}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => onChange('work')}
+              className={`flex-1 flex-row items-center justify-center py-3 rounded-xl border-2 ${value === 'work' ? 'bg-primary/5 border-primary' : 'bg-gray-50 border-gray-100'
+                } ${isRTL ? 'flex-row-reverse' : ''}`}
+              activeOpacity={0.7}
+            >
+              <Ionicons name={value === 'work' ? "briefcase" : "briefcase-outline"} size={18} color={value === 'work' ? '#2E7D32' : '#6B7280'} />
+              <Text className={`font-ibm-bold mx-2 text-sm ${value === 'work' ? 'text-primary' : 'text-gray-600'}`}>
+                {language === 'ar' ? 'العمل' : 'Work'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      />
+
+      {/* Row 1: Name and Phone */}
+      {renderInput('fullName', language === 'ar' ? 'الاسم الكامل' : 'Full Name', language === 'ar' ? 'الاسم الكامل' : 'Full Name', true)}
+      {renderInput('phone', language === 'ar' ? 'رقم الهاتف' : 'Phone Number', '07xxxxxxxxx', true, { keyboardType: 'phone-pad', textAlign: 'left' })}
+
+      {/* City Dropdown */}
+      <View className="mb-4">
+        <Text className={`font-ibm-bold text-xs text-gray-700 mb-1.5 ${alignClass}`}>
+          {language === 'ar' ? 'المحافظة' : 'City/Province'} <Text className="text-red-500">*</Text>
         </Text>
         <Controller
           control={control}
-          name="type"
+          name="city"
           render={({ field: { onChange, value } }) => (
-            <View className={`flex-row gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
+            <>
               <TouchableOpacity
-                onPress={() => onChange('home')}
-                className={`flex-1 flex-row items-center justify-center px-4 py-3 rounded-xl border-2 ${
-                  value === 'home' ? 'bg-primary/10 border-primary' : 'bg-white border-gray-200'
-                }`}
+                onPress={() => setShowCityPicker(true)}
+                className={`bg-gray-50 border ${errors.city ? 'border-red-500' : 'border-gray-200'} rounded-xl p-3.5 ${flexDir} items-center justify-between`}
                 activeOpacity={0.7}
               >
-                <Ionicons 
-                  name="home" 
-                  size={20} 
-                  color={value === 'home' ? '#2E7D32' : '#9CA3AF'} 
-                />
-                <Text className={`font-cairo-bold mx-2 ${value === 'home' ? 'text-primary' : 'text-gray-500'}`}>
-                  {language === 'ar' ? 'المنزل' : 'Home'}
+                <Text className={`font-ibm text-sm ${value ? 'text-gray-900' : 'text-gray-400'}`}>
+                  {value
+                    ? IRAQI_CITIES.find(c => c.id === value)?.[language === 'ar' ? 'name_ar' : 'name_en'] || value
+                    : (language === 'ar' ? 'اختر المحافظة' : 'Select City')
+                  }
                 </Text>
+                <Ionicons name="chevron-down" size={18} color="#9CA3AF" />
               </TouchableOpacity>
 
-              <TouchableOpacity
-                onPress={() => onChange('work')}
-                className={`flex-1 flex-row items-center justify-center px-4 py-3 rounded-xl border-2 ${
-                  value === 'work' ? 'bg-primary/10 border-primary' : 'bg-white border-gray-200'
-                }`}
-                activeOpacity={0.7}
-              >
-                <Ionicons 
-                  name="briefcase" 
-                  size={20} 
-                  color={value === 'work' ? '#2E7D32' : '#9CA3AF'} 
-                />
-                <Text className={`font-cairo-bold mx-2 ${value === 'work' ? 'text-primary' : 'text-gray-500'}`}>
-                  {language === 'ar' ? 'العمل' : 'Work'}
-                </Text>
-              </TouchableOpacity>
-            </View>
+              {/* City Picker Modal */}
+              <Modal visible={showCityPicker} transparent animationType="slide" onRequestClose={() => setShowCityPicker(false)}>
+                <View className="flex-1 bg-black/50 justify-end">
+                  <View className="bg-white rounded-t-3xl max-h-[70%]">
+                    <View className={`flex-row items-center justify-between p-4 border-b border-gray-100 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                      <Text className="font-ibm-bold text-base text-gray-900">{language === 'ar' ? 'اختر المحافظة' : 'Select City'}</Text>
+                      <TouchableOpacity onPress={() => setShowCityPicker(false)} className="w-8 h-8 rounded-full bg-gray-100 items-center justify-center">
+                        <Ionicons name="close" size={20} color="#4B5563" />
+                      </TouchableOpacity>
+                    </View>
+                    <FlatList
+                      data={IRAQI_CITIES}
+                      keyExtractor={(item) => item.id}
+                      showsVerticalScrollIndicator={false}
+                      renderItem={({ item }) => (
+                        <TouchableOpacity
+                          onPress={() => { onChange(item.id); setShowCityPicker(false); }}
+                          className={`p-4 border-b border-gray-50 ${flexDir} items-center justify-between`}
+                        >
+                          <Text className={`font-ibm text-base ${value === item.id ? 'text-primary font-ibm-bold' : 'text-gray-700'}`}>
+                            {language === 'ar' ? item.name_ar : item.name_en}
+                          </Text>
+                          {value === item.id && <Ionicons name="checkmark-circle" size={20} color="#2E7D32" />}
+                        </TouchableOpacity>
+                      )}
+                    />
+                  </View>
+                </View>
+              </Modal>
+            </>
           )}
         />
-      </View>
-
-      {/* Personal Info */}
-      <View className="bg-white p-4 rounded-2xl shadow-sm mb-3 border border-gray-100">
-        <Text className={`font-cairo-bold text-base mb-3 text-gray-800 ${alignClass}`}>
-          {language === 'ar' ? 'المعلومات الشخصية' : 'Personal Information'}
-        </Text>
-        
-        {renderInput('fullName', language === 'ar' ? 'الاسم' : 'Name', language === 'ar' ? 'أدخل اسمك' : 'Enter your name', true)}
-        
-        {renderInput('phone', language === 'ar' ? 'رقم الهاتف' : 'Phone Number', '07xxxxxxxxx', true, {
-          keyboardType: 'phone-pad',
-          textAlign: 'left'
-        })}
-      </View>
-
-      {/* Location Info */}
-      <View className="bg-white p-4 rounded-2xl shadow-sm mb-3 border border-gray-100">
-        <Text className={`font-cairo-bold text-base mb-3 text-gray-800 ${alignClass}`}>
-          {language === 'ar' ? 'معلومات الموقع' : 'Location Information'}
-        </Text>
-
-        {/* City Dropdown */}
-        <View className="mb-4">
-          <Text className={`font-cairo mb-1 text-text-secondary ${alignClass}`}>
-            {language === 'ar' ? 'المحافظة' : 'City/Province'} <Text className="text-red-500">*</Text>
-          </Text>
-          <Controller
-            control={control}
-            name="city"
-            render={({ field: { onChange, value } }) => (
-              <>
-                <TouchableOpacity
-                  onPress={() => setShowCityPicker(true)}
-                  className={`bg-gray-50 border border-gray-200 rounded-xl p-4 ${flexDir} items-center justify-between`}
-                  activeOpacity={0.7}
-                >
-                  <Text className={`font-cairo text-base ${value ? 'text-gray-800' : 'text-gray-400'}`}>
-                    {value 
-                      ? IRAQI_CITIES.find(c => c.id === value)?.[language === 'ar' ? 'name_ar' : 'name_en'] || value
-                      : (language === 'ar' ? 'اختر المحافظة' : 'Select City')
-                    }
-                  </Text>
-                  <Ionicons name="chevron-down" size={20} color="#9CA3AF" />
-                </TouchableOpacity>
-
-                {/* City Picker Modal */}
-                <Modal
-                  visible={showCityPicker}
-                  transparent
-                  animationType="slide"
-                  onRequestClose={() => setShowCityPicker(false)}
-                >
-                  <View className="flex-1 bg-black/50 justify-end">
-                    <View className="bg-white rounded-t-3xl max-h-[70%]">
-                      <View className={`flex-row items-center justify-between p-4 border-b border-gray-200 ${isRTL ? 'flex-row-reverse' : ''}`}>
-                        <Text className="font-cairo-bold text-lg text-gray-800">
-                          {language === 'ar' ? 'اختر المحافظة' : 'Select City'}
-                        </Text>
-                        <TouchableOpacity onPress={() => setShowCityPicker(false)}>
-                          <Ionicons name="close" size={24} color="#666" />
-                        </TouchableOpacity>
-                      </View>
-                      <FlatList
-                        data={IRAQI_CITIES}
-                        keyExtractor={(item) => item.id}
-                        renderItem={({ item }) => (
-                          <TouchableOpacity
-                            onPress={() => {
-                              onChange(item.id);
-                              setShowCityPicker(false);
-                            }}
-                            className={`p-4 border-b border-gray-100 ${flexDir} items-center justify-between`}
-                            activeOpacity={0.7}
-                          >
-                            <Text className={`font-cairo text-base ${value === item.id ? 'text-primary font-cairo-bold' : 'text-gray-700'}`}>
-                              {language === 'ar' ? item.name_ar : item.name_en}
-                            </Text>
-                            {value === item.id && (
-                              <Ionicons name="checkmark-circle" size={22} color="#2E7D32" />
-                            )}
-                          </TouchableOpacity>
-                        )}
-                      />
-                    </View>
-                  </View>
-                </Modal>
-              </>
-            )}
-          />
-          {errors.city && (
-            <Text className={`text-red-500 text-xs mt-1 font-cairo ${alignClass}`}>
+        {errors.city && (
+          <View className={`flex-row items-center mt-1.5 bg-red-50 border border-red-100 py-1.5 px-2.5 rounded-lg ${isRTL ? 'flex-row-reverse' : ''}`}>
+            <Ionicons name="warning" size={14} color="#EF4444" />
+            <Text className={`text-red-600 text-[11px] font-ibm-bold flex-1 px-1.5 ${alignClass}`}>
               {errors.city.message}
             </Text>
-          )}
-        </View>
-
-        {renderInput('district', language === 'ar' ? 'القضاء / المنطقة' : 'District', language === 'ar' ? 'مثال: الكرادة' : 'e.g. Karrada', false, {}, 200)}
-        
-        {renderInput('neighborhood', language === 'ar' ? 'الحي' : 'Neighborhood', language === 'ar' ? 'مثال: حي الوحدة' : 'e.g. Al-Wahda', false, {}, 280)}
-        
-        {renderInput('street', language === 'ar' ? 'الشارع' : 'Street', language === 'ar' ? 'مثال: شارع 14' : 'e.g. Street 14', false, {}, 360)}
+          </View>
+        )}
       </View>
 
-      {/* Building Details */}
-      <View className="bg-white p-4 rounded-2xl shadow-sm mb-3 border border-gray-100">
-        <Text className={`font-cairo-bold text-base mb-3 text-gray-800 ${alignClass}`}>
-          {language === 'ar' ? 'تفاصيل المبنى' : 'Building Details'}
-        </Text>
-
-        <View className={`flex-row gap-3 mb-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
-          <View className="flex-1">
-            <Text className={`font-cairo mb-1 text-text-secondary ${alignClass}`}>
-              {language === 'ar' ? 'رقم العمارة' : 'Building No.'}
-            </Text>
-            <Controller
-              control={control}
-              name="building"
-              render={({ field: { onChange, value } }) => (
-                <TextInput
-                  className={`bg-gray-50 border border-gray-200 rounded-xl p-4 font-cairo text-base ${alignClass}`}
-                  placeholder={language === 'ar' ? 'رقم' : 'No.'}
-                  value={value || ''}
-                  onChangeText={onChange}
-                  textAlign={isRTL ? 'right' : 'left'}
-                  placeholderTextColor="#9CA3AF"
-                  onFocus={() => handleInputFocus(500)}
-                />
-              )}
-            />
-          </View>
-
-          <View className="flex-1">
-            <Text className={`font-cairo mb-1 text-text-secondary ${alignClass}`}>
-              {language === 'ar' ? 'الطابق' : 'Floor'}
-            </Text>
-            <Controller
-              control={control}
-              name="floor"
-              render={({ field: { onChange, value } }) => (
-                <TextInput
-                  className={`bg-gray-50 border border-gray-200 rounded-xl p-4 font-cairo text-base ${alignClass}`}
-                  placeholder={language === 'ar' ? 'الطابق' : 'Floor'}
-                  value={value || ''}
-                  onChangeText={onChange}
-                  textAlign={isRTL ? 'right' : 'left'}
-                  placeholderTextColor="#9CA3AF"
-                  keyboardType="numeric"
-                  onFocus={() => handleInputFocus(500)}
-                />
-              )}
-            />
-          </View>
-
-          <View className="flex-1">
-            <Text className={`font-cairo mb-1 text-text-secondary ${alignClass}`}>
-              {language === 'ar' ? 'رقم الشقة' : 'Apt. No.'}
-            </Text>
-            <Controller
-              control={control}
-              name="apartment"
-              render={({ field: { onChange, value } }) => (
-                <TextInput
-                  className={`bg-gray-50 border border-gray-200 rounded-xl p-4 font-cairo text-base ${alignClass}`}
-                  placeholder={language === 'ar' ? 'رقم' : 'No.'}
-                  value={value || ''}
-                  onChangeText={onChange}
-                  textAlign={isRTL ? 'right' : 'left'}
-                  placeholderTextColor="#9CA3AF"
-                  onFocus={() => handleInputFocus(500)}
-                />
-              )}
-            />
-          </View>
+      {/* Row 2: Area and Street side by side */}
+      <View className={`flex-row gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
+        <View className="flex-1">
+          {renderInput('area', language === 'ar' ? 'المنطقة' : 'Area', language === 'ar' ? 'المنطقة...' : 'Area...', false, {}, 150, "mb-4")}
         </View>
-
-        {renderInput('nearestLandmark', language === 'ar' ? 'أقرب نقطة دالة' : 'Nearest Landmark', language === 'ar' ? 'مثال: قرب مطعم...' : 'e.g. Near restaurant...', false, {}, 580)}
+        <View className="flex-1">
+          {renderInput('street', language === 'ar' ? 'رقم الدار' : 'House No.', language === 'ar' ? 'الدار/الشارع...' : 'House/St...', false, {}, 150, "mb-4")}
+        </View>
       </View>
 
-      {/* Map Location */}
-      <View className="bg-white p-4 rounded-2xl shadow-sm mb-3 border border-gray-100">
-        <Text className={`font-cairo-bold text-base mb-3 text-gray-800 ${alignClass}`}>
-          {language === 'ar' ? 'الموقع على الخريطة' : 'Location on Map'}
-        </Text>
-        
+      {/* Map Location (Compact) */}
+      <View className="mb-4">
         <Controller
           control={control}
           name="latitude"
@@ -314,29 +203,13 @@ export const AddressStep: React.FC<AddressStepProps> = ({ control, errors, setVa
               render={({ field: { value: longitude } }) => (
                 <TouchableOpacity
                   onPress={() => setShowLocationPicker(true)}
-                  className={`bg-gradient-to-r from-primary/5 to-primary/10 border-2 border-dashed ${
-                    latitude && longitude ? 'border-primary bg-primary/5' : 'border-gray-300'
-                  } rounded-2xl p-5 items-center justify-center`}
+                  className={`flex-row items-center justify-center py-3 rounded-xl border border-dashed ${latitude && longitude ? 'bg-primary/5 border-primary' : 'bg-gray-50 border-gray-300'} ${isRTL ? 'flex-row-reverse' : ''}`}
                   activeOpacity={0.7}
                 >
-                  <View className={`w-14 h-14 rounded-full ${latitude && longitude ? 'bg-primary' : 'bg-gray-200'} items-center justify-center mb-3`}>
-                    <Ionicons 
-                      name={latitude && longitude ? "checkmark" : "location"} 
-                      size={28} 
-                      color={latitude && longitude ? "white" : "#9CA3AF"} 
-                    />
-                  </View>
-                  <Text className={`font-cairo-bold text-base ${latitude && longitude ? 'text-primary' : 'text-gray-600'}`}>
-                    {latitude && longitude 
-                      ? (language === 'ar' ? '✓ تم تحديد الموقع بنجاح' : '✓ Location Selected')
-                      : (language === 'ar' ? 'اضغط لتحديد موقعك على الخريطة' : 'Tap to select your location on map')
-                    }
+                  <Ionicons name={latitude && longitude ? "checkmark-circle" : "location-outline"} size={18} color={latitude && longitude ? "#2E7D32" : "#6B7280"} className={isRTL ? 'ml-2' : 'mr-2'} />
+                  <Text className={`font-ibm-bold text-sm ${latitude && longitude ? 'text-primary' : 'text-gray-600'}`}>
+                    {latitude && longitude ? (language === 'ar' ? 'تم التحديد على الخريطة' : 'Map Pinned') : (language === 'ar' ? 'تحديد على الخريطة (اختياري)' : 'Pin on Map (Optional)')}
                   </Text>
-                  {latitude && longitude && (
-                    <Text className="font-cairo text-xs text-gray-500 mt-1">
-                      {language === 'ar' ? 'اضغط لتغيير الموقع' : 'Tap to change location'}
-                    </Text>
-                  )}
                 </TouchableOpacity>
               )}
             />
@@ -344,32 +217,6 @@ export const AddressStep: React.FC<AddressStepProps> = ({ control, errors, setVa
         />
       </View>
 
-      {/* Notes */}
-      <View className="bg-white p-4 rounded-2xl shadow-sm mb-3 border border-gray-100">
-        <Text className={`font-cairo-bold text-base mb-3 text-gray-800 ${alignClass}`}>
-          {language === 'ar' ? 'ملاحظات إضافية' : 'Additional Notes'}
-        </Text>
-        
-        <Controller
-          control={control}
-          name="notes"
-          render={({ field: { onChange, value } }) => (
-            <TextInput
-              className={`bg-gray-50 border border-gray-200 rounded-xl p-4 font-cairo text-base h-24 ${alignClass}`}
-              placeholder={language === 'ar' ? 'أي تعليمات خاصة للتوصيل...' : 'Any special delivery instructions...'}
-              value={value || ''}
-              onChangeText={onChange}
-              textAlign={isRTL ? 'right' : 'left'}
-              placeholderTextColor="#9CA3AF"
-              multiline
-              textAlignVertical="top"
-              onFocus={() => handleInputFocus(700)}
-            />
-          )}
-        />
-      </View>
-
-      {/* Location Picker Modal */}
       <LocationPicker
         visible={showLocationPicker}
         onClose={() => setShowLocationPicker(false)}

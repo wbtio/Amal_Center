@@ -14,9 +14,9 @@
     text-align: right;
   }
   
-  /* Font face for Cairo */
-  .font-cairo {
-    font-family: 'Cairo', sans-serif;
+  /* Font face for IBMPlexSansArabic */
+  .font-ibm {
+    font-family: 'IBMPlexSansArabic', sans-serif;
   }
 }
 
@@ -35,7 +35,7 @@
   }
   
   .input-field {
-    @apply border border-gray-300 rounded-lg px-4 py-3 text-right font-cairo;
+    @apply border border-gray-300 rounded-lg px-4 py-3 text-right font-ibm;
   }
   
   .card {

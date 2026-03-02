@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
-import { Cairo } from "next/font/google";
+import { IBM_Plex_Sans_Arabic } from "next/font/google";
 import "./globals.css";
 
-const cairo = Cairo({
+const ibmPlex = IBM_Plex_Sans_Arabic({
+  weight: ["400", "500", "600", "700"],
   subsets: ["arabic", "latin"],
-  variable: "--font-cairo",
+  variable: "--font-ibm",
   display: "swap",
 });
 
@@ -20,7 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ar" dir="rtl">
-      <body className={`${cairo.variable} antialiased bg-gray-50`}>
+      <body className={`${ibmPlex.variable} antialiased bg-gray-50`}>
         {children}
       </body>
     </html>

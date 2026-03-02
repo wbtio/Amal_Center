@@ -67,18 +67,18 @@ export default function LoginScreen() {
         <Ionicons name="arrow-back" size={24} color="#212121" />
       </TouchableOpacity>
 
-      <Text className="font-cairo-bold text-2xl text-primary text-center mb-2">تسجيل الدخول</Text>
-      <Text className="font-cairo text-text-secondary text-center mb-8">مرحباً بعودتك إلى الأمل ماركت</Text>
+      <Text className="font-ibm-bold text-2xl text-primary text-center mb-2">تسجيل الدخول</Text>
+      <Text className="font-ibm text-text-secondary text-center mb-8">مرحباً بعودتك إلى الأمل ماركت</Text>
 
       {/* Email */}
       <View className="mb-4">
-        <Text className="font-cairo text-right mb-1 text-text-secondary">البريد الإلكتروني</Text>
+        <Text className="font-ibm text-right mb-1 text-text-secondary">البريد الإلكتروني</Text>
         <Controller
           control={control}
           name="email"
           render={({ field: { onChange, value } }) => (
             <TextInput
-              className="bg-gray-50 border border-gray-200 rounded-lg p-3 font-cairo"
+              className="bg-gray-50 border border-gray-200 rounded-lg p-3 font-ibm"
               style={{ textAlign: 'left', writingDirection: 'ltr' }}
               placeholder="example@email.com"
               keyboardType="email-address"
@@ -88,18 +88,18 @@ export default function LoginScreen() {
             />
           )}
         />
-        {errors.email && <Text className="text-danger text-xs text-right mt-1 font-cairo">{errors.email.message}</Text>}
+        {errors.email && <Text className="text-danger text-xs text-right mt-1 font-ibm">{errors.email.message}</Text>}
       </View>
 
       {/* Password */}
       <View className="mb-6">
-        <Text className="font-cairo text-right mb-1 text-text-secondary">كلمة المرور</Text>
+        <Text className="font-ibm text-right mb-1 text-text-secondary">كلمة المرور</Text>
         <Controller
           control={control}
           name="password"
           render={({ field: { onChange, value } }) => (
             <TextInput
-              className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-right font-cairo"
+              className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-right font-ibm"
               placeholder="******"
               secureTextEntry
               value={value}
@@ -107,7 +107,7 @@ export default function LoginScreen() {
             />
           )}
         />
-        {errors.password && <Text className="text-danger text-xs text-right mt-1 font-cairo">{errors.password.message}</Text>}
+        {errors.password && <Text className="text-danger text-xs text-right mt-1 font-ibm">{errors.password.message}</Text>}
       </View>
 
       <TouchableOpacity
@@ -118,15 +118,15 @@ export default function LoginScreen() {
         {loading ? (
           <ActivityIndicator color="white" />
         ) : (
-          <Text className="text-white font-cairo-bold text-lg">دخول</Text>
+          <Text className="text-white font-ibm-bold text-lg">دخول</Text>
         )}
       </TouchableOpacity>
 
       <View className="flex-row justify-center">
         <TouchableOpacity onPress={() => router.push('/auth/register')}>
-          <Text className="text-primary font-cairo-bold">أنشئ حساباً الآن</Text>
+          <Text className="text-primary font-ibm-bold">أنشئ حساباً الآن</Text>
         </TouchableOpacity>
-        <Text className="font-cairo text-text-secondary mx-1">ليس لديك حساب؟</Text>
+        <Text className="font-ibm text-text-secondary mx-1">ليس لديك حساب؟</Text>
       </View>
     </SafeAreaView>
   );

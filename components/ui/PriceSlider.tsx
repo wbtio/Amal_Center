@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
     borderColor: '#2E7D32',
   },
   valueLabel: {
-    fontFamily: 'Cairo-Regular',
+    fontFamily: 'IBMPlexSansArabic-Regular',
     fontSize: 10,
     color: '#9CA3AF',
     marginBottom: 2,
@@ -214,12 +214,12 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   valueText: {
-    fontFamily: 'Cairo-Bold',
+    fontFamily: 'IBMPlexSansArabic-Bold',
     fontSize: 14,
     color: '#1B4D2E',
   },
   currency: {
-    fontFamily: 'Cairo-Regular',
+    fontFamily: 'IBMPlexSansArabic-Regular',
     fontSize: 10,
     color: '#6B7280',
   },

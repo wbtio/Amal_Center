@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, TextInput, Alert, FlatList, ScrollView, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, Alert, ScrollView, ActivityIndicator, Platform, FlatList } from 'react-native';
 import { ShoppingCartIcon, CheckCircleIcon, ArrowRightIcon, ArrowLeftIcon, BuildingStorefrontIcon } from 'react-native-heroicons/outline';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -152,8 +152,8 @@ export default function CartScreen() {
     ), [handleRemoveItem, handleUpdateQuantity, isRTL, language, formatPrice, t]);
 
     const renderListHeader = useCallback(() => (
-        <Text 
-            className={`font-cairo-bold text-text-primary mb-3 ${isRTL ? 'text-right' : 'text-left'}`}
+        <Text
+            className={`font-ibm-bold text-text-primary mb-3 ${isRTL ? 'text-right' : 'text-left'}`}
             style={{ fontSize: 16 }}
         >
             {language === 'ar' ? `سلة التسوق (${items.length})` : `Shopping Cart (${items.length})`}
@@ -176,10 +176,10 @@ export default function CartScreen() {
             >
                 <View className={`flex-row ${isRTL ? 'flex-row-reverse' : ''}`}>
                     <TextInput
-                        className={`flex-1 bg-gray-50 border border-gray-200 rounded-lg font-cairo ${isRTL ? 'text-right' : 'text-left'}`}
-                        style={{ 
-                            paddingHorizontal: 12, 
-                            paddingVertical: 10, 
+                        className={`flex-1 bg-gray-50 border border-gray-200 rounded-lg font-ibm ${isRTL ? 'text-right' : 'text-left'}`}
+                        style={{
+                            paddingHorizontal: 12,
+                            paddingVertical: 10,
                             fontSize: 13,
                             marginRight: isRTL ? 0 : 8,
                             marginLeft: isRTL ? 8 : 0
@@ -206,8 +206,8 @@ export default function CartScreen() {
                         {isApplying ? (
                             <ActivityIndicator size="small" color={appliedCoupon ? "#D32F2F" : "#FFFFFF"} />
                         ) : (
-                            <Text 
-                                className={`font-cairo-bold ${appliedCoupon ? 'text-danger' : 'text-white'}`}
+                            <Text
+                                className={`font-ibm-bold ${appliedCoupon ? 'text-danger' : 'text-white'}`}
                                 style={{ fontSize: 13 }}
                             >
                                 {appliedCoupon ? t('cart.remove') : t('cart.apply')}
@@ -219,10 +219,10 @@ export default function CartScreen() {
                 {appliedCoupon && (
                     <View
                         className={`flex-row items-center rounded-lg ${isRTL ? 'flex-row-reverse' : ''}`}
-                        style={{ 
+                        style={{
                             marginTop: 10,
                             padding: 8,
-                            backgroundColor: 'rgba(46, 125, 50, 0.08)' 
+                            backgroundColor: 'rgba(46, 125, 50, 0.08)'
                         }}
                     >
                         <CheckCircleIcon
@@ -230,7 +230,7 @@ export default function CartScreen() {
                             color="#2E7D32"
                             style={{ marginRight: isRTL ? 0 : 6, marginLeft: isRTL ? 6 : 0 }}
                         />
-                        <Text className="text-primary font-cairo-semibold" style={{ fontSize: 12 }}>
+                        <Text className="text-primary font-ibm-semibold" style={{ fontSize: 12 }}>
                             {t('cart.couponApplied')} ({appliedCoupon})
                         </Text>
                     </View>
@@ -249,37 +249,37 @@ export default function CartScreen() {
                     elevation: 1,
                 }}
             >
-                <Text 
-                    className={`font-cairo-bold text-text-primary border-b border-gray-100 ${isRTL ? 'text-right' : 'text-left'}`}
+                <Text
+                    className={`font-ibm-bold text-text-primary border-b border-gray-100 ${isRTL ? 'text-right' : 'text-left'}`}
                     style={{ fontSize: 15, paddingBottom: 10, marginBottom: 12 }}
                 >
                     {t('cart.orderSummary')}
                 </Text>
 
                 <View className={`flex-row justify-between ${isRTL ? 'flex-row-reverse' : ''}`} style={{ marginBottom: 10 }}>
-                    <Text className="font-cairo text-text-secondary" style={{ fontSize: 13 }}>
+                    <Text className="font-ibm text-text-secondary" style={{ fontSize: 13 }}>
                         {t('cart.subtotal')}
                     </Text>
-                    <Text className="font-cairo-semibold text-text-primary" style={{ fontSize: 13 }}>
+                    <Text className="font-ibm-semibold text-text-primary" style={{ fontSize: 13 }}>
                         {formatPrice(totals.subtotal)}
                     </Text>
                 </View>
 
                 <View className={`flex-row justify-between ${isRTL ? 'flex-row-reverse' : ''}`} style={{ marginBottom: 10 }}>
-                    <Text className="font-cairo text-text-secondary" style={{ fontSize: 13 }}>
+                    <Text className="font-ibm text-text-secondary" style={{ fontSize: 13 }}>
                         {t('cart.deliveryFee')}
                     </Text>
-                    <Text className="font-cairo-semibold text-text-primary" style={{ fontSize: 13 }}>
+                    <Text className="font-ibm-semibold text-text-primary" style={{ fontSize: 13 }}>
                         {formatPrice(totals.delivery)}
                     </Text>
                 </View>
 
                 {discount > 0 && (
                     <View className={`flex-row justify-between ${isRTL ? 'flex-row-reverse' : ''}`} style={{ marginBottom: 10 }}>
-                        <Text className="font-cairo text-danger" style={{ fontSize: 13 }}>
+                        <Text className="font-ibm text-danger" style={{ fontSize: 13 }}>
                             {t('cart.discount')}
                         </Text>
-                        <Text className="font-cairo-semibold text-danger" style={{ fontSize: 13 }}>
+                        <Text className="font-ibm-semibold text-danger" style={{ fontSize: 13 }}>
                             -{formatPrice(totals.discount)}
                         </Text>
                     </View>
@@ -289,10 +289,10 @@ export default function CartScreen() {
                     className={`flex-row justify-between border-t border-dashed border-gray-300 ${isRTL ? 'flex-row-reverse' : ''}`}
                     style={{ paddingTop: 12, marginTop: 4 }}
                 >
-                    <Text className="font-cairo-bold text-text-primary" style={{ fontSize: 15 }}>
+                    <Text className="font-ibm-bold text-text-primary" style={{ fontSize: 15 }}>
                         {t('cart.total')}
                     </Text>
-                    <Text className="font-cairo-bold text-primary" style={{ fontSize: 18 }}>
+                    <Text className="font-ibm-bold text-primary" style={{ fontSize: 18 }}>
                         {formatPrice(totals.final)}
                     </Text>
                 </View>
@@ -302,27 +302,23 @@ export default function CartScreen() {
 
     return (
         <View className="flex-1 bg-background">
-            <KeyboardAvoidingView 
-                behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
-                style={{ flex: 1 }}
-                keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
-            >
+            <View className="flex-1">
                 {items.length === 0 ? (
                     <View className="flex-1 justify-center items-center px-6">
                         <View
                             className="rounded-full items-center justify-center mb-6"
-                            style={{ 
-                                width: 130, 
+                            style={{
+                                width: 130,
                                 height: 130,
-                                backgroundColor: 'rgba(46, 125, 50, 0.06)' 
+                                backgroundColor: 'rgba(46, 125, 50, 0.06)'
                             }}
                         >
                             <ShoppingCartIcon size={65} color="#BDBDBD" />
                         </View>
-                        <Text className="font-cairo-bold text-text-primary mb-2" style={{ fontSize: 18 }}>
+                        <Text className="font-ibm-bold text-text-primary mb-2" style={{ fontSize: 18 }}>
                             {t('cart.empty')}
                         </Text>
-                        <Text className="font-cairo text-text-secondary text-center mb-8" style={{ fontSize: 14, maxWidth: 280, lineHeight: 22 }}>
+                        <Text className="font-ibm text-text-secondary text-center mb-8" style={{ fontSize: 14, maxWidth: 280, lineHeight: 22 }}>
                             {t('cart.emptyMessage')}
                         </Text>
                         <TouchableOpacity
@@ -341,7 +337,7 @@ export default function CartScreen() {
                             activeOpacity={0.8}
                         >
                             <BuildingStorefrontIcon size={20} color="white" />
-                            <Text className="font-cairo-bold text-white" style={{ fontSize: 15 }}>
+                            <Text className="font-ibm-bold text-white" style={{ fontSize: 15 }}>
                                 {t('cart.browseProducts')}
                             </Text>
                         </TouchableOpacity>
@@ -354,13 +350,14 @@ export default function CartScreen() {
                             keyExtractor={(item) => item.id}
                             ListHeaderComponent={renderListHeader}
                             ListFooterComponent={renderListFooter}
-                            contentContainerStyle={{ 
-                                paddingHorizontal: 16, 
-                                paddingTop: 14, 
-                                paddingBottom: insets.bottom + 80 
+                            contentContainerStyle={{
+                                paddingHorizontal: 16,
+                                paddingTop: 14,
+                                paddingBottom: insets.bottom + 80
                             }}
                             showsVerticalScrollIndicator={false}
                             keyboardShouldPersistTaps="handled"
+                            automaticallyAdjustKeyboardInsets={true}
                         />
 
                         {/* Checkout Footer */}
@@ -394,7 +391,7 @@ export default function CartScreen() {
                                 accessibilityLabel={t('cart.checkout')}
                                 accessibilityRole="button"
                             >
-                                <Text className="font-cairo-bold text-white" style={{ fontSize: 16 }}>
+                                <Text className="font-ibm-bold text-white" style={{ fontSize: 16 }}>
                                     {t('cart.checkout')}
                                 </Text>
                                 {isRTL ? (
@@ -406,7 +403,7 @@ export default function CartScreen() {
                         </View>
                     </>
                 )}
-            </KeyboardAvoidingView>
+            </View>
         </View>
     );
 }

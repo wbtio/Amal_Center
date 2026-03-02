@@ -52,9 +52,9 @@ export default function ProductDetailsScreen() {
     return (
       <View className="flex-1 justify-center items-center bg-white px-6">
         <Ionicons name="alert-circle-outline" size={48} color="#EF4444" />
-        <Text className="font-cairo-bold text-lg text-gray-800 mt-4">{t('product.notFound')}</Text>
+        <Text className="font-ibm-bold text-lg text-gray-800 mt-4">{t('product.notFound')}</Text>
         <TouchableOpacity onPress={() => router.back()} className="mt-4 bg-primary px-6 py-2 rounded-lg">
-          <Text className="text-white font-cairo-bold">{t('common.back')}</Text>
+          <Text className="text-white font-ibm-bold">{t('common.back')}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -100,7 +100,7 @@ export default function ProductDetailsScreen() {
           />
           {discountPercentage > 0 && (
             <View className={`absolute top-4 ${isRTL ? 'right-4' : 'left-4'} bg-red-500 px-2 py-1 rounded`}>
-              <Text className="text-white font-cairo-bold text-xs">-{discountPercentage}%</Text>
+              <Text className="text-white font-ibm-bold text-xs">-{discountPercentage}%</Text>
             </View>
           )}
         </View>
@@ -108,15 +108,15 @@ export default function ProductDetailsScreen() {
         {/* Product Info */}
         <View className="px-4 py-4">
           {/* Name */}
-          <Text className={`text-xl font-cairo-bold text-gray-900 mb-2 ${isRTL ? 'text-right' : 'text-left'}`}>
+          <Text className={`text-xl font-ibm-bold text-gray-900 mb-2 ${isRTL ? 'text-right' : 'text-left'}`}>
             {getProductName(product)}
           </Text>
 
           {/* Price */}
           <View className={`flex-row items-center gap-2 mb-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
-            <Text className="text-2xl font-cairo-bold text-primary">{formatPrice(product.price_iqd)}</Text>
+            <Text className="text-2xl font-ibm-bold text-primary">{formatPrice(product.price_iqd)}</Text>
             {product.original_price && product.original_price > product.price_iqd && (
-              <Text className="text-sm font-cairo text-gray-400 line-through">{formatPrice(product.original_price)}</Text>
+              <Text className="text-sm font-ibm text-gray-400 line-through">{formatPrice(product.original_price)}</Text>
             )}
           </View>
 
@@ -127,14 +127,14 @@ export default function ProductDetailsScreen() {
               size={16}
               color={product.stock_quantity > 0 ? "#16A34A" : "#DC2626"}
             />
-            <Text className={`font-cairo text-sm ${product.stock_quantity > 0 ? 'text-green-600' : 'text-red-600'}`}>
+            <Text className={`font-ibm text-sm ${product.stock_quantity > 0 ? 'text-green-600' : 'text-red-600'}`}>
               {product.stock_quantity > 0 ? t('common.inStock') : t('common.outOfStock')}
             </Text>
           </View>
 
           {/* Quantity Selector */}
           <View className={`flex-row items-center justify-between bg-gray-50 rounded-lg px-4 py-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
-            <Text className="font-cairo-semibold text-gray-700">{t('product.quantity')}</Text>
+            <Text className="font-ibm-semibold text-gray-700">{t('product.quantity')}</Text>
             <View className="flex-row items-center">
               <TouchableOpacity
                 onPress={() => quantity > 1 && setQuantity(q => q - 1)}
@@ -142,7 +142,7 @@ export default function ProductDetailsScreen() {
               >
                 <Ionicons name="remove" size={18} color={quantity > 1 ? "#2E7D32" : "#D1D5DB"} />
               </TouchableOpacity>
-              <Text className="font-cairo-bold text-lg mx-4">{quantity}</Text>
+              <Text className="font-ibm-bold text-lg mx-4">{quantity}</Text>
               <TouchableOpacity
                 onPress={() => quantity < product.stock_quantity && setQuantity(q => q + 1)}
                 className="w-8 h-8 bg-white rounded-full items-center justify-center border border-gray-200"
@@ -155,10 +155,10 @@ export default function ProductDetailsScreen() {
           {/* Description */}
           {getProductDescription(product) && (
             <View className="mt-4 pt-4 border-t border-gray-100">
-              <Text className={`font-cairo-bold text-gray-800 mb-2 ${isRTL ? 'text-right' : 'text-left'}`}>
+              <Text className={`font-ibm-bold text-gray-800 mb-2 ${isRTL ? 'text-right' : 'text-left'}`}>
                 {t('product.description')}
               </Text>
-              <Text className={`font-cairo text-gray-600 leading-6 ${isRTL ? 'text-right' : 'text-left'}`}>
+              <Text className={`font-ibm text-gray-600 leading-6 ${isRTL ? 'text-right' : 'text-left'}`}>
                 {getProductDescription(product)}
               </Text>
             </View>
@@ -168,7 +168,7 @@ export default function ProductDetailsScreen() {
         {/* Similar Products */}
         {similarProducts && similarProducts.length > 0 && (
           <View className="mt-4 pb-4">
-            <Text className={`font-cairo-bold text-gray-800 px-4 mb-3 ${isRTL ? 'text-right' : 'text-left'}`}>
+            <Text className={`font-ibm-bold text-gray-800 px-4 mb-3 ${isRTL ? 'text-right' : 'text-left'}`}>
               {t('product.similarProducts')}
             </Text>
             <ScrollView
@@ -192,8 +192,8 @@ export default function ProductDetailsScreen() {
       <View className="bg-white border-t border-gray-100 px-4 py-3">
         <View className={`flex-row items-center gap-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
           <View className={`${isRTL ? 'items-end' : 'items-start'}`}>
-            <Text className="text-xs text-gray-500 font-cairo">{t('cart.total')}</Text>
-            <Text className="text-xl font-cairo-bold text-primary">{formatPrice(product.price_iqd * quantity)}</Text>
+            <Text className="text-xs text-gray-500 font-ibm">{t('cart.total')}</Text>
+            <Text className="text-xl font-ibm-bold text-primary">{formatPrice(product.price_iqd * quantity)}</Text>
           </View>
           <TouchableOpacity
             className={`flex-1 py-3 rounded-xl flex-row justify-center items-center gap-2 ${product.stock_quantity > 0 ? 'bg-primary' : 'bg-gray-300'}`}
@@ -201,7 +201,7 @@ export default function ProductDetailsScreen() {
             disabled={product.stock_quantity <= 0}
           >
             <Ionicons name="cart" size={20} color="white" />
-            <Text className="text-white font-cairo-bold text-base">
+            <Text className="text-white font-ibm-bold text-base">
               {product.stock_quantity > 0 ? t('common.addToCart') : t('common.outOfStock')}
             </Text>
           </TouchableOpacity>
@@ -231,7 +231,7 @@ export default function ProductDetailsScreen() {
             }}>
               <Ionicons name="home-outline" size={22} color={INACTIVE_COLOR} />
             </View>
-            <Text style={{ fontFamily: 'Cairo_700Bold', fontSize: 10, color: INACTIVE_COLOR, marginTop: 2 }}>
+            <Text style={{ fontFamily: 'IBMPlexSansArabic_700Bold', fontSize: 10, color: INACTIVE_COLOR, marginTop: 2 }}>
               {t('common.home')}
             </Text>
           </TouchableOpacity>
@@ -250,7 +250,7 @@ export default function ProductDetailsScreen() {
             }}>
               <Ionicons name="grid-outline" size={22} color={INACTIVE_COLOR} />
             </View>
-            <Text style={{ fontFamily: 'Cairo_700Bold', fontSize: 10, color: INACTIVE_COLOR, marginTop: 2 }}>
+            <Text style={{ fontFamily: 'IBMPlexSansArabic_700Bold', fontSize: 10, color: INACTIVE_COLOR, marginTop: 2 }}>
               {t('common.categories')}
             </Text>
           </TouchableOpacity>
@@ -282,13 +282,13 @@ export default function ProductDetailsScreen() {
                   justifyContent: 'center',
                   paddingHorizontal: 3,
                 }}>
-                  <Text style={{ fontFamily: 'Cairo_700Bold', fontSize: 9, color: '#FFFFFF' }}>
+                  <Text style={{ fontFamily: 'IBMPlexSansArabic_700Bold', fontSize: 9, color: '#FFFFFF' }}>
                     {totalItems > 9 ? '9+' : totalItems}
                   </Text>
                 </View>
               )}
             </View>
-            <Text style={{ fontFamily: 'Cairo_700Bold', fontSize: 10, color: INACTIVE_COLOR, marginTop: 2 }}>
+            <Text style={{ fontFamily: 'IBMPlexSansArabic_700Bold', fontSize: 10, color: INACTIVE_COLOR, marginTop: 2 }}>
               {t('common.cart')}
             </Text>
           </TouchableOpacity>
@@ -307,7 +307,7 @@ export default function ProductDetailsScreen() {
             }}>
               <Ionicons name="person-outline" size={22} color={INACTIVE_COLOR} />
             </View>
-            <Text style={{ fontFamily: 'Cairo_700Bold', fontSize: 10, color: INACTIVE_COLOR, marginTop: 2 }}>
+            <Text style={{ fontFamily: 'IBMPlexSansArabic_700Bold', fontSize: 10, color: INACTIVE_COLOR, marginTop: 2 }}>
               {t('common.profile')}
             </Text>
           </TouchableOpacity>

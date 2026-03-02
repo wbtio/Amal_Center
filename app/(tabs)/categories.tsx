@@ -46,7 +46,7 @@ export default function CategoriesScreen() {
       {/* نص التصنيف */}
       <View className="flex-1 px-3">
         <Text
-          className="font-cairo-semibold text-[15px]"
+          className="font-ibm-semibold text-[15px]"
           style={{ 
             color: '#212121',
             textAlign: isRTL ? 'right' : 'left',
@@ -96,7 +96,7 @@ export default function CategoriesScreen() {
         ListEmptyComponent={
           <View className="flex-1 items-center justify-center py-20">
             <Ionicons name="folder-open-outline" size={60} color="#E0E0E0" />
-            <Text className="font-cairo text-gray-400 mt-4">
+            <Text className="font-ibm text-gray-400 mt-4">
               {language === 'ar' ? 'لا توجد تصنيفات' : 'No categories'}
             </Text>
           </View>

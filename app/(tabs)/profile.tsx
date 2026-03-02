@@ -119,10 +119,10 @@ export default function ProfileScreen() {
               <View className="w-24 h-24 rounded-full bg-white/20 items-center justify-center mb-4">
                 <Ionicons name="person-outline" size={48} color="#fff" />
               </View>
-              <Text className="text-2xl font-cairo-bold text-white mb-2">
+              <Text className="text-2xl font-ibm-bold text-white mb-2">
                 {t('profile.welcome')}
               </Text>
-              <Text className="text-sm font-cairo text-white/90 text-center mb-6">
+              <Text className="text-sm font-ibm text-white/90 text-center mb-6">
                 {t('profile.welcomeMessage')}
               </Text>
               <View className="flex-row gap-3 w-full">
@@ -131,7 +131,7 @@ export default function ProfileScreen() {
                   onPress={() => router.push('/auth/login')}
                   activeOpacity={0.8}
                 >
-                  <Text className="text-primary font-cairo-bold text-base text-center">
+                  <Text className="text-primary font-ibm-bold text-base text-center">
                     {t('profile.login')}
                   </Text>
                 </TouchableOpacity>
@@ -140,7 +140,7 @@ export default function ProfileScreen() {
                   onPress={() => router.push('/auth/register')}
                   activeOpacity={0.8}
                 >
-                  <Text className="text-white font-cairo-bold text-base text-center">
+                  <Text className="text-white font-ibm-bold text-base text-center">
                     {t('profile.createAccount')}
                   </Text>
                 </TouchableOpacity>
@@ -159,7 +159,7 @@ export default function ProfileScreen() {
                       className={`px-4 py-1.5 rounded-md ${language === 'ar' ? 'bg-white' : ''}`}
                       onPress={() => changeLanguage('ar')}
                     >
-                      <Text className={`text-sm font-cairo-bold ${language === 'ar' ? 'text-primary' : 'text-gray-500'}`}>
+                      <Text className={`text-sm font-ibm-bold ${language === 'ar' ? 'text-primary' : 'text-gray-500'}`}>
                         العربية
                       </Text>
                     </TouchableOpacity>
@@ -167,7 +167,7 @@ export default function ProfileScreen() {
                       className={`px-4 py-1.5 rounded-md ${language === 'en' ? 'bg-white' : ''}`}
                       onPress={() => changeLanguage('en')}
                     >
-                      <Text className={`text-sm font-cairo-bold ${language === 'en' ? 'text-primary' : 'text-gray-500'}`}>
+                      <Text className={`text-sm font-ibm-bold ${language === 'en' ? 'text-primary' : 'text-gray-500'}`}>
                         English
                       </Text>
                     </TouchableOpacity>
@@ -184,7 +184,7 @@ export default function ProfileScreen() {
                       className={`px-4 py-1.5 rounded-md ${currency === 'IQD' ? 'bg-white' : ''}`}
                       onPress={() => setCurrency('IQD')}
                     >
-                      <Text className={`text-sm font-cairo-bold ${currency === 'IQD' ? 'text-primary' : 'text-gray-500'}`}>
+                      <Text className={`text-sm font-ibm-bold ${currency === 'IQD' ? 'text-primary' : 'text-gray-500'}`}>
                         د.ع
                       </Text>
                     </TouchableOpacity>
@@ -192,7 +192,7 @@ export default function ProfileScreen() {
                       className={`px-4 py-1.5 rounded-md ${currency === 'USD' ? 'bg-white' : ''}`}
                       onPress={() => setCurrency('USD')}
                     >
-                      <Text className={`text-sm font-cairo-bold ${currency === 'USD' ? 'text-primary' : 'text-gray-500'}`}>
+                      <Text className={`text-sm font-ibm-bold ${currency === 'USD' ? 'text-primary' : 'text-gray-500'}`}>
                         USD
                       </Text>
                     </TouchableOpacity>
@@ -219,7 +219,7 @@ export default function ProfileScreen() {
               />
             </View>
 
-            <Text className="text-center text-gray-400 font-cairo text-xs mt-4">
+            <Text className="text-center text-gray-400 font-ibm text-xs mt-4">
               v{APP_CONFIG.VERSION}
             </Text>
           </View>
@@ -244,16 +244,16 @@ export default function ProfileScreen() {
                 className="w-20 h-20 rounded-full bg-white/20 items-center justify-center"
                 style={{ marginRight: isRTL ? 0 : 14, marginLeft: isRTL ? 14 : 0 }}
               >
-                <Text className="font-cairo-bold text-3xl text-white">
+                <Text className="font-ibm-bold text-3xl text-white">
                   {(profile?.full_name?.[0] || user.email?.[0] || '?').toUpperCase()}
                 </Text>
               </View>
             )}
             <View className="flex-1">
-              <Text className={`font-cairo-bold text-lg text-white ${isRTL ? 'text-right' : 'text-left'}`}>
+              <Text className={`font-ibm-bold text-lg text-white ${isRTL ? 'text-right' : 'text-left'}`}>
                 {profile?.full_name || user.user_metadata?.full_name || user.email?.split('@')[0]}
               </Text>
-              <Text className={`font-cairo text-sm text-white/85 ${isRTL ? 'text-right' : 'text-left'} mt-1`}>
+              <Text className={`font-ibm text-sm text-white/85 ${isRTL ? 'text-right' : 'text-left'} mt-1`}>
                 {user.email}
               </Text>
             </View>
@@ -299,7 +299,7 @@ export default function ProfileScreen() {
                     className={`px-4 py-1.5 rounded-md ${language === 'ar' ? 'bg-white' : ''}`}
                     onPress={() => changeLanguage('ar')}
                   >
-                    <Text className={`text-sm font-cairo-bold ${language === 'ar' ? 'text-primary' : 'text-gray-500'}`}>
+                    <Text className={`text-sm font-ibm-bold ${language === 'ar' ? 'text-primary' : 'text-gray-500'}`}>
                       العربية
                     </Text>
                   </TouchableOpacity>
@@ -307,7 +307,7 @@ export default function ProfileScreen() {
                     className={`px-4 py-1.5 rounded-md ${language === 'en' ? 'bg-white' : ''}`}
                     onPress={() => changeLanguage('en')}
                   >
-                    <Text className={`text-sm font-cairo-bold ${language === 'en' ? 'text-primary' : 'text-gray-500'}`}>
+                    <Text className={`text-sm font-ibm-bold ${language === 'en' ? 'text-primary' : 'text-gray-500'}`}>
                       English
                     </Text>
                   </TouchableOpacity>
@@ -324,7 +324,7 @@ export default function ProfileScreen() {
                     className={`px-4 py-1.5 rounded-md ${currency === 'IQD' ? 'bg-white' : ''}`}
                     onPress={() => setCurrency('IQD')}
                   >
-                    <Text className={`text-sm font-cairo-bold ${currency === 'IQD' ? 'text-primary' : 'text-gray-500'}`}>
+                    <Text className={`text-sm font-ibm-bold ${currency === 'IQD' ? 'text-primary' : 'text-gray-500'}`}>
                       د.ع
                     </Text>
                   </TouchableOpacity>
@@ -332,7 +332,7 @@ export default function ProfileScreen() {
                     className={`px-4 py-1.5 rounded-md ${currency === 'USD' ? 'bg-white' : ''}`}
                     onPress={() => setCurrency('USD')}
                   >
-                    <Text className={`text-sm font-cairo-bold ${currency === 'USD' ? 'text-primary' : 'text-gray-500'}`}>
+                    <Text className={`text-sm font-ibm-bold ${currency === 'USD' ? 'text-primary' : 'text-gray-500'}`}>
                       USD
                     </Text>
                   </TouchableOpacity>
@@ -367,7 +367,7 @@ export default function ProfileScreen() {
             />
           </View>
 
-          <Text className="text-center text-gray-400 font-cairo text-xs mt-4">
+          <Text className="text-center text-gray-400 font-ibm text-xs mt-4">
             v{APP_CONFIG.VERSION}
           </Text>
         </View>
@@ -390,7 +390,7 @@ const ActionCard = ({ icon, title, onPress, isLast = false }: {
     <View className="w-10 h-10 bg-primary/10 rounded-full items-center justify-center mb-1.5">
       <Ionicons name={icon} size={20} color="#2E7D32" />
     </View>
-    <Text className="font-cairo text-xs text-gray-600 text-center" numberOfLines={1}>
+    <Text className="font-ibm text-xs text-gray-600 text-center" numberOfLines={1}>
       {title}
     </Text>
   </TouchableOpacity>
@@ -411,7 +411,7 @@ const SettingRow = ({ icon, title, value }: {
           color="#2E7D32"
           style={{ marginRight: isRTL ? 0 : 10, marginLeft: isRTL ? 10 : 0 }}
         />
-        <Text className="text-sm font-cairo-bold text-gray-700">{title}</Text>
+        <Text className="text-sm font-ibm-bold text-gray-700">{title}</Text>
       </View>
       {value}
     </View>
@@ -439,7 +439,7 @@ const MenuButton = ({ icon, title, onPress, iconBg, iconColor }: {
         >
           <Ionicons name={icon} size={20} color={iconColor} />
         </View>
-        <Text className="font-cairo text-base text-gray-700">{title}</Text>
+        <Text className="font-ibm text-base text-gray-700">{title}</Text>
       </View>
       <Ionicons name={isRTL ? "chevron-back" : "chevron-forward"} size={20} color="#D1D5DB" />
     </TouchableOpacity>

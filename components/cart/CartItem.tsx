@@ -69,7 +69,7 @@ const CartItem = memo(({ item, onRemove, onUpdateQuantity, isRTL, language, form
                     />
                 ) : (
                     <View className="flex-1 justify-center items-center bg-gray-100 rounded-lg">
-                        <Text className="text-gray-400 text-xs font-cairo">صورة</Text>
+                        <Text className="text-gray-400 text-xs font-ibm">صورة</Text>
                     </View>
                 )}
             </View>
@@ -79,7 +79,7 @@ const CartItem = memo(({ item, onRemove, onUpdateQuantity, isRTL, language, form
                 {/* Name & Remove Button */}
                 <View className={`flex-row justify-between items-start ${isRTL ? 'flex-row-reverse' : ''}`}>
                     <Text
-                        className={`font-cairo-semibold text-text-primary flex-1 ${isRTL ? 'text-right' : 'text-left'}`}
+                        className={`font-ibm-semibold text-text-primary flex-1 ${isRTL ? 'text-right' : 'text-left'}`}
                         numberOfLines={2}
                         style={{ 
                             fontSize: 13,
@@ -124,7 +124,7 @@ const CartItem = memo(({ item, onRemove, onUpdateQuantity, isRTL, language, form
 
                         <View className="justify-center items-center border-x border-gray-200" style={{ width: 32, height: 28 }}>
                             <Text 
-                                className="font-cairo-bold text-text-primary" 
+                                className="font-ibm-bold text-text-primary" 
                                 style={{ fontSize: 12 }}
                                 accessibilityLabel={`${t('product.quantity')}: ${item.quantity}`}
                             >
@@ -150,10 +150,10 @@ const CartItem = memo(({ item, onRemove, onUpdateQuantity, isRTL, language, form
 
                     {/* Price */}
                     <View className={isRTL ? 'items-end' : 'items-start'}>
-                        <Text className="font-cairo-bold text-primary" style={{ fontSize: 14 }}>
+                        <Text className="font-ibm-bold text-primary" style={{ fontSize: 14 }}>
                             {formatPrice(item.price_iqd * item.quantity)}
                         </Text>
-                        <Text className="font-cairo text-text-secondary" style={{ fontSize: 10, marginTop: 1 }}>
+                        <Text className="font-ibm text-text-secondary" style={{ fontSize: 10, marginTop: 1 }}>
                             {formatPrice(item.price_iqd)} / {t('cart.perUnit')}
                         </Text>
                     </View>

@@ -114,7 +114,7 @@ export default function ChangePasswordScreen() {
                 <Text style={{
                     flex: 1,
                     textAlign: 'center',
-                    fontFamily: 'Cairo_700Bold',
+                    fontFamily: 'IBMPlexSansArabic_700Bold',
                     fontSize: 18,
                     color: '#212121'
                 }}>
@@ -145,7 +145,7 @@ export default function ChangePasswordScreen() {
                     />
                     <Text style={{
                         flex: 1,
-                        fontFamily: 'Cairo_400Regular',
+                        fontFamily: 'IBMPlexSansArabic_400Regular',
                         fontSize: 13,
                         color: '#92400E',
                         textAlign: isRTL ? 'right' : 'left',
@@ -169,7 +169,7 @@ export default function ChangePasswordScreen() {
                     {/* Current Password */}
                     <View style={{ marginBottom: 16 }}>
                         <Text style={{
-                            fontFamily: 'Cairo_600SemiBold',
+                            fontFamily: 'IBMPlexSansArabic_600SemiBold',
                             fontSize: 14,
                             color: '#212121',
                             marginBottom: 8,
@@ -190,7 +190,7 @@ export default function ChangePasswordScreen() {
                                             borderRadius: 12,
                                             padding: 14,
                                             paddingRight: 50,
-                                            fontFamily: 'Cairo_400Regular',
+                                            fontFamily: 'IBMPlexSansArabic_400Regular',
                                             fontSize: 16,
                                             textAlign: isRTL ? 'right' : 'left',
                                             color: '#212121'
@@ -221,7 +221,7 @@ export default function ChangePasswordScreen() {
                         </View>
                         {errors.currentPassword && (
                             <Text style={{
-                                fontFamily: 'Cairo_400Regular',
+                                fontFamily: 'IBMPlexSansArabic_400Regular',
                                 fontSize: 12,
                                 color: '#D32F2F',
                                 marginTop: 4,
@@ -235,7 +235,7 @@ export default function ChangePasswordScreen() {
                     {/* New Password */}
                     <View style={{ marginBottom: 16 }}>
                         <Text style={{
-                            fontFamily: 'Cairo_600SemiBold',
+                            fontFamily: 'IBMPlexSansArabic_600SemiBold',
                             fontSize: 14,
                             color: '#212121',
                             marginBottom: 8,
@@ -256,7 +256,7 @@ export default function ChangePasswordScreen() {
                                             borderRadius: 12,
                                             padding: 14,
                                             paddingRight: 50,
-                                            fontFamily: 'Cairo_400Regular',
+                                            fontFamily: 'IBMPlexSansArabic_400Regular',
                                             fontSize: 16,
                                             textAlign: isRTL ? 'right' : 'left',
                                             color: '#212121'
@@ -287,7 +287,7 @@ export default function ChangePasswordScreen() {
                         </View>
                         {errors.newPassword && (
                             <Text style={{
-                                fontFamily: 'Cairo_400Regular',
+                                fontFamily: 'IBMPlexSansArabic_400Regular',
                                 fontSize: 12,
                                 color: '#D32F2F',
                                 marginTop: 4,
@@ -301,7 +301,7 @@ export default function ChangePasswordScreen() {
                     {/* Confirm Password */}
                     <View style={{ marginBottom: 8 }}>
                         <Text style={{
-                            fontFamily: 'Cairo_600SemiBold',
+                            fontFamily: 'IBMPlexSansArabic_600SemiBold',
                             fontSize: 14,
                             color: '#212121',
                             marginBottom: 8,
@@ -322,7 +322,7 @@ export default function ChangePasswordScreen() {
                                             borderRadius: 12,
                                             padding: 14,
                                             paddingRight: 50,
-                                            fontFamily: 'Cairo_400Regular',
+                                            fontFamily: 'IBMPlexSansArabic_400Regular',
                                             fontSize: 16,
                                             textAlign: isRTL ? 'right' : 'left',
                                             color: '#212121'
@@ -353,7 +353,7 @@ export default function ChangePasswordScreen() {
                         </View>
                         {errors.confirmPassword && (
                             <Text style={{
-                                fontFamily: 'Cairo_400Regular',
+                                fontFamily: 'IBMPlexSansArabic_400Regular',
                                 fontSize: 12,
                                 color: '#D32F2F',
                                 marginTop: 4,
@@ -385,7 +385,7 @@ export default function ChangePasswordScreen() {
                         <ActivityIndicator color="#FFFFFF" />
                     ) : (
                         <Text style={{
-                            fontFamily: 'Cairo_700Bold',
+                            fontFamily: 'IBMPlexSansArabic_700Bold',
                             fontSize: 16,
                             color: '#FFFFFF'
                         }}>

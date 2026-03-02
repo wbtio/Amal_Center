@@ -4,12 +4,8 @@ export const addressSchema = z.object({
   fullName: z.string().min(2, 'الاسم مطلوب'),
   phone: z.string().min(10, 'رقم الهاتف غير صحيح'),
   city: z.string().min(1, 'المدينة مطلوبة'),
-  district: z.string().optional(), // القضاء/المنطقة
-  neighborhood: z.string().optional(), // الحي
-  street: z.string().optional(), // الشارع
-  building: z.string().optional(), // رقم العمارة
-  floor: z.string().optional(), // الطابق
-  apartment: z.string().optional(), // رقم الشقة
+  area: z.string().optional(), // المنطقة
+  street: z.string().optional(), // الشارع وتفاصيل العنوان
   nearestLandmark: z.string().optional(), // أقرب نقطة دالة
   type: z.enum(['home', 'work']),
   notes: z.string().optional(),

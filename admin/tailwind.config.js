@@ -15,7 +15,7 @@ module.exports = {
                 background: '#F5F5F5',
             },
             fontFamily: {
-                cairo: ['"Cairo"', 'sans-serif'],
+                ibm: ['"IBMPlexSansArabic"', 'sans-serif'],
             },
         },
     },

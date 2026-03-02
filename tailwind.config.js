@@ -18,9 +18,9 @@ module.exports = {
         }
       },
       fontFamily: {
-        cairo: ['Cairo_400Regular'],
-        'cairo-bold': ['Cairo_700Bold'],
-        'cairo-semibold': ['Cairo_600SemiBold'],
+        ibm: ['IBMPlexSansArabic_400Regular'],
+        'ibm-bold': ['IBMPlexSansArabic_700Bold'],
+        'ibm-semibold': ['IBMPlexSansArabic_600SemiBold'],
       }
     },
   },
