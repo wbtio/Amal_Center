@@ -4,10 +4,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 // ===== مفاتيح API - أضف مفاتيح جديدة هنا =====
 // كل مفتاح له حصة مستقلة، عند نفاد الأول ينتقل للثاني تلقائياً
 const ALL_API_KEYS = [
-  process.env.GEMINI_API_KEY_1 || process.env.GEMINI_API_KEY || 'AIzaSyAo0aQdHC1qYaYcK-HTtaPl3MS0CL1zTR4',
   process.env.GEMINI_API_KEY_2,
-  process.env.GEMINI_API_KEY_3,
-  process.env.GEMINI_API_KEY_4,
 ].filter(Boolean) as string[]; // يحذف المفاتيح الفارغة تلقائياً
 
 // قائمة النماذج مرتبة حسب الأفضلية
