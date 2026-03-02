@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { FolderPlus, SquarePen, Trash2, MoveUp, MoveDown, ImageOff, ImagePlus, LinkIcon, Loader2, GripVertical, X } from 'lucide-react';
+import { FolderPlus, SquarePen, Trash2, MoveUp, MoveDown, ImageOff, ImagePlus, LinkIcon, Loader2, GripVertical, X, Plus, ArrowUp, ArrowDown, ImageIcon, Edit, Upload } from 'lucide-react';
 import { format } from 'date-fns';
 import { Header } from '@/components/layout/Header';
 
