@@ -1,59 +1,17 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/preflight.css" layer(base);
+@import "tailwindcss/utilities.css";
 
-/* RTL Support */
-@layer base {
-  * {
-    writing-mode: horizontal-tb;
-    direction: rtl;
-  }
-  
-  html, body {
-    direction: rtl;
-    text-align: right;
-  }
-  
-  /* Font face for IBMPlexSansArabic */
-  .font-ibm {
-    font-family: 'IBMPlexSansArabic', sans-serif;
-  }
-}
+@import "nativewind/theme";
 
-/* Custom components */
-@layer components {
-  .btn-primary {
-    @apply bg-cta text-white font-semibold py-3 px-6 rounded-lg;
-  }
-  
-  .btn-secondary {
-    @apply bg-primary text-white font-semibold py-3 px-6 rounded-lg;
-  }
-  
-  .btn-danger {
-    @apply bg-danger text-white font-semibold py-3 px-6 rounded-lg;
-  }
-  
-  .input-field {
-    @apply border border-gray-300 rounded-lg px-4 py-3 text-right font-ibm;
-  }
-  
-  .card {
-    @apply bg-white rounded-lg shadow-sm p-4;
-  }
-  
-  .product-card {
-    @apply card flex flex-col;
-  }
-}
+@source "../app/**/*.tsx";
+@source "../components/**/*.tsx";
+@source "../contexts/**/*.tsx";
 
-/* Custom utilities */
-@layer utilities {
-  .text-shadow {
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  
-  .rtl-flip {
-    transform: scaleX(-1);
-  }
+@theme {
+  --color-primary: #2E7D32;
+  --color-secondary: #FFB300;
+  --color-background: #F5F5F5;
+  --color-text-primary: #212121;
+  --color-text-secondary: #757575;
 }

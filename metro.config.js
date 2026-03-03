@@ -1,12 +1,13 @@
 const { getDefaultConfig } = require('expo/metro-config');
+const { withNativewind } = require('nativewind/metro');
 
 /** @type {import('expo/metro-config').MetroConfig} */
 const config = getDefaultConfig(__dirname);
 
-const { withNativeWind } = require('nativewind/metro');
+// تعطيل Package Exports لمنع تسرب أكواد ESM التي تحتوي على import.meta
+config.resolver.unstable_enablePackageExports = false;
 
-// استخدمنا withNativeWind سابقاً وهو الطريقة الرسمية في التوثيق الجديد
-// ولكن سأجرب الإعداد اليدوي إذا كان هذا ما تريده، ولكن withNativeWind هو الأفضل عادةً.
-// سألتزم بـ withNativeWind لأنه يغلف كل التعقيدات، ولكن سأضيف input بشكل صريح.
+// تحديد أولويات البحث لتفضيل CommonJS
+config.resolver.unstable_conditionNames = ['browser', 'require', 'react-native'];
 
-module.exports = withNativeWind(config, { input: './global.css' });
+module.exports = withNativewind(config);
