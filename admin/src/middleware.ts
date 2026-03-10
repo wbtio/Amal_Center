@@ -70,6 +70,40 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(redirectUrl)
   }
 
+  // Role-based access control for products_manager
+  if (session) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', session.user.id)
+      .single()
+
+    const userRole = profile?.role
+
+    // If products_manager, restrict access to only products and categories
+    if (userRole === 'products_manager') {
+      const pathname = request.nextUrl.pathname
+      
+      // Allowed paths for products_manager
+      const allowedPaths = ['/products', '/categories']
+      const isAllowed = allowedPaths.some(path => pathname.startsWith(path))
+      
+      // If trying to access root (/), redirect to products
+      if (pathname === '/') {
+        const redirectUrl = request.nextUrl.clone()
+        redirectUrl.pathname = '/products'
+        return NextResponse.redirect(redirectUrl)
+      }
+      
+      // If trying to access a non-allowed path, redirect to products
+      if (!isAllowed) {
+        const redirectUrl = request.nextUrl.clone()
+        redirectUrl.pathname = '/products'
+        return NextResponse.redirect(redirectUrl)
+      }
+    }
+  }
+
   return response
 }
 

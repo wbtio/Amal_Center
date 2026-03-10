@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import {
     LayoutDashboard,
     ShoppingBag,
@@ -21,6 +22,8 @@ import { cn } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
 import { useSidebar } from '@/contexts/SidebarContext';
 
+type UserRole = 'customer' | 'admin' | 'products_manager' | null;
+
 const sidebarItems = [
     { href: '/', label: 'لوحة التحكم', icon: LayoutDashboard, color: 'text-emerald-600', activeBg: 'bg-emerald-50' },
     { href: '/products', label: 'المنتجات', icon: ShoppingBag, color: 'text-blue-600', activeBg: 'bg-blue-50' },
@@ -33,10 +36,48 @@ const sidebarItems = [
     { href: '/users', label: 'المستخدمين', icon: Users, color: 'text-indigo-600', activeBg: 'bg-indigo-50' },
 ];
 
+// Define which items each role can see
+const roleRestrictedItems: Record<string, string[]> = {
+    products_manager: ['/products', '/categories'],
+};
+
 export function Sidebar() {
     const pathname = usePathname();
     const router = useRouter();
     const { isOpen, closeSidebar } = useSidebar();
+    const [userRole, setUserRole] = useState<UserRole>(null);
+
+    useEffect(() => {
+        const fetchUserRole = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('role')
+                    .eq('id', session.user.id)
+                    .single();
+                setUserRole(profile?.role as UserRole);
+            }
+        };
+        fetchUserRole();
+
+        // Listen for auth changes
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
+            fetchUserRole();
+        });
+
+        return () => subscription.unsubscribe();
+    }, []);
+
+    // Filter sidebar items based on user role
+    const filteredItems = sidebarItems.filter(item => {
+        if (!userRole || userRole === 'admin') return true;
+        const allowedPaths = roleRestrictedItems[userRole];
+        if (!allowedPaths) return true;
+        // For root path '/', only show if not restricted
+        if (item.href === '/') return false;
+        return allowedPaths.some(path => item.href.startsWith(path));
+    });
 
     const handleLogout = async () => {
         await supabase.auth.signOut();
@@ -81,7 +122,7 @@ export function Sidebar() {
                 <nav className="flex-1 overflow-y-auto py-4 px-3">
                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-3 mb-3">القائمة الرئيسية</p>
                     <div className="space-y-1">
-                        {sidebarItems.map((item) => {
+                        {filteredItems.map((item) => {
                             const Icon = item.icon;
                             const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
                             return (
