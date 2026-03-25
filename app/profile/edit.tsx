@@ -1,4 +1,4 @@
-import { View, Text, TextInput, TouchableOpacity, Alert, ActivityIndicator, Image, Platform, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert, ActivityIndicator, Image, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -7,15 +7,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import * as ImagePicker from 'expo-image-picker';
 import { supabase } from '../../lib/supabase';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '../../contexts/LanguageContext';
 
-const profileSchema = z.object({
-    fullName: z.string().min(2, 'الاسم يجب أن يكون حرفين على الأقل'),
-    phone: z.string().optional(),
-});
-
-type ProfileFormData = z.infer<typeof profileSchema>;
+type ProfileFormData = {
+    fullName: string;
+    phone: string;
+};
 
 interface ProfileData {
     id: string;
@@ -33,8 +31,22 @@ export default function EditProfileScreen() {
     const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
     const [userEmail, setUserEmail] = useState<string>('');
     const { t, language, isRTL } = useLanguage();
+    const initialDataRef = useRef<{ fullName: string; phone: string; avatarUrl: string | null }>({
+        fullName: '', phone: '', avatarUrl: null
+    });
 
-    const { control, handleSubmit, formState: { errors }, setValue, reset } = useForm<ProfileFormData>({
+    const profileSchema = z.object({
+        fullName: z.string().min(2, t('profile.nameMinLength')),
+        phone: z.string()
+            .refine(
+                (val) => !val || /^07\d{9}$/.test(val.replace(/\s/g, '')),
+                { message: t('profile.invalidPhone') }
+            )
+            .optional()
+            .or(z.literal('')),
+    });
+
+    const { control, handleSubmit, formState: { errors }, setValue } = useForm<ProfileFormData>({
         resolver: zodResolver(profileSchema),
         defaultValues: {
             fullName: '',
@@ -68,19 +80,50 @@ export default function EditProfileScreen() {
             }
 
             if (profile) {
-                setValue('fullName', profile.full_name || '');
-                setValue('phone', profile.phone || '');
+                const name = profile.full_name || '';
+                const phone = profile.phone || '';
+                setValue('fullName', name);
+                setValue('phone', phone);
                 setAvatarUrl(profile.avatar_url);
+                initialDataRef.current = { fullName: name, phone, avatarUrl: profile.avatar_url };
             } else {
                 // Use user metadata as fallback
                 const metadata = session.user.user_metadata;
-                setValue('fullName', metadata?.full_name || metadata?.name_ar || '');
-                setValue('phone', metadata?.phone || '');
+                const name = metadata?.full_name || metadata?.name_ar || '';
+                const phone = metadata?.phone || '';
+                setValue('fullName', name);
+                setValue('phone', phone);
+                initialDataRef.current = { fullName: name, phone, avatarUrl: null };
             }
         } catch (error) {
             console.error('Error loading profile:', error);
+            Alert.alert(t('common.error'), t('errors.loadError'));
         } finally {
             setLoading(false);
+        }
+    };
+
+    const extractFileNameFromUrl = (url: string): string | null => {
+        try {
+            const parts = url.split('/avatars/');
+            if (parts.length > 1) {
+                return parts[1].split('?')[0];
+            }
+            return null;
+        } catch {
+            return null;
+        }
+    };
+
+    const deleteOldAvatar = async (oldUrl: string | null) => {
+        if (!oldUrl) return;
+        const fileName = extractFileNameFromUrl(oldUrl);
+        if (fileName) {
+            try {
+                await supabase.storage.from('avatars').remove([fileName]);
+            } catch (error) {
+                console.error('Error deleting old avatar:', error);
+            }
         }
     };
 
@@ -90,8 +133,8 @@ export default function EditProfileScreen() {
 
             if (!permissionResult.granted) {
                 Alert.alert(
-                    language === 'ar' ? 'صلاحية مطلوبة' : 'Permission Required',
-                    language === 'ar' ? 'نحتاج صلاحية الوصول للصور' : 'We need permission to access your photos'
+                    t('profile.permissionRequired'),
+                    t('profile.permissionMessage')
                 );
                 return;
             }
@@ -108,10 +151,7 @@ export default function EditProfileScreen() {
             }
         } catch (error) {
             console.error('Error picking image:', error);
-            Alert.alert(
-                language === 'ar' ? 'خطأ' : 'Error',
-                language === 'ar' ? 'فشل في اختيار الصورة' : 'Failed to pick image'
-            );
+            Alert.alert(t('common.error'), t('profile.photoPickFailed'));
         }
     };
 
@@ -120,17 +160,21 @@ export default function EditProfileScreen() {
             setUploadingImage(true);
 
             const { data: { session } } = await supabase.auth.getSession();
-            if (!session) return;
+            if (!session) {
+                Alert.alert(t('common.error'), t('profile.sessionExpired'));
+                router.replace('/auth/login');
+                return;
+            }
 
-            // Create file name - just the filename, no subfolder
+            // Create file name
             const fileExt = uri.split('.').pop()?.toLowerCase() || 'jpg';
             const fileName = `${session.user.id}-${Date.now()}.${fileExt}`;
 
-            // Convert URI to blob/arraybuffer for React Native
+            // Convert URI to arraybuffer for React Native
             const response = await fetch(uri);
             const arrayBuffer = await response.arrayBuffer();
 
-            // Upload to Supabase Storage - bucket is 'avatars', file is just fileName
+            // Upload to Supabase Storage
             const { error: uploadError } = await supabase.storage
                 .from('avatars')
                 .upload(fileName, arrayBuffer, {
@@ -143,6 +187,10 @@ export default function EditProfileScreen() {
                 throw uploadError;
             }
 
+            // Delete old avatar from storage
+            const oldAvatarUrl = avatarUrl;
+            await deleteOldAvatar(oldAvatarUrl);
+
             // Get public URL
             const { data: { publicUrl } } = supabase.storage
                 .from('avatars')
@@ -151,29 +199,27 @@ export default function EditProfileScreen() {
             setAvatarUrl(publicUrl);
 
             // Update profile with new avatar URL
-            await supabase
+            const { error: updateError } = await supabase
                 .from('profiles')
                 .upsert({
                     id: session.user.id,
                     avatar_url: publicUrl
                 });
 
-            Alert.alert(
-                language === 'ar' ? 'تم بنجاح' : 'Success',
-                language === 'ar' ? 'تم تحديث الصورة بنجاح' : 'Photo updated successfully'
-            );
+            if (updateError) {
+                console.error('Profile update error:', updateError);
+                throw updateError;
+            }
+
+            Alert.alert(t('common.success'), t('profile.photoUpdated'));
 
         } catch (error) {
             console.error('Error uploading image:', error);
-            Alert.alert(
-                language === 'ar' ? 'خطأ' : 'Error',
-                language === 'ar' ? 'فشل في رفع الصورة' : 'Failed to upload image'
-            );
+            Alert.alert(t('common.error'), t('profile.photoUploadFailed'));
         } finally {
             setUploadingImage(false);
         }
     };
-
 
     const onSubmit = async (data: ProfileFormData) => {
         try {
@@ -181,45 +227,54 @@ export default function EditProfileScreen() {
 
             const { data: { session } } = await supabase.auth.getSession();
             if (!session) {
+                Alert.alert(t('common.error'), t('profile.sessionExpired'));
                 router.replace('/auth/login');
                 return;
             }
+
+            const trimmedName = data.fullName.trim();
+            const trimmedPhone = data.phone?.replace(/\s/g, '').trim() || null;
 
             // Update profiles table
             const { error: profileError } = await supabase
                 .from('profiles')
                 .upsert({
                     id: session.user.id,
-                    full_name: data.fullName.trim(),
-                    phone: data.phone?.trim() || null,
+                    full_name: trimmedName,
+                    phone: trimmedPhone,
                     avatar_url: avatarUrl
                 });
 
             if (profileError) {
+                console.error('Profile save error:', profileError);
                 throw profileError;
             }
 
-            // Also update user metadata
-            await supabase.auth.updateUser({
+            // Also update user metadata for consistency
+            const { error: metaError } = await supabase.auth.updateUser({
                 data: {
-                    full_name: data.fullName.trim(),
-                    name_ar: data.fullName.trim(),
-                    phone: data.phone?.trim() || null,
+                    full_name: trimmedName,
+                    name_ar: trimmedName,
+                    phone: trimmedPhone,
                 }
             });
 
+            if (metaError) {
+                console.error('Metadata update error:', metaError);
+            }
+
+            // Update initial data reference
+            initialDataRef.current = { fullName: trimmedName, phone: trimmedPhone || '', avatarUrl };
+
             Alert.alert(
-                language === 'ar' ? 'تم بنجاح' : 'Success',
-                language === 'ar' ? 'تم تحديث الملف الشخصي بنجاح' : 'Profile updated successfully',
-                [{ text: language === 'ar' ? 'حسناً' : 'OK', onPress: () => router.back() }]
+                t('common.success'),
+                t('profile.profileUpdated'),
+                [{ text: t('common.ok'), onPress: () => router.back() }]
             );
 
         } catch (error) {
             console.error('Error saving profile:', error);
-            Alert.alert(
-                language === 'ar' ? 'خطأ' : 'Error',
-                language === 'ar' ? 'فشل في حفظ التغييرات' : 'Failed to save changes'
-            );
+            Alert.alert(t('common.error'), t('profile.saveFailed'));
         } finally {
             setSaving(false);
         }
@@ -255,7 +310,7 @@ export default function EditProfileScreen() {
                     fontSize: 18,
                     color: '#212121'
                 }}>
-                    {language === 'ar' ? 'تعديل الملف الشخصي' : 'Edit Profile'}
+                    {t('profile.editProfile')}
                 </Text>
                 <View style={{ width: 24 }} />
             </View>
@@ -333,7 +388,7 @@ export default function EditProfileScreen() {
                         color: '#757575',
                         marginTop: 12
                     }}>
-                        {language === 'ar' ? 'اضغط لتغيير الصورة' : 'Tap to change photo'}
+                        {t('profile.tapToChangePhoto')}
                     </Text>
                 </View>
 
@@ -355,7 +410,7 @@ export default function EditProfileScreen() {
                             marginBottom: 8,
                             textAlign: isRTL ? 'right' : 'left'
                         }}>
-                            {language === 'ar' ? 'الاسم الكامل' : 'Full Name'} *
+                            {t('profile.fullName')} *
                         </Text>
                         <Controller
                             control={control}
@@ -373,7 +428,7 @@ export default function EditProfileScreen() {
                                         textAlign: isRTL ? 'right' : 'left',
                                         color: '#212121'
                                     }}
-                                    placeholder={language === 'ar' ? 'أدخل اسمك الكامل' : 'Enter your full name'}
+                                    placeholder={t('profile.enterFullName')}
                                     placeholderTextColor="#9CA3AF"
                                     value={value}
                                     onChangeText={onChange}
@@ -402,7 +457,7 @@ export default function EditProfileScreen() {
                             marginBottom: 8,
                             textAlign: isRTL ? 'right' : 'left'
                         }}>
-                            {language === 'ar' ? 'البريد الإلكتروني' : 'Email'}
+                            {t('profile.email')}
                         </Text>
                         <View style={{
                             backgroundColor: '#F3F4F6',
@@ -436,7 +491,7 @@ export default function EditProfileScreen() {
                             marginTop: 4,
                             textAlign: isRTL ? 'right' : 'left'
                         }}>
-                            {language === 'ar' ? 'لا يمكن تغيير البريد الإلكتروني' : 'Email cannot be changed'}
+                            {t('profile.emailCannotChange')}
                         </Text>
                     </View>
 
@@ -449,7 +504,7 @@ export default function EditProfileScreen() {
                             marginBottom: 8,
                             textAlign: isRTL ? 'right' : 'left'
                         }}>
-                            {language === 'ar' ? 'رقم الهاتف' : 'Phone Number'}
+                            {t('profile.phone')}
                         </Text>
                         <Controller
                             control={control}
@@ -459,7 +514,7 @@ export default function EditProfileScreen() {
                                     style={{
                                         backgroundColor: '#F9FAFB',
                                         borderWidth: 1,
-                                        borderColor: '#E5E7EB',
+                                        borderColor: errors.phone ? '#D32F2F' : '#E5E7EB',
                                         borderRadius: 12,
                                         padding: 14,
                                         fontFamily: 'IBMPlexSansArabic_400Regular',
@@ -467,14 +522,26 @@ export default function EditProfileScreen() {
                                         textAlign: 'left',
                                         color: '#212121'
                                     }}
-                                    placeholder={language === 'ar' ? '07XX XXX XXXX' : '07XX XXX XXXX'}
+                                    placeholder={t('profile.phonePlaceholder')}
                                     placeholderTextColor="#9CA3AF"
                                     keyboardType="phone-pad"
+                                    maxLength={11}
                                     value={value}
                                     onChangeText={onChange}
                                 />
                             )}
                         />
+                        {errors.phone && (
+                            <Text style={{
+                                fontFamily: 'IBMPlexSansArabic_400Regular',
+                                fontSize: 12,
+                                color: '#D32F2F',
+                                marginTop: 4,
+                                textAlign: isRTL ? 'right' : 'left'
+                            }}>
+                                {errors.phone.message}
+                            </Text>
+                        )}
                     </View>
                 </View>
 
@@ -510,7 +577,7 @@ export default function EditProfileScreen() {
                             fontSize: 15,
                             color: '#212121'
                         }}>
-                            {language === 'ar' ? 'تغيير كلمة المرور' : 'Change Password'}
+                            {t('profile.changePassword')}
                         </Text>
                     </View>
                     <Ionicons name={isRTL ? "chevron-back" : "chevron-forward"} size={20} color="#9CA3AF" />
@@ -523,6 +590,7 @@ export default function EditProfileScreen() {
                 borderTopWidth: 1,
                 borderTopColor: '#F3F4F6',
                 padding: 16,
+                paddingBottom: insets.bottom > 0 ? insets.bottom : 16,
                 shadowColor: '#000',
                 shadowOffset: { width: 0, height: -4 },
                 shadowOpacity: 0.08,
@@ -554,7 +622,7 @@ export default function EditProfileScreen() {
                                 fontSize: 16,
                                 color: '#FFFFFF'
                             }}>
-                                {language === 'ar' ? 'حفظ التغييرات' : 'Save Changes'}
+                                {t('profile.saveChanges')}
                             </Text>
                         </View>
                     )}

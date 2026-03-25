@@ -103,6 +103,14 @@ export default function AIProductForm({ onBack }: AIProductFormProps) {
 
       console.log('Response status:', response.status);
 
+      // Check if response is HTML instead of JSON (middleware redirect issue)
+      const contentType = response.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
+        const text = await response.text();
+        console.error('Non-JSON response:', text.substring(0, 200));
+        throw new Error('فشل الاتصال بخادم الذكاء الاصطناعي. يرجى تحديث الصفحة والمحاولة مرة أخرى.');
+      }
+
       if (!response.ok) {
         const errorData = await response.json();
         console.error('API Error:', errorData);
@@ -125,7 +133,8 @@ export default function AIProductForm({ onBack }: AIProductFormProps) {
 
         console.log('Background removal response status:', removeBgResponse.status);
 
-        if (removeBgResponse.ok) {
+        const bgContentType = removeBgResponse.headers.get('content-type') || '';
+        if (removeBgResponse.ok && bgContentType.includes('application/json')) {
           const bgResult = await removeBgResponse.json();
           console.log('Background removal result:', bgResult);
           if (bgResult.imageUrl) {
@@ -133,8 +142,8 @@ export default function AIProductForm({ onBack }: AIProductFormProps) {
             bgWasRemoved = true;
           }
         } else {
-          const errorData = await removeBgResponse.json();
-          console.error('Background removal failed:', errorData);
+          const errorText = await removeBgResponse.text();
+          console.error('Background removal failed:', errorText.substring(0, 200));
         }
       } catch (bgError: any) {
         console.error('Background removal error:', bgError.message);

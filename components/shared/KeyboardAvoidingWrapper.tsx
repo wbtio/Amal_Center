@@ -12,20 +12,21 @@ export const KeyboardAvoidingWrapper = ({
   children,
   contentContainerStyle,
   style,
-  keyboardVerticalOffset = Platform.OS === 'ios' ? 100 : 0
+  keyboardVerticalOffset = Platform.OS === 'ios' ? 90 : 0,
 }: Props) => {
   return (
     <KeyboardAvoidingView
       style={[{ flex: 1 }, style]}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={keyboardVerticalOffset}
     >
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={contentContainerStyle}
         keyboardShouldPersistTaps="handled"
-        keyboardDismissMode="interactive"
-        automaticallyAdjustKeyboardInsets={true}
+        keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
+        automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
+        bounces={false}
       >
         {children}
       </ScrollView>

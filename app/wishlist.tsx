@@ -1,4 +1,5 @@
-import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, Image, Alert } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, Image } from 'react-native';
+import { showToast } from '../components/ui/Toast';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -80,9 +81,9 @@ export default function WishlistScreen() {
             if (error) throw error;
         } catch (error) {
             fetchWishlist();
-            Alert.alert(
-                language === 'ar' ? 'خطأ' : 'Error',
-                language === 'ar' ? 'فشل في إزالة المنتج' : 'Failed to remove product'
+            showToast(
+                language === 'ar' ? 'فشل في إزالة المنتج' : 'Failed to remove product',
+                'error'
             );
         }
     };
@@ -109,14 +110,13 @@ export default function WishlistScreen() {
 
             addToCart(productData as any, 1);
 
-            Alert.alert(
-                language === 'ar' ? 'تمت الإضافة' : 'Added',
+            showToast(
                 language === 'ar' ? 'تم إضافة المنتج إلى السلة' : 'Product added to cart'
             );
         } catch (error: any) {
-            Alert.alert(
-                language === 'ar' ? 'خطأ' : 'Error',
-                error.message || (language === 'ar' ? 'فشل في إضافة المنتج' : 'Failed to add product')
+            showToast(
+                error.message || (language === 'ar' ? 'فشل في إضافة المنتج' : 'Failed to add product'),
+                'error'
             );
         }
     };

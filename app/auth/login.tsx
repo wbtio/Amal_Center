@@ -1,12 +1,17 @@
-import { View, Text, TextInput, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
+import { Alert, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useForm, Controller } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Ionicons } from '@expo/vector-icons';
 import * as z from 'zod';
-import { supabase } from '../../lib/supabase';
 import { useState } from 'react';
+import { supabase } from '../../lib/supabase';
+import {
+  AuthField,
+  AuthPrimaryButton,
+  AuthScaffold,
+  AuthSwitchPrompt,
+} from '../../components/auth/AuthUI';
 
 const loginSchema = z.object({
   email: z.string().email('البريد الإلكتروني غير صحيح'),
@@ -21,18 +26,30 @@ const getErrorMessage = (error: string) => {
     'Email not confirmed': 'يرجى تأكيد بريدك الإلكتروني أولاً',
     'Invalid email or password': 'البريد الإلكتروني أو كلمة المرور غير صحيحة',
   };
+
   return errorMessages[error] || 'حدث خطأ، يرجى المحاولة مرة أخرى';
 };
 
 export default function LoginScreen() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const { control, handleSubmit, formState: { errors } } = useForm<LoginFormData>({
+  const [showPassword, setShowPassword] = useState(false);
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+    },
   });
 
   const onSubmit = async (data: LoginFormData) => {
     setLoading(true);
+
     const { error } = await supabase.auth.signInWithPassword({
       email: data.email.trim().toLowerCase(),
       password: data.password,
@@ -49,85 +66,97 @@ export default function LoginScreen() {
             { text: 'إلغاء', style: 'cancel' },
             {
               text: 'نعم، تفعيل الحساب',
-              onPress: () => router.push({ pathname: '/auth/verify', params: { email: data.email } })
-            }
+              onPress: () =>
+                router.push({
+                  pathname: '/auth/verify',
+                  params: { email: data.email.trim().toLowerCase() },
+                }),
+            },
           ]
         );
       } else {
         Alert.alert('خطأ', getErrorMessage(error.message));
       }
-    } else {
-      router.replace('/(tabs)/profile');
+
+      return;
     }
+
+    router.replace('/(tabs)/profile');
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-background p-6 justify-center">
-      <TouchableOpacity onPress={() => router.back()} className="absolute top-12 left-6 z-10">
-        <Ionicons name="arrow-back" size={24} color="#212121" />
-      </TouchableOpacity>
-
-      <Text className="font-ibm-bold text-2xl text-primary text-center mb-2">تسجيل الدخول</Text>
-      <Text className="font-ibm text-text-secondary text-center mb-8">مرحباً بعودتك إلى الأمل ماركت</Text>
-
-      {/* Email */}
-      <View className="mb-4">
-        <Text className="font-ibm text-right mb-1 text-text-secondary">البريد الإلكتروني</Text>
-        <Controller
-          control={control}
-          name="email"
-          render={({ field: { onChange, value } }) => (
-            <TextInput
-              className="bg-gray-50 border border-gray-200 rounded-lg p-3 font-ibm"
-              style={{ textAlign: 'left', writingDirection: 'ltr' }}
-              placeholder="example@email.com"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              value={value}
-              onChangeText={onChange}
-            />
-          )}
+    <AuthScaffold
+      title="تسجيل الدخول"
+      subtitle="ادخل إلى حسابك لمتابعة طلباتك، عناوينك المفضلة، وكل ما يخص تجربة التسوق في الأمل سنتر."
+      footer={
+        <AuthSwitchPrompt
+          prompt="ليس لديك حساب؟"
+          actionLabel="أنشئ حساباً الآن"
+          onPress={() => router.push('/auth/register')}
         />
-        {errors.email && <Text className="text-danger text-xs text-right mt-1 font-ibm">{errors.email.message}</Text>}
-      </View>
-
-      {/* Password */}
-      <View className="mb-6">
-        <Text className="font-ibm text-right mb-1 text-text-secondary">كلمة المرور</Text>
-        <Controller
-          control={control}
-          name="password"
-          render={({ field: { onChange, value } }) => (
-            <TextInput
-              className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-right font-ibm"
-              placeholder="******"
-              secureTextEntry
-              value={value}
-              onChangeText={onChange}
-            />
-          )}
-        />
-        {errors.password && <Text className="text-danger text-xs text-right mt-1 font-ibm">{errors.password.message}</Text>}
-      </View>
-
-      <TouchableOpacity
-        className="bg-primary w-full py-4 rounded-xl items-center mb-4"
-        onPress={handleSubmit(onSubmit)}
-        disabled={loading}
-      >
-        {loading ? (
-          <ActivityIndicator color="white" />
-        ) : (
-          <Text className="text-white font-ibm-bold text-lg">دخول</Text>
+      }
+    >
+      <Controller
+        control={control}
+        name="email"
+        render={({ field: { onChange, value } }) => (
+          <AuthField
+            label="البريد الإلكتروني"
+            iconName="mail-outline"
+            error={errors.email?.message}
+            forceLTR
+            placeholder="example@email.com"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false}
+            autoComplete="email"
+            textContentType="emailAddress"
+            value={value}
+            onChangeText={(text) => onChange(text.replace(/\s+/g, ''))}
+          />
         )}
-      </TouchableOpacity>
+      />
 
-      <View className="flex-row justify-center">
-        <TouchableOpacity onPress={() => router.push('/auth/register')}>
-          <Text className="text-primary font-ibm-bold">أنشئ حساباً الآن</Text>
-        </TouchableOpacity>
-        <Text className="font-ibm text-text-secondary mx-1">ليس لديك حساب؟</Text>
-      </View>
-    </SafeAreaView>
+      <Controller
+        control={control}
+        name="password"
+        render={({ field: { onChange, value } }) => (
+          <AuthField
+            label="كلمة المرور"
+            iconName="lock-closed-outline"
+            error={errors.password?.message}
+            placeholder="أدخل كلمة المرور"
+            secureTextEntry={!showPassword}
+            autoCorrect={false}
+            autoCapitalize="none"
+            autoComplete="password"
+            textContentType="password"
+            value={value}
+            onChangeText={onChange}
+            trailing={
+              <TouchableOpacity
+                accessibilityRole="button"
+                accessibilityLabel={showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
+                onPress={() => setShowPassword((current) => !current)}
+                style={{ minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' }}
+              >
+                <Ionicons
+                  name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                  size={20}
+                  color="#617167"
+                />
+              </TouchableOpacity>
+            }
+          />
+        )}
+      />
+
+      <AuthPrimaryButton
+        label="دخول إلى الحساب"
+        iconName="log-in-outline"
+        onPress={handleSubmit(onSubmit)}
+        loading={loading}
+      />
+    </AuthScaffold>
   );
 }

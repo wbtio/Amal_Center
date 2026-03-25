@@ -6,6 +6,7 @@ import { useRouter } from 'expo-router';
 import { useCartStore } from '../../store/cartStore';
 import { Product } from '../../hooks/useSupabase';
 import { useCurrency, useLanguage } from '../../contexts';
+import { showToast } from './Toast';
 
 interface ProductCardProps {
   product: Product;
@@ -22,6 +23,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, showDiscount 
   const handleAddToCart = (e: any) => {
     e.stopPropagation();
     addItem(product);
+    showToast(language === 'ar' ? 'تم إضافة المنتج إلى السلة' : 'Product added to cart');
   };
 
   return (

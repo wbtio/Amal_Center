@@ -70,7 +70,7 @@ export default function CategoriesScreen() {
             transition={200}
           />
         ) : (
-          <Ionicons name="grid-outline" size={28} color="#3F51B5" />
+          <Ionicons name={(item.icon as any) || "grid-outline"} size={28} color="#2E7D32" />
         )}
       </View>
     </TouchableOpacity>

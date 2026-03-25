@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, Text, Dimensions } from 'react-native';
+import { View, Text, useWindowDimensions } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -7,13 +7,12 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Image } from 'expo-image';
 
-const { width, height } = Dimensions.get('window');
-
 interface SplashScreenProps {
   onFinish: () => void;
 }
 
 export default function SplashScreen({ onFinish }: SplashScreenProps) {
+  const { width } = useWindowDimensions();
   const contentOpacity = useSharedValue(0);
 
   useEffect(() => {

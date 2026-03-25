@@ -131,10 +131,15 @@ export const PriceSlider: React.FC<PriceSliderProps> = ({
         <View 
           style={[
             styles.trackFill,
-            {
-              left: `${fillPercentage.start}%`,
-              width: `${fillPercentage.width}%`,
-            }
+            isRTL
+              ? {
+                  right: `${fillPercentage.start}%`,
+                  width: `${fillPercentage.width}%`,
+                }
+              : {
+                  left: `${fillPercentage.start}%`,
+                  width: `${fillPercentage.width}%`,
+                }
           ]} 
         />
       </View>

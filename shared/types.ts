@@ -53,6 +53,9 @@ export interface Database {
                     total_iqd: number;
                     total_usd: number;
                     delivery_cost_iqd: number;
+                    coupon_id: string | null;
+                    coupon_code: string | null;
+                    discount_amount: number;
                     status: OrderStatus;
                     payment_method: PaymentMethod;
                     payment_status: PaymentStatus;
@@ -132,16 +135,20 @@ export interface Database {
                     full_name: string | null;
                     phone: string | null;
                     avatar_url: string | null;
-                    role: string;
+                    notifications_enabled: boolean | null;
+                    role: 'customer' | 'admin' | 'products_manager';
                     created_at: string;
+                    updated_at: string | null;
                 };
                 Insert: {
                     id: string;
                     full_name?: string | null;
                     phone?: string | null;
                     avatar_url?: string | null;
+                    notifications_enabled?: boolean | null;
                     role?: string;
                     created_at?: string;
+                    updated_at?: string | null;
                 };
                 Update: Partial<Database['public']['Tables']['profiles']['Insert']>;
             };
@@ -157,6 +164,38 @@ export interface Database {
                     product_id: string;
                 };
                 Update: Partial<Database['public']['Tables']['wishlist']['Insert']>;
+            };
+            addresses: {
+                Row: {
+                    id: string;
+                    user_id: string;
+                    name: string;
+                    city: string;
+                    area: string;
+                    street: string;
+                    phone: string;
+                    type: 'home' | 'work';
+                    is_default: boolean;
+                    created_at: string;
+                    updated_at: string;
+                };
+                Insert: Omit<Database['public']['Tables']['addresses']['Row'], 'id' | 'created_at' | 'updated_at'>;
+                Update: Partial<Database['public']['Tables']['addresses']['Insert']>;
+            };
+            notifications: {
+                Row: {
+                    id: string;
+                    user_id: string;
+                    title: string;
+                    title_ar: string | null;
+                    message: string;
+                    message_ar: string | null;
+                    type: 'general' | 'order' | 'promo' | 'system';
+                    is_read: boolean;
+                    created_at: string;
+                };
+                Insert: Omit<Database['public']['Tables']['notifications']['Row'], 'id' | 'created_at'>;
+                Update: Partial<Database['public']['Tables']['notifications']['Insert']>;
             };
         };
         Views: {
@@ -200,6 +239,12 @@ export type ProfileUpdate = Database['public']['Tables']['profiles']['Update'];
 
 export type Wishlist = Database['public']['Tables']['wishlist']['Row'];
 export type WishlistInsert = Database['public']['Tables']['wishlist']['Insert'];
+
+export type Address = Database['public']['Tables']['addresses']['Row'];
+export type AddressInsert = Database['public']['Tables']['addresses']['Insert'];
+
+export type Notification = Database['public']['Tables']['notifications']['Row'];
+export type NotificationInsert = Database['public']['Tables']['notifications']['Insert'];
 
 // =============================================================================
 // Enums and Status Types

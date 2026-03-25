@@ -1,9 +1,10 @@
-import { View, Text, TouchableOpacity, Alert, ActivityIndicator, BackHandler, Modal, Keyboard, ScrollView, Animated } from 'react-native';
-import { useRouter } from 'expo-router';
+import { View, Text, TouchableOpacity, Alert, ActivityIndicator, BackHandler, Modal, Keyboard, Animated } from 'react-native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { useCartStore } from '../store/cartStore';
 import { supabase } from '../lib/supabase';
 import { useState, useEffect, useRef } from 'react';
@@ -23,9 +24,15 @@ interface CouponInfo {
 
 export default function CheckoutScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams<{
+    couponId?: string;
+    couponCode?: string;
+    discountAmount?: string;
+  }>();
   const { items, totalIQD, clearCart } = useCartStore();
   const { t, language, isRTL } = useLanguage();
   const { formatPrice, exchangeRate } = useCurrency();
+  const insets = useSafeAreaInsets();
 
   const [currentStep, setCurrentStep] = useState(0);
   const [deliveryType, setDeliveryType] = useState<DeliveryType>('scheduled');
@@ -111,6 +118,18 @@ export default function CheckoutScreen() {
     loadData();
   }, []);
 
+  useEffect(() => {
+    const parsedDiscount = Number(params.discountAmount || 0);
+
+    if (params.couponCode && parsedDiscount > 0) {
+      setCouponInfo({
+        couponId: params.couponId || null,
+        couponCode: params.couponCode,
+        discountAmount: parsedDiscount,
+      });
+    }
+  }, [params.couponCode, params.couponId, params.discountAmount]);
+
   const getDeliveryCost = (type: DeliveryType): number => {
     switch (type) {
       case 'express': return 5000;
@@ -159,6 +178,9 @@ export default function CheckoutScreen() {
           total_iqd: finalTotalIQD,
           total_usd: finalTotalUSD,
           delivery_cost_iqd: deliveryCostIQD,
+          coupon_id: couponInfo.couponId,
+          coupon_code: couponInfo.couponCode,
+          discount_amount: discountAmount,
           status: 'pending',
           payment_method: paymentMethod,
           payment_status: paymentMethod === 'cod' ? 'pending' : 'awaiting_payment',
@@ -187,6 +209,32 @@ export default function CheckoutScreen() {
       if (itemsError) {
         await supabase.from('orders').delete().eq('id', order.id);
         throw itemsError;
+      }
+
+      if (couponInfo.couponId && couponInfo.couponCode && discountAmount > 0) {
+        const { error: usageError } = await supabase.from('coupon_usages').insert({
+          coupon_id: couponInfo.couponId,
+          user_id: userId,
+          order_id: order.id,
+          discount_amount: discountAmount,
+        });
+
+        if (usageError) {
+          await supabase.from('order_items').delete().eq('order_id', order.id);
+          await supabase.from('orders').delete().eq('id', order.id);
+          throw usageError;
+        }
+
+        const { data: couponRecord } = await supabase
+          .from('coupons')
+          .select('used_count')
+          .eq('id', couponInfo.couponId)
+          .single();
+
+        await supabase
+          .from('coupons')
+          .update({ used_count: (couponRecord?.used_count || 0) + 1 })
+          .eq('id', couponInfo.couponId);
       }
 
       for (const item of items) {
@@ -221,12 +269,24 @@ export default function CheckoutScreen() {
           <PaymentStep selectedMethod={paymentMethod} onSelect={setPaymentMethod} />
         </>
       );
-      case 2: return <ReviewStep address={getValues()} deliveryType={deliveryType} paymentMethod={paymentMethod} deliveryCost={getDeliveryCost(deliveryType)} />;
+      case 2: return (
+        <ReviewStep
+          address={getValues()}
+          deliveryType={deliveryType}
+          paymentMethod={paymentMethod}
+          deliveryCost={getDeliveryCost(deliveryType)}
+          couponCode={couponInfo.couponCode}
+          discountAmount={couponInfo.discountAmount}
+        />
+      );
       default: return null;
     }
   };
 
   if (items.length === 0 && !isSubmitting && !orderCompleted) return null;
+
+  const footerPaddingBottom = Math.max(insets.bottom, 12) + 12;
+  const footerHeight = 98 + footerPaddingBottom;
 
   const getStepButtonText = () => {
     if (currentStep === 0) return language === 'ar' ? 'اختر طريقة الدفع' : 'Continue to Payment';
@@ -317,19 +377,19 @@ export default function CheckoutScreen() {
       </View>
 
       {/* Form Area */}
-      <ScrollView
+      <KeyboardAwareScrollView
+        bottomOffset={24}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="interactive"
-        contentContainerStyle={{ padding: 16, paddingBottom: 120 }}
+        contentContainerStyle={{ padding: 16, paddingBottom: isKeyboardVisible ? 24 : footerHeight + 16 }}
         showsVerticalScrollIndicator={false}
-        automaticallyAdjustKeyboardInsets={true}
       >
         {renderStepContent()}
-      </ScrollView>
+      </KeyboardAwareScrollView>
 
       {/* Enhanced Footer */}
       {!isKeyboardVisible && (
-        <View className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-5 pt-3 pb-6" style={{ elevation: 15, shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 12, shadowOffset: { height: -4, width: 0 } }}>
+        <View className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-5 pt-3" style={{ paddingBottom: footerPaddingBottom, elevation: 15, shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 12, shadowOffset: { height: -4, width: 0 } }}>
           {/* Price summary row */}
           <View className={`flex-row items-center justify-between mb-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
             <View className={`${isRTL ? 'items-end' : 'items-start'}`}>

@@ -101,7 +101,7 @@ export default function AddAddressScreen() {
 
             <ScrollView
                 style={{ flex: 1 }}
-                contentContainerStyle={{ padding: 16, paddingBottom: 180 }}
+                contentContainerStyle={{ padding: 16, paddingBottom: 164 + Math.max(insets.bottom, 16) }}
                 showsVerticalScrollIndicator={false}
                 keyboardShouldPersistTaps="handled"
                 keyboardDismissMode="interactive"
@@ -192,7 +192,7 @@ export default function AddAddressScreen() {
 
             {/* Save Button */}
             <View className="px-4 py-4 bg-white border-t border-gray-100"
-                style={{ elevation: 5, shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 6, shadowOffset: { width: 0, height: -3 } }}>
+                style={{ paddingBottom: Math.max(insets.bottom, 16), elevation: 5, shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 6, shadowOffset: { width: 0, height: -3 } }}>
                 <TouchableOpacity
                     className={`py-4 rounded-xl items-center justify-center ${loading ? 'bg-gray-300' : 'bg-primary'}`}
                     style={!loading ? { elevation: 4, shadowColor: '#2E7D32', shadowOpacity: 0.3, shadowRadius: 8, shadowOffset: { width: 0, height: 4 } } : {}}

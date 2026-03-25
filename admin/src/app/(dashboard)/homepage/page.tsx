@@ -85,12 +85,10 @@ const SECTION_TYPES: Record<string, { name: string; description: string }> = {
     'category_products': { 
         name: 'قسم منتجات', 
         description: 'يعرض منتجات من قسم معين تختاره' 
-    },
-    'custom': { 
-        name: 'مخصص', 
-        description: 'قسم مخصص' 
     }
 };
+
+const SUPPORTED_SECTION_TYPES = new Set(Object.keys(SECTION_TYPES));
 
 const PROMO_SLOTS = [
     { id: 'slot_1', name: 'بعد التصنيفات', afterSection: 'categories' },
@@ -115,6 +113,7 @@ export default function HomepageManagementPage() {
     const [sections, setSections] = useState<HomeSection[]>([]);
     const [promoBanners, setPromoBanners] = useState<PromoBanner[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
+    const [unsupportedSections, setUnsupportedSections] = useState<HomeSection[]>([]);
 
     // Expanded states for accordion
     const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
@@ -136,7 +135,15 @@ export default function HomepageManagementPage() {
             ]);
 
             if (bannersRes.data) setBanners(bannersRes.data);
-            if (sectionsRes.data) setSections(sectionsRes.data);
+            if (sectionsRes.data) {
+                const unsupported = sectionsRes.data.filter(section => !SUPPORTED_SECTION_TYPES.has(section.type));
+                setUnsupportedSections(unsupported);
+                setSections(sectionsRes.data.map(section =>
+                    SUPPORTED_SECTION_TYPES.has(section.type)
+                        ? section
+                        : { ...section, active: false }
+                ));
+            }
             if (promoRes.data) setPromoBanners(promoRes.data);
             if (categoriesRes.data) setCategories(categoriesRes.data);
 
@@ -746,6 +753,12 @@ export default function HomepageManagementPage() {
                     {/* Sections Panel */}
                     {activePanel === 'sections' && (
                         <div className="max-w-3xl mx-auto space-y-4">
+                            {unsupportedSections.length > 0 && (
+                                <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800">
+                                    يوجد {unsupportedSections.length} قسم/أقسام بنوع غير مدعوم في التطبيق. تم إخفاؤها تلقائياً من النشر حتى لا يظهر فرق بين التطبيق ولوحة التحكم.
+                                </div>
+                            )}
+
                             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 md:mb-6">
                                 <div>
                                     <h2 className="text-base md:text-xl font-bold text-gray-800">أقسام الصفحة</h2>

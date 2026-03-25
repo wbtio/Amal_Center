@@ -82,6 +82,7 @@ export default function CategoryScreen() {
   // عدد الفلاتر النشطة
   const activeFiltersCount = (minPrice > 500 || maxPrice < 500000 ? 1 : 0) + 
     (inStockOnly ? 1 : 0);
+  const bottomSheetFooterPadding = Math.max(insets.bottom, 12) + 8;
 
   // عنصر القسم الفرعي
   const renderSubcategoryItem = (sub: Category, isViewAll: boolean = false) => (
@@ -138,10 +139,58 @@ export default function CategoryScreen() {
             transition={200}
           />
         ) : (
-          <Ionicons name="folder-outline" size={22} color="#9E9E9E" />
+          <Ionicons name={(sub.icon as any) || "folder-outline"} size={22} color="#2E7D32" />
         )}
       </View>
     </TouchableOpacity>
+  );
+
+  const renderFilterBar = () => (
+    <View className={`flex-row bg-white px-4 py-4 border-b border-gray-100 gap-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
+      <TouchableOpacity 
+        onPress={() => setShowSortModal(true)}
+        activeOpacity={0.7}
+        className={`flex-1 flex-row items-center justify-center h-14 rounded-2xl bg-gray-50 border border-gray-200 shadow-sm ${isRTL ? 'flex-row-reverse' : ''}`}
+      >
+        <View className="w-10 h-10 rounded-xl bg-white items-center justify-center shadow-sm mr-2 ml-2">
+          <Ionicons name="swap-vertical" size={20} color="#2E7D32" />
+        </View>
+        <Text className="font-ibm-bold text-[15px] text-gray-800" numberOfLines={1}>
+          {getCurrentSortLabel()}
+        </Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity 
+        onPress={() => setShowFilterModal(true)}
+        activeOpacity={0.7}
+        className={`flex-1 flex-row items-center justify-center h-14 rounded-2xl ${hasActiveFilters ? 'bg-white border border-gray-300 shadow-md' : 'bg-gray-50 border border-gray-200 shadow-sm'} ${isRTL ? 'flex-row-reverse' : ''}`}
+      >
+        <View className={`w-10 h-10 rounded-xl items-center justify-center shadow-sm mr-2 ml-2 ${hasActiveFilters ? 'bg-primary' : 'bg-white'}`}>
+          <Ionicons name="options-outline" size={20} color={hasActiveFilters ? 'white' : '#6B7280'} />
+        </View>
+        <Text className={`font-ibm-bold text-[15px] ${hasActiveFilters ? 'text-primary' : 'text-gray-800'}`}>
+          {language === 'ar' ? 'تصفية' : 'Filter'}
+        </Text>
+        {activeFiltersCount > 0 && (
+          <View className={`bg-red-600 w-6 h-6 rounded-full items-center justify-center absolute -top-1.5 border-2 border-white shadow-md ${isRTL ? '-left-1.5' : '-right-1.5'}`}>
+            <Text className="text-white text-[11px] font-bold">{activeFiltersCount}</Text>
+          </View>
+        )}
+      </TouchableOpacity>
+    </View>
+  );
+
+  const renderProductItem = ({ item, index }: { item: any; index: number }) => (
+    <View
+      style={{
+        width: '50%',
+        paddingLeft: isRTL ? 6 : index % 2 === 0 ? 0 : 6,
+        paddingRight: isRTL ? (index % 2 === 0 ? 0 : 6) : 6,
+        marginBottom: 12,
+      }}
+    >
+      <ProductCard product={item} width="100%" />
+    </View>
   );
 
   if (isCategoryLoading) {
@@ -210,9 +259,9 @@ export default function CategoryScreen() {
         </View>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false}>
+      {hasSubcategories ? (
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 12 }}>
         {/* قائمة الأقسام الفرعية */}
-        {hasSubcategories && (
           <View className="bg-white">
             {categoryData?.subcategories?.map((sub) => (
               <View key={sub.id}>
@@ -251,71 +300,38 @@ export default function CategoryScreen() {
               </Text>
             </TouchableOpacity>
           </View>
-        )}
-
-        {/* قسم المنتجات - إذا لم تكن هناك أقسام فرعية */}
-        {!hasSubcategories && (
-          <>
-            {/* شريط الترتيب والفلترة - تصميم عصري وكبير جداً */}
-            <View className={`flex-row bg-white px-4 py-4 border-b border-gray-100 gap-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
-              <TouchableOpacity 
-                onPress={() => setShowSortModal(true)}
-                activeOpacity={0.7}
-                className={`flex-1 flex-row items-center justify-center h-14 rounded-2xl bg-gray-50 border border-gray-200 shadow-sm ${isRTL ? 'flex-row-reverse' : ''}`}
-              >
-                <View className="w-10 h-10 rounded-xl bg-white items-center justify-center shadow-sm mr-2 ml-2">
-                  <Ionicons name="swap-vertical" size={20} color="#2E7D32" />
-                </View>
-                <Text className="font-ibm-bold text-[15px] text-gray-800" numberOfLines={1}>
-                  {getCurrentSortLabel()}
-                </Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity 
-                onPress={() => setShowFilterModal(true)}
-                activeOpacity={0.7}
-                className={`flex-1 flex-row items-center justify-center h-14 rounded-2xl ${hasActiveFilters ? 'bg-white border border-gray-300 shadow-md' : 'bg-gray-50 border border-gray-200 shadow-sm'} ${isRTL ? 'flex-row-reverse' : ''}`}
-              >
-                <View className={`w-10 h-10 rounded-xl items-center justify-center shadow-sm mr-2 ml-2 ${hasActiveFilters ? 'bg-primary' : 'bg-white'}`}>
-                  <Ionicons name="options-outline" size={20} color={hasActiveFilters ? 'white' : '#6B7280'} />
-                </View>
-                <Text className={`font-ibm-bold text-[15px] ${hasActiveFilters ? 'text-primary' : 'text-gray-800'}`}>
-                  {language === 'ar' ? 'تصفية' : 'Filter'}
-                </Text>
-                {activeFiltersCount > 0 && (
-                  <View className={`bg-red-600 w-6 h-6 rounded-full items-center justify-center absolute -top-1.5 -right-1.5 border-2 border-white shadow-md`}>
-                    <Text className="text-white text-[11px] font-bold">{activeFiltersCount}</Text>
-                  </View>
-                )}
-              </TouchableOpacity>
-            </View>
-
-            {/* قائمة المنتجات */}
-            {isProductsLoading ? (
-              <View className="flex-1 justify-center items-center py-20">
-                <ActivityIndicator size="large" color="#3F51B5" />
-              </View>
-            ) : products && products.length > 0 ? (
-              <View className="flex-row flex-wrap p-3" style={{ flexDirection: isRTL ? 'row-reverse' : 'row' }}>
-                {products.map((item) => (
-                  <View key={item.id} style={{ width: '48%', marginBottom: 12, marginHorizontal: '1%' }}>
-                    <ProductCard product={item} width="100%" />
-                  </View>
-                ))}
-              </View>
-            ) : (
-              <View className="flex-1 justify-center items-center py-20">
-                <View className="w-24 h-24 rounded-full bg-gray-100 items-center justify-center mb-4">
-                  <Ionicons name="basket-outline" size={48} color="#D1D5DB" />
-                </View>
-                <Text className="font-ibm-bold text-gray-400 text-base">
-                  {t('category.noProducts')}
-                </Text>
-              </View>
-            )}
-          </>
-        )}
       </ScrollView>
+      ) : isProductsLoading ? (
+        <View className="flex-1">
+          {renderFilterBar()}
+          <View className="flex-1 justify-center items-center py-20">
+            <ActivityIndicator size="large" color="#3F51B5" />
+          </View>
+        </View>
+      ) : products && products.length > 0 ? (
+        <FlatList
+          data={products}
+          keyExtractor={(item) => item.id}
+          numColumns={2}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ padding: 12, paddingBottom: 24 }}
+          columnWrapperStyle={isRTL ? { flexDirection: 'row-reverse' } : undefined}
+          ListHeaderComponent={renderFilterBar}
+          renderItem={renderProductItem}
+        />
+      ) : (
+        <View className="flex-1">
+          {renderFilterBar()}
+          <View className="flex-1 justify-center items-center py-20">
+            <View className="w-24 h-24 rounded-full bg-gray-100 items-center justify-center mb-4">
+              <Ionicons name="basket-outline" size={48} color="#D1D5DB" />
+            </View>
+            <Text className="font-ibm-bold text-gray-400 text-base">
+              {t('category.noProducts')}
+            </Text>
+          </View>
+        </View>
+      )}
 
       {/* BottomSheet الترتيب */}
       <BottomSheet
@@ -331,7 +347,7 @@ export default function CategoryScreen() {
         </View>
         
         {/* Options */}
-        <View className="px-4 pb-8">
+        <View className="px-4 pb-4">
           {sortOptions.map((option, index) => (
             <TouchableOpacity
               key={option.value}
@@ -424,7 +440,7 @@ export default function CategoryScreen() {
         </ScrollView>
         
         {/* أزرار التطبيق وإعادة التعيين */}
-        <View className={`flex-row px-4 pt-4 pb-8 border-t border-gray-100 bg-white ${isRTL ? 'flex-row-reverse' : ''}`}>
+        <View className={`flex-row px-4 pt-4 border-t border-gray-100 bg-white ${isRTL ? 'flex-row-reverse' : ''}`} style={{ paddingBottom: bottomSheetFooterPadding }}>
           <TouchableOpacity 
             onPress={resetFilters}
             className="flex-1 py-3.5 border border-gray-300 rounded-xl items-center"

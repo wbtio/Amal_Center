@@ -12,10 +12,12 @@ import {
 } from '@expo-google-fonts/ibm-plex-sans-arabic';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
+import { KeyboardProvider } from 'react-native-keyboard-controller';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { LanguageProvider, CurrencyProvider } from '../contexts';
 import SplashScreen from '../components/SplashScreen';
+import { ToastProvider } from '../components/ui/Toast';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 ExpoSplashScreen.preventAutoHideAsync();
@@ -54,47 +56,52 @@ export default function RootLayout() {
       <QueryClientProvider client={queryClient}>
         <LanguageProvider>
           <CurrencyProvider>
-            <View style={{ flex: 1 }}>
-              <Stack
-                screenOptions={{
-                  headerShown: false,
-                  animation: 'fade',
-                }}
-              >
-                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                <Stack.Screen name="orders" options={{ headerShown: false }} />
-                <Stack.Screen name="auth/login" options={{ headerShown: false }} />
-                <Stack.Screen name="auth/register" options={{ headerShown: false }} />
-                <Stack.Screen name="auth/verify" options={{ headerShown: false }} />
-                <Stack.Screen name="order/[id]" options={{ headerShown: false }} />
-                <Stack.Screen name="addresses" options={{ headerShown: false }} />
-                <Stack.Screen name="address/add" options={{ headerShown: false }} />
-                <Stack.Screen name="wishlist" options={{ headerShown: false }} />
-                <Stack.Screen name="notifications" options={{ headerShown: false }} />
-                <Stack.Screen name="checkout" options={{ headerShown: false }} />
-                <Stack.Screen name="search" options={{ headerShown: false }} />
-                <Stack.Screen name="category/[id]" options={{ headerShown: false }} />
-                <Stack.Screen name="product/[id]" options={{ headerShown: false }} />
-              </Stack>
+            <ToastProvider>
+              <KeyboardProvider>
+                <View style={{ flex: 1 }}>
+                  <Stack
+                    screenOptions={{
+                      headerShown: false,
+                      animation: 'fade',
+                    }}
+                  >
+                    <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                    <Stack.Screen name="orders" options={{ headerShown: false }} />
+                    <Stack.Screen name="auth/login" options={{ headerShown: false }} />
+                    <Stack.Screen name="auth/register" options={{ headerShown: false }} />
+                    <Stack.Screen name="auth/verify" options={{ headerShown: false }} />
+                    <Stack.Screen name="order/[id]" options={{ headerShown: false }} />
+                    <Stack.Screen name="addresses" options={{ headerShown: false }} />
+                    <Stack.Screen name="address/add" options={{ headerShown: false }} />
+                    <Stack.Screen name="wishlist" options={{ headerShown: false }} />
+                    <Stack.Screen name="notifications" options={{ headerShown: false }} />
+                    <Stack.Screen name="checkout" options={{ headerShown: false }} />
+                    <Stack.Screen name="search" options={{ headerShown: false }} />
+                    <Stack.Screen name="category/[id]" options={{ headerShown: false }} />
+                    <Stack.Screen name="product/[id]" options={{ headerShown: false }} />
+                  </Stack>
 
-              {/* Loading overlay - shown while fonts are loading */}
-              {!loaded && (
-                <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center', backgroundColor: '#2E7D32', zIndex: 100 }}>
-                  <ActivityIndicator size="large" color="#FFFFFF" />
-                </View>
-              )}
+                  {/* Loading overlay - shown while fonts are loading */}
+                  {!loaded && (
+                    <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center', backgroundColor: '#2E7D32', zIndex: 100 }}>
+                      <ActivityIndicator size="large" color="#FFFFFF" />
+                    </View>
+                  )}
 
-              {/* Splash screen overlay - shown after fonts load */}
-              {loaded && showSplash && (
-                <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 99 }}>
-                  <SplashScreen onFinish={() => setShowSplash(false)} />
+                  {/* Splash screen overlay - shown after fonts load */}
+                  {loaded && showSplash && (
+                    <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 99 }}>
+                      <SplashScreen onFinish={() => setShowSplash(false)} />
+                    </View>
+                  )}
+
+                  <StatusBar style="auto" />
                 </View>
-              )}
-            </View>
+              </KeyboardProvider>
+            </ToastProvider>
           </CurrencyProvider>
         </LanguageProvider>
       </QueryClientProvider>
-      <StatusBar style="auto" />
     </SafeAreaProvider>
   );
 }

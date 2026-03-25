@@ -21,6 +21,7 @@ export function Header({ title }: { title: string }) {
   const [isSearching, setIsSearching] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
   const searchRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -31,6 +32,19 @@ export function Header({ title }: { title: string }) {
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    const fetchUnreadNotifications = async () => {
+      const { count } = await supabase
+        .from('notifications')
+        .select('*', { count: 'exact', head: true })
+        .eq('is_read', false);
+
+      setUnreadNotifications(count || 0);
+    };
+
+    fetchUnreadNotifications();
   }, []);
 
   useEffect(() => {
@@ -228,9 +242,17 @@ export function Header({ title }: { title: string }) {
             <Search size={20} />
           </button>
 
-          <button className="relative p-2 rounded-xl hover:bg-gray-50 transition-colors">
+          <button
+            onClick={() => router.push('/notifications')}
+            className="relative p-2 rounded-xl hover:bg-gray-50 transition-colors"
+            aria-label="الإشعارات"
+          >
             <Bell size={20} className="text-gray-500" />
-            <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+            {unreadNotifications > 0 && (
+              <span className="absolute top-1 right-1 min-w-[18px] h-[18px] px-1 bg-red-500 rounded-full border-2 border-white text-[10px] text-white flex items-center justify-center font-bold">
+                {unreadNotifications > 99 ? '99+' : unreadNotifications}
+              </span>
+            )}
           </button>
 
           <div className="hidden sm:flex items-center gap-3 border-r border-gray-100 pr-4 mr-2">

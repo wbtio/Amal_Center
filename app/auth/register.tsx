@@ -1,257 +1,323 @@
-import { View, Text, TextInput, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
+import { Alert, TouchableOpacity, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useForm, Controller } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Ionicons } from '@expo/vector-icons';
 import * as z from 'zod';
+import { useMemo, useState } from 'react';
 import { supabase } from '../../lib/supabase';
-import { useState } from 'react';
+import {
+  AuthField,
+  AuthPrimaryButton,
+  AuthScaffold,
+  AuthSwitchPrompt,
+} from '../../components/auth/AuthUI';
+import { useLanguage } from '../../contexts';
 
-const registerSchema = z.object({
-  fullName: z.string().min(3, 'الاسم يجب أن يكون 3 أحرف على الأقل'),
-  phone: z.string().regex(/^(07[3-9]\d{8}|\+9647[3-9]\d{8})$/, 'رقم الهاتف غير صحيح (مثال: 07XXXXXXXX)'),
-  email: z.string().email('البريد الإلكتروني غير صحيح'),
-  password: z.string().min(6, 'كلمة المرور يجب أن تكون 6 أحرف على الأقل'),
-  confirmPassword: z.string().min(6, 'تأكيد كلمة المرور مطلوب'),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "كلمات المرور غير متطابقة",
-  path: ["confirmPassword"],
-});
+const buildRegisterSchema = (t: (key: string, options?: object) => string) =>
+  z
+    .object({
+      fullName: z.string().min(3, t('auth.register.validation.fullNameMin')),
+      phone: z
+        .string()
+        .regex(/^(07[3-9]\d{8}|\+9647[3-9]\d{8})$/, t('auth.register.validation.invalidPhone')),
+      email: z.string().email(t('auth.register.validation.invalidEmail')),
+      password: z.string().min(6, t('auth.register.validation.passwordMin')),
+      confirmPassword: z.string().min(6, t('auth.register.validation.confirmPasswordRequired')),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: t('auth.register.validation.passwordMismatch'),
+      path: ['confirmPassword'],
+    });
 
-type RegisterFormData = z.infer<typeof registerSchema>;
+type RegisterFormData = z.infer<ReturnType<typeof buildRegisterSchema>>;
 
-const getErrorMessage = (error: string) => {
+const getErrorMessage = (error: string, t: (key: string, options?: object) => string) => {
   const errorMessages: Record<string, string> = {
-    'User already registered': 'هذا البريد الإلكتروني مسجل مسبقاً',
-    'Password should be at least 6 characters': 'كلمة المرور يجب أن تكون 6 أحرف على الأقل',
-    'Invalid API key': 'خطأ في الاتصال بالخادم، يرجى المحاولة لاحقاً',
-    'Unable to validate email address': 'البريد الإلكتروني غير صالح',
-    'Signup requires a valid password': 'كلمة المرور غير صالحة',
-    'Email rate limit exceeded': 'تم تجاوز الحد المسموح، يرجى المحاولة بعد قليل',
+    'User already registered': t('auth.register.errors.alreadyRegistered'),
+    'Password should be at least 6 characters': t('auth.register.errors.passwordTooShort'),
+    'Invalid API key': t('auth.register.errors.invalidApiKey'),
+    'Unable to validate email address': t('auth.register.errors.invalidEmailAddress'),
+    'Signup requires a valid password': t('auth.register.errors.invalidPassword'),
+    'Email rate limit exceeded': t('auth.register.errors.rateLimit'),
   };
-  
-  // Check if error contains specific keywords
+
   if (error.includes('already registered') || error.includes('already exists')) {
-    return 'هذا البريد الإلكتروني مسجل مسبقاً';
+    return t('auth.register.errors.alreadyRegistered');
   }
+
   if (error.includes('Invalid') || error.includes('invalid')) {
-    return 'البيانات المدخلة غير صحيحة، يرجى التحقق منها';
+    return t('auth.register.errors.invalidData');
   }
+
   if (error.includes('network') || error.includes('Network')) {
-    return 'خطأ في الاتصال بالإنترنت، يرجى التحقق من الاتصال';
+    return t('auth.register.errors.network');
   }
+
   if (error.includes('confirmation email') || error.includes('sending email')) {
-    return undefined; // Don't show error for email confirmation issues
+    return undefined;
   }
-  
-  return errorMessages[error] || `خطأ: ${error}`;
+
+  return errorMessages[error] || `${t('auth.register.errors.fallbackPrefix')}: ${error}`;
 };
 
 export default function RegisterScreen() {
   const router = useRouter();
+  const { t, language } = useLanguage();
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const registerSchema = useMemo(() => buildRegisterSchema(t), [language, t]);
 
-  const { control, handleSubmit, formState: { errors } } = useForm<RegisterFormData>({
+  const {
+    control,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
+    defaultValues: {
+      fullName: '',
+      phone: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+    },
   });
+  const passwordValue = watch('password');
+  const confirmPasswordValue = watch('confirmPassword');
+  const isConfirmPasswordMatched =
+    confirmPasswordValue.trim().length >= 6 && confirmPasswordValue === passwordValue;
 
   const onSubmit = async (data: RegisterFormData) => {
     try {
       setLoading(true);
-      console.log('Starting signup process...');
-      console.log('Email:', data.email.trim().toLowerCase());
+
+      const normalizedEmail = data.email.trim().toLowerCase();
+      const normalizedPhone = data.phone.trim();
+      const normalizedName = data.fullName.trim();
 
       const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: data.email.trim().toLowerCase(),
+        email: normalizedEmail,
         password: data.password,
         options: {
           data: {
-            full_name: data.fullName.trim(),
-            name_ar: data.fullName.trim(),
-            phone: data.phone.trim(),
-          }
-        }
+            full_name: normalizedName,
+            name_ar: normalizedName,
+            phone: normalizedPhone,
+          },
+        },
       });
-
-      console.log('Signup response:', { authData, authError });
 
       setLoading(false);
 
-      // Check if error is email confirmation related (user was created but email failed)
-      const isEmailConfirmationError = authError?.message?.includes('confirmation email') || 
-                                       authError?.message?.includes('sending email');
+      const isEmailConfirmationError =
+        authError?.message?.includes('confirmation email') ||
+        authError?.message?.includes('sending email');
 
       if (authError && !isEmailConfirmationError) {
-        console.error('Signup error:', authError);
-        const errorMsg = getErrorMessage(authError.message);
+        const errorMsg = getErrorMessage(authError.message, t);
         if (errorMsg) {
-          Alert.alert('خطأ', errorMsg);
+          Alert.alert(t('auth.register.alerts.errorTitle'), errorMsg);
         }
         return;
       }
 
-      // If email confirmation error but user was created, proceed with login
       if (isEmailConfirmationError && authData.user) {
-        console.log('User created but email confirmation failed - proceeding to login');
         Alert.alert(
-          'تم إنشاء الحساب',
-          'تم إنشاء حسابك بنجاح! يمكنك تسجيل الدخول الآن.\n\nملاحظة: قد لا تتلقى بريد التأكيد بسبب إعدادات الخادم.',
-          [
-            { 
-              text: 'تسجيل الدخول', 
-              onPress: () => router.replace('/auth/login')
-            }
-          ]
+          t('auth.register.alerts.accountCreatedTitle'),
+          t('auth.register.alerts.accountCreatedWithoutEmailConfirmation'),
+          [{ text: t('auth.register.alerts.loginAction'), onPress: () => router.replace('/auth/login') }]
         );
         return;
       }
 
-      // Check if successful signup requires verification
       if (authData.user && !authData.session) {
-        console.log('User created, needs verification');
-        // Redirect to Verify Page
         router.push({
           pathname: '/auth/verify',
-          params: { email: data.email.trim().toLowerCase() }
+          params: { email: normalizedEmail },
         });
       } else if (authData.session) {
-        console.log('User created with session');
-        Alert.alert('تم بنجاح', 'تم إنشاء حسابك بنجاح!', [
-          { text: 'حسناً', onPress: () => router.replace('/(tabs)/profile') }
+        Alert.alert(t('auth.register.alerts.successTitle'), t('auth.register.alerts.successMessage'), [
+          { text: t('auth.register.alerts.okAction'), onPress: () => router.replace('/(tabs)/profile') },
         ]);
       }
-    } catch (error) {
-      console.error('Unexpected error during signup:', error);
+    } catch {
       setLoading(false);
-      Alert.alert('خطأ', 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى');
+      Alert.alert(t('auth.register.alerts.errorTitle'), t('auth.register.alerts.unexpectedError'));
     }
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-background p-6 justify-center">
-      <TouchableOpacity onPress={() => router.back()} className="absolute top-12 left-6 z-10">
-        <Ionicons name="arrow-back" size={24} color="#212121" />
-      </TouchableOpacity>
-
-      <Text className="font-ibm-bold text-2xl text-primary text-center mb-2">إنشاء حساب جديد</Text>
-      <Text className="font-ibm text-text-secondary text-center mb-8">انضم إلينا واستمتع بتجربة تسوق مميزة</Text>
-
-      {/* Full Name */}
-      <View className="mb-4">
-        <Text className="font-ibm text-right mb-1 text-text-secondary">الاسم الكامل</Text>
-        <Controller
-          control={control}
-          name="fullName"
-          render={({ field: { onChange, value } }) => (
-            <TextInput
-              className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-right font-ibm"
-              placeholder="الاسم الكامل"
-              value={value}
-              onChangeText={onChange}
-            />
-          )}
+    <AuthScaffold
+      title={t('auth.register.title')}
+      subtitle={t('auth.register.subtitle')}
+      backAccessibilityLabel={t('auth.back')}
+      footer={
+        <AuthSwitchPrompt
+          prompt={t('auth.register.actions.footerPrompt')}
+          actionLabel={t('auth.register.actions.footerAction')}
+          onPress={() => router.push('/auth/login')}
         />
-        {errors.fullName && <Text className="text-danger text-xs text-right mt-1 font-ibm">{errors.fullName.message}</Text>}
-      </View>
-
-      {/* Phone Number */}
-      <View className="mb-4">
-        <Text className="font-ibm text-right mb-1 text-text-secondary">رقم الهاتف</Text>
-        <Controller
-          control={control}
-          name="phone"
-          render={({ field: { onChange, value } }) => (
-            <TextInput
-              className="bg-gray-50 border border-gray-200 rounded-lg p-3 font-ibm"
-              style={{ textAlign: 'left', writingDirection: 'ltr' }}
-              placeholder="07XXXXXXXX"
-              keyboardType="phone-pad"
-              value={value}
-              onChangeText={onChange}
-            />
-          )}
-        />
-        {errors.phone && <Text className="text-danger text-xs text-right mt-1 font-ibm">{errors.phone.message}</Text>}
-      </View>
-
-      {/* Email */}
-      <View className="mb-4">
-        <Text className="font-ibm text-right mb-1 text-text-secondary">البريد الإلكتروني</Text>
-        <Controller
-          control={control}
-          name="email"
-          render={({ field: { onChange, value } }) => (
-            <TextInput
-              className="bg-gray-50 border border-gray-200 rounded-lg p-3 font-ibm"
-              style={{ textAlign: 'left', writingDirection: 'ltr' }}
-              placeholder="example@email.com"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              value={value}
-              onChangeText={onChange}
-            />
-          )}
-        />
-        {errors.email && <Text className="text-danger text-xs text-right mt-1 font-ibm">{errors.email.message}</Text>}
-      </View>
-
-      {/* Password */}
-      <View className="mb-4">
-        <Text className="font-ibm text-right mb-1 text-text-secondary">كلمة المرور</Text>
-        <Controller
-          control={control}
-          name="password"
-          render={({ field: { onChange, value } }) => (
-            <TextInput
-              className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-right font-ibm"
-              placeholder="******"
-              secureTextEntry
-              value={value}
-              onChangeText={onChange}
-            />
-          )}
-        />
-        {errors.password && <Text className="text-danger text-xs text-right mt-1 font-ibm">{errors.password.message}</Text>}
-      </View>
-
-      {/* Confirm Password */}
-      <View className="mb-6">
-        <Text className="font-ibm text-right mb-1 text-text-secondary">تأكيد كلمة المرور</Text>
-        <Controller
-          control={control}
-          name="confirmPassword"
-          render={({ field: { onChange, value } }) => (
-            <TextInput
-              className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-right font-ibm"
-              placeholder="******"
-              secureTextEntry
-              value={value}
-              onChangeText={onChange}
-            />
-          )}
-        />
-        {errors.confirmPassword && <Text className="text-danger text-xs text-right mt-1 font-ibm">{errors.confirmPassword.message}</Text>}
-      </View>
-
-      <TouchableOpacity
-        className="bg-primary w-full py-4 rounded-xl items-center mb-4"
-        onPress={handleSubmit(onSubmit)}
-        disabled={loading}
-      >
-        {loading ? (
-          <ActivityIndicator color="white" />
-        ) : (
-          <Text className="text-white font-ibm-bold text-lg">إنشاء الحساب</Text>
+      }
+    >
+      <Controller
+        control={control}
+        name="fullName"
+        render={({ field: { onChange, value } }) => (
+          <AuthField
+            label={t('auth.register.fields.fullName')}
+            iconName="person-outline"
+            error={errors.fullName?.message}
+            placeholder={t('auth.register.fields.fullNamePlaceholder')}
+            autoCapitalize="words"
+            textContentType="name"
+            value={value}
+            onChangeText={onChange}
+          />
         )}
-      </TouchableOpacity>
+      />
 
-      <View className="flex-row justify-center">
-        <TouchableOpacity onPress={() => router.push('/auth/login')}>
-          <Text className="text-primary font-ibm-bold">سجل دخولك</Text>
-        </TouchableOpacity>
-        <Text className="font-ibm text-text-secondary mx-1">لديك حساب بالفعل؟</Text>
-      </View>
-    </SafeAreaView>
+      <Controller
+        control={control}
+        name="phone"
+        render={({ field: { onChange, value } }) => (
+          <AuthField
+            label={t('auth.register.fields.phone')}
+            iconName="call-outline"
+            error={errors.phone?.message}
+            helperText={t('auth.register.fields.phoneHelper')}
+            forceLTR
+            placeholder={t('auth.register.fields.phonePlaceholder')}
+            keyboardType="phone-pad"
+            autoComplete="tel"
+            textContentType="telephoneNumber"
+            value={value}
+            onChangeText={(text) => onChange(text.replace(/[^\d+]/g, ''))}
+          />
+        )}
+      />
+
+      <Controller
+        control={control}
+        name="email"
+        render={({ field: { onChange, value } }) => (
+          <AuthField
+            label={t('auth.register.fields.email')}
+            iconName="mail-outline"
+            error={errors.email?.message}
+            forceLTR
+            placeholder={t('auth.register.fields.emailPlaceholder')}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false}
+            autoComplete="email"
+            textContentType="emailAddress"
+            value={value}
+            onChangeText={(text) => onChange(text.replace(/\s+/g, ''))}
+          />
+        )}
+      />
+
+      <Controller
+        control={control}
+        name="password"
+        render={({ field: { onChange, value } }) => (
+          <AuthField
+            label={t('auth.register.fields.password')}
+            iconName="lock-closed-outline"
+            error={errors.password?.message}
+            helperText={t('auth.register.fields.passwordHelper')}
+            placeholder={t('auth.register.fields.passwordPlaceholder')}
+            secureTextEntry={!showPassword}
+            autoCapitalize="none"
+            autoCorrect={false}
+            autoComplete="new-password"
+            textContentType="newPassword"
+            value={value}
+            onChangeText={onChange}
+            trailing={
+              <TouchableOpacity
+                accessibilityRole="button"
+                accessibilityLabel={
+                  showPassword ? t('auth.register.actions.hidePassword') : t('auth.register.actions.showPassword')
+                }
+                onPress={() => setShowPassword((current) => !current)}
+                style={{ minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' }}
+              >
+                <Ionicons
+                  name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                  size={20}
+                  color="#617167"
+                />
+              </TouchableOpacity>
+            }
+          />
+        )}
+      />
+
+      <Controller
+        control={control}
+        name="confirmPassword"
+        render={({ field: { onChange, value } }) => (
+          <AuthField
+            label={t('auth.register.fields.confirmPassword')}
+            iconName="checkmark-circle-outline"
+            error={errors.confirmPassword?.message}
+            success={isConfirmPasswordMatched}
+            placeholder={t('auth.register.fields.confirmPasswordPlaceholder')}
+            secureTextEntry={!showConfirmPassword}
+            autoCapitalize="none"
+            autoCorrect={false}
+            autoComplete="new-password"
+            textContentType="newPassword"
+            value={value}
+            onChangeText={onChange}
+            trailing={
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                {isConfirmPasswordMatched ? (
+                  <View
+                    style={{
+                      width: 28,
+                      height: 28,
+                      borderRadius: 14,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      backgroundColor: '#E8F5E9',
+                    }}
+                  >
+                    <Ionicons name="checkmark" size={16} color="#2E7D32" />
+                  </View>
+                ) : null}
+
+                <TouchableOpacity
+                  accessibilityRole="button"
+                  accessibilityLabel={
+                    showConfirmPassword
+                      ? t('auth.register.actions.hidePassword')
+                      : t('auth.register.actions.showPassword')
+                  }
+                  onPress={() => setShowConfirmPassword((current) => !current)}
+                  style={{ minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' }}
+                >
+                  <Ionicons
+                    name={showConfirmPassword ? 'eye-off-outline' : 'eye-outline'}
+                    size={20}
+                    color={isConfirmPasswordMatched ? '#2E7D32' : '#617167'}
+                  />
+                </TouchableOpacity>
+              </View>
+            }
+          />
+        )}
+      />
+
+      <AuthPrimaryButton
+        label={t('auth.register.actions.submit')}
+        iconName="person-add-outline"
+        onPress={handleSubmit(onSubmit)}
+        loading={loading}
+      />
+    </AuthScaffold>
   );
 }

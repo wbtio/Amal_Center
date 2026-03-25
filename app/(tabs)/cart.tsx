@@ -386,7 +386,14 @@ export default function CartScreen() {
                                     shadowOffset: { width: 0, height: 3 },
                                     elevation: 4,
                                 }}
-                                onPress={() => router.push('/checkout')}
+                                onPress={() => router.push({
+                                    pathname: '/checkout',
+                                    params: couponData && appliedCoupon ? {
+                                        couponId: couponData.couponId || '',
+                                        couponCode: appliedCoupon,
+                                        discountAmount: discount.toString(),
+                                    } : undefined,
+                                })}
                                 activeOpacity={0.8}
                                 accessibilityLabel={t('cart.checkout')}
                                 accessibilityRole="button"

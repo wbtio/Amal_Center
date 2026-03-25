@@ -135,10 +135,86 @@
         "currentPassword": "كلمة المرور الحالية",
         "newPassword": "كلمة المرور الجديدة",
         "confirmPassword": "تأكيد كلمة المرور الجديدة",
-        "passwordChanged": "تم تغيير كلمة المرور بنجاح"
+        "passwordChanged": "تم تغيير كلمة المرور بنجاح",
+        "tapToChangePhoto": "اضغط لتغيير الصورة",
+        "enterFullName": "أدخل اسمك الكامل",
+        "phonePlaceholder": "07XX XXX XXXX",
+        "emailCannotChange": "لا يمكن تغيير البريد الإلكتروني",
+        "permissionRequired": "صلاحية مطلوبة",
+        "permissionMessage": "نحتاج صلاحية الوصول للصور",
+        "photoUpdated": "تم تحديث الصورة بنجاح",
+        "photoUploadFailed": "فشل في رفع الصورة",
+        "photoPickFailed": "فشل في اختيار الصورة",
+        "saveFailed": "فشل في حفظ التغييرات",
+        "nameMinLength": "الاسم يجب أن يكون حرفين على الأقل",
+        "invalidPhone": "رقم الهاتف غير صحيح (يبدأ بـ 07 ويتكون من 11 رقم)",
+        "sessionExpired": "انتهت الجلسة، يرجى تسجيل الدخول مرة أخرى",
+        "noChanges": "لم يتم إجراء أي تغييرات"
     },
     "auth": {
-        "login": "تسجيل الدخول"
+        "login": "تسجيل الدخول",
+        "back": "الرجوع",
+        "register": {
+            "eyebrow": "ابدأ خلال دقيقة",
+            "title": "إنشاء حساب جديد",
+            "subtitle": "أنشئ حسابك مرة واحدة وابدأ تتبع الطلبات، حفظ العناوين، والوصول إلى تجربة شراء أكثر سلاسة.",
+            "highlights": {
+                "quickActivation": "تفعيل بسيط",
+                "ordersManagement": "إدارة الطلبات",
+                "secureAccount": "حساب مرتب وآمن"
+            },
+            "privacyNote": "بياناتك محمية ومطلوبة فقط لإتمام الطلبات والتواصل معك عند الحاجة.",
+            "fields": {
+                "fullName": "الاسم الكامل",
+                "fullNamePlaceholder": "الاسم الكامل",
+                "phone": "رقم الهاتف",
+                "phonePlaceholder": "07XXXXXXXX",
+                "phoneHelper": "استخدم الرقم بصيغة عراقية مثل 07XXXXXXXX",
+                "email": "البريد الإلكتروني",
+                "emailPlaceholder": "example@email.com",
+                "password": "كلمة المرور",
+                "passwordPlaceholder": "أدخل كلمة المرور",
+                "passwordHelper": "اختر كلمة مرور من 6 أحرف على الأقل.",
+                "confirmPassword": "تأكيد كلمة المرور",
+                "confirmPasswordPlaceholder": "أعد إدخال كلمة المرور"
+            },
+            "actions": {
+                "submit": "إنشاء الحساب",
+                "showPassword": "إظهار كلمة المرور",
+                "hidePassword": "إخفاء كلمة المرور",
+                "footerPrompt": "لديك حساب بالفعل؟",
+                "footerAction": "سجّل دخولك"
+            },
+            "alerts": {
+                "errorTitle": "خطأ",
+                "accountCreatedTitle": "تم إنشاء الحساب",
+                "accountCreatedWithoutEmailConfirmation": "تم إنشاء حسابك بنجاح! يمكنك تسجيل الدخول الآن.\n\nملاحظة: قد لا تتلقى بريد التأكيد بسبب إعدادات الخادم.",
+                "loginAction": "تسجيل الدخول",
+                "successTitle": "تم بنجاح",
+                "successMessage": "تم إنشاء حسابك بنجاح!",
+                "okAction": "حسناً",
+                "unexpectedError": "حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى"
+            },
+            "validation": {
+                "fullNameMin": "الاسم يجب أن يكون 3 أحرف على الأقل",
+                "invalidPhone": "رقم الهاتف غير صحيح (مثال: 07XXXXXXXX)",
+                "invalidEmail": "البريد الإلكتروني غير صحيح",
+                "passwordMin": "كلمة المرور يجب أن تكون 6 أحرف على الأقل",
+                "confirmPasswordRequired": "تأكيد كلمة المرور مطلوب",
+                "passwordMismatch": "كلمات المرور غير متطابقة"
+            },
+            "errors": {
+                "alreadyRegistered": "هذا البريد الإلكتروني مسجل مسبقاً",
+                "passwordTooShort": "كلمة المرور يجب أن تكون 6 أحرف على الأقل",
+                "invalidApiKey": "خطأ في الاتصال بالخادم، يرجى المحاولة لاحقاً",
+                "invalidEmailAddress": "البريد الإلكتروني غير صالح",
+                "invalidPassword": "كلمة المرور غير صالحة",
+                "rateLimit": "تم تجاوز الحد المسموح، يرجى المحاولة بعد قليل",
+                "invalidData": "البيانات المدخلة غير صحيحة، يرجى التحقق منها",
+                "network": "خطأ في الاتصال بالإنترنت، يرجى التحقق من الاتصال",
+                "fallbackPrefix": "خطأ"
+            }
+        }
     },
     "checkout": {
         "title": "إتمام الطلب",

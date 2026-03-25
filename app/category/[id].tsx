@@ -82,6 +82,7 @@ export default function CategoryScreen() {
   // عدد الفلاتر النشطة
   const activeFiltersCount = (minPrice > 500 || maxPrice < 500000 ? 1 : 0) + 
     (inStockOnly ? 1 : 0);
+  const bottomSheetFooterPadding = Math.max(insets.bottom, 12) + 8;
 
   // عنصر القسم الفرعي
   const renderSubcategoryItem = (sub: Category, isViewAll: boolean = false) => (
@@ -144,6 +145,50 @@ export default function CategoryScreen() {
     </TouchableOpacity>
   );
 
+  const renderFilterBar = () => (
+    <View className={`flex-row bg-white px-3 py-2 border-b border-gray-100 ${isRTL ? 'flex-row-reverse' : ''}`}>
+      <TouchableOpacity 
+        onPress={() => setShowSortModal(true)}
+        className={`flex-row items-center px-3 py-2 rounded-xl bg-gray-50 ${isRTL ? 'flex-row-reverse' : ''}`}
+      >
+        <Ionicons name="swap-vertical" size={18} color="#3F51B5" />
+        <Text className={`font-ibm-semibold text-xs text-gray-700 ${isRTL ? 'mr-1.5' : 'ml-1.5'}`} numberOfLines={1}>
+          {getCurrentSortLabel()}
+        </Text>
+      </TouchableOpacity>
+
+      <View className="flex-1" />
+
+      <TouchableOpacity 
+        onPress={() => setShowFilterModal(true)}
+        className={`flex-row items-center px-3 py-2 rounded-xl ${hasActiveFilters ? 'bg-primary/10 border border-primary/30' : 'bg-gray-50'} ${isRTL ? 'flex-row-reverse' : ''}`}
+      >
+        <Ionicons name="options-outline" size={18} color={hasActiveFilters ? '#3F51B5' : '#6B7280'} />
+        <Text className={`font-ibm-semibold text-xs ${isRTL ? 'mr-1.5' : 'ml-1.5'} ${hasActiveFilters ? 'text-[#3F51B5]' : 'text-gray-700'}`}>
+          {language === 'ar' ? 'تصفية' : 'Filter'}
+        </Text>
+        {activeFiltersCount > 0 && (
+          <View className={`bg-[#3F51B5] w-5 h-5 rounded-full items-center justify-center ${isRTL ? 'mr-1.5' : 'ml-1.5'}`}>
+            <Text className="text-white text-[10px] font-bold">{activeFiltersCount}</Text>
+          </View>
+        )}
+      </TouchableOpacity>
+    </View>
+  );
+
+  const renderProductItem = ({ item, index }: { item: any; index: number }) => (
+    <View
+      style={{
+        width: '50%',
+        paddingLeft: isRTL ? 6 : index % 2 === 0 ? 0 : 6,
+        paddingRight: isRTL ? (index % 2 === 0 ? 0 : 6) : 6,
+        marginBottom: 12,
+      }}
+    >
+      <ProductCard product={item} width="100%" />
+    </View>
+  );
+
   if (isCategoryLoading) {
     return (
       <View className="flex-1 justify-center items-center bg-white">
@@ -180,9 +225,9 @@ export default function CategoryScreen() {
         <View style={{ width: 26 }} />
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false}>
+      {hasSubcategories ? (
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 12 }}>
         {/* قائمة الأقسام الفرعية */}
-        {hasSubcategories && (
           <View className="bg-white">
             {categoryData?.subcategories?.map((sub) => (
               <View key={sub.id}>
@@ -221,67 +266,38 @@ export default function CategoryScreen() {
               </Text>
             </TouchableOpacity>
           </View>
-        )}
-
-        {/* قسم المنتجات - إذا لم تكن هناك أقسام فرعية */}
-        {!hasSubcategories && (
-          <>
-            {/* شريط الترتيب والفلترة */}
-            <View className={`flex-row bg-white px-3 py-2 border-b border-gray-100 ${isRTL ? 'flex-row-reverse' : ''}`}>
-              <TouchableOpacity 
-                onPress={() => setShowSortModal(true)}
-                className={`flex-row items-center px-3 py-2 rounded-xl bg-gray-50 ${isRTL ? 'flex-row-reverse' : ''}`}
-              >
-                <Ionicons name="swap-vertical" size={18} color="#3F51B5" />
-                <Text className={`font-ibm-semibold text-xs text-gray-700 ${isRTL ? 'mr-1.5' : 'ml-1.5'}`} numberOfLines={1}>
-                  {getCurrentSortLabel()}
-                </Text>
-              </TouchableOpacity>
-              
-              <View className="flex-1" />
-              
-              <TouchableOpacity 
-                onPress={() => setShowFilterModal(true)}
-                className={`flex-row items-center px-3 py-2 rounded-xl ${hasActiveFilters ? 'bg-primary/10 border border-primary/30' : 'bg-gray-50'} ${isRTL ? 'flex-row-reverse' : ''}`}
-              >
-                <Ionicons name="options-outline" size={18} color={hasActiveFilters ? '#3F51B5' : '#6B7280'} />
-                <Text className={`font-ibm-semibold text-xs ${isRTL ? 'mr-1.5' : 'ml-1.5'} ${hasActiveFilters ? 'text-[#3F51B5]' : 'text-gray-700'}`}>
-                  {language === 'ar' ? 'تصفية' : 'Filter'}
-                </Text>
-                {activeFiltersCount > 0 && (
-                  <View className={`bg-[#3F51B5] w-5 h-5 rounded-full items-center justify-center ${isRTL ? 'mr-1.5' : 'ml-1.5'}`}>
-                    <Text className="text-white text-[10px] font-bold">{activeFiltersCount}</Text>
-                  </View>
-                )}
-              </TouchableOpacity>
-            </View>
-
-            {/* قائمة المنتجات */}
-            {isProductsLoading ? (
-              <View className="flex-1 justify-center items-center py-20">
-                <ActivityIndicator size="large" color="#3F51B5" />
-              </View>
-            ) : products && products.length > 0 ? (
-              <View className="flex-row flex-wrap p-3" style={{ flexDirection: isRTL ? 'row-reverse' : 'row' }}>
-                {products.map((item) => (
-                  <View key={item.id} style={{ width: '48%', marginBottom: 12, marginHorizontal: '1%' }}>
-                    <ProductCard product={item} width="100%" />
-                  </View>
-                ))}
-              </View>
-            ) : (
-              <View className="flex-1 justify-center items-center py-20">
-                <View className="w-24 h-24 rounded-full bg-gray-100 items-center justify-center mb-4">
-                  <Ionicons name="basket-outline" size={48} color="#D1D5DB" />
-                </View>
-                <Text className="font-ibm-bold text-gray-400 text-base">
-                  {t('category.noProducts')}
-                </Text>
-              </View>
-            )}
-          </>
-        )}
       </ScrollView>
+      ) : isProductsLoading ? (
+        <View className="flex-1">
+          {renderFilterBar()}
+          <View className="flex-1 justify-center items-center py-20">
+            <ActivityIndicator size="large" color="#3F51B5" />
+          </View>
+        </View>
+      ) : products && products.length > 0 ? (
+        <FlatList
+          data={products}
+          keyExtractor={(item) => item.id}
+          numColumns={2}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ padding: 12, paddingBottom: 24 }}
+          columnWrapperStyle={isRTL ? { flexDirection: 'row-reverse' } : undefined}
+          ListHeaderComponent={renderFilterBar}
+          renderItem={renderProductItem}
+        />
+      ) : (
+        <View className="flex-1">
+          {renderFilterBar()}
+          <View className="flex-1 justify-center items-center py-20">
+            <View className="w-24 h-24 rounded-full bg-gray-100 items-center justify-center mb-4">
+              <Ionicons name="basket-outline" size={48} color="#D1D5DB" />
+            </View>
+            <Text className="font-ibm-bold text-gray-400 text-base">
+              {t('category.noProducts')}
+            </Text>
+          </View>
+        </View>
+      )}
 
       {/* BottomSheet الترتيب */}
       <BottomSheet
@@ -297,7 +313,7 @@ export default function CategoryScreen() {
         </View>
         
         {/* Options */}
-        <View className="px-4 pb-8">
+        <View className="px-4 pb-4">
           {sortOptions.map((option, index) => (
             <TouchableOpacity
               key={option.value}
@@ -390,7 +406,7 @@ export default function CategoryScreen() {
         </ScrollView>
         
         {/* أزرار التطبيق وإعادة التعيين */}
-        <View className={`flex-row px-4 pt-4 pb-8 border-t border-gray-100 bg-white ${isRTL ? 'flex-row-reverse' : ''}`}>
+        <View className={`flex-row px-4 pt-4 border-t border-gray-100 bg-white ${isRTL ? 'flex-row-reverse' : ''}`} style={{ paddingBottom: bottomSheetFooterPadding }}>
           <TouchableOpacity 
             onPress={resetFilters}
             className="flex-1 py-3.5 border border-gray-300 rounded-xl items-center"

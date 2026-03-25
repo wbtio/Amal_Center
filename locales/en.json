@@ -135,10 +135,86 @@
         "currentPassword": "Current Password",
         "newPassword": "New Password",
         "confirmPassword": "Confirm New Password",
-        "passwordChanged": "Password changed successfully"
+        "passwordChanged": "Password changed successfully",
+        "tapToChangePhoto": "Tap to change photo",
+        "enterFullName": "Enter your full name",
+        "phonePlaceholder": "07XX XXX XXXX",
+        "emailCannotChange": "Email cannot be changed",
+        "permissionRequired": "Permission Required",
+        "permissionMessage": "We need permission to access your photos",
+        "photoUpdated": "Photo updated successfully",
+        "photoUploadFailed": "Failed to upload image",
+        "photoPickFailed": "Failed to pick image",
+        "saveFailed": "Failed to save changes",
+        "nameMinLength": "Name must be at least 2 characters",
+        "invalidPhone": "Invalid phone number (starts with 07 and 11 digits)",
+        "sessionExpired": "Session expired, please login again",
+        "noChanges": "No changes were made"
     },
     "auth": {
-        "login": "Login"
+        "login": "Login",
+        "back": "Back",
+        "register": {
+            "eyebrow": "Get Started In A Minute",
+            "title": "Create A New Account",
+            "subtitle": "Create your account once and start tracking orders, saving addresses, and enjoying a smoother shopping experience.",
+            "highlights": {
+                "quickActivation": "Simple activation",
+                "ordersManagement": "Manage orders",
+                "secureAccount": "Organized and secure account"
+            },
+            "privacyNote": "Your information is protected and used only to complete orders and contact you when needed.",
+            "fields": {
+                "fullName": "Full Name",
+                "fullNamePlaceholder": "Full name",
+                "phone": "Phone Number",
+                "phonePlaceholder": "07XXXXXXXX",
+                "phoneHelper": "Use an Iraqi number format like 07XXXXXXXX",
+                "email": "Email",
+                "emailPlaceholder": "example@email.com",
+                "password": "Password",
+                "passwordPlaceholder": "Enter your password",
+                "passwordHelper": "Choose a password with at least 6 characters.",
+                "confirmPassword": "Confirm Password",
+                "confirmPasswordPlaceholder": "Re-enter your password"
+            },
+            "actions": {
+                "submit": "Create Account",
+                "showPassword": "Show password",
+                "hidePassword": "Hide password",
+                "footerPrompt": "Already have an account?",
+                "footerAction": "Sign in"
+            },
+            "alerts": {
+                "errorTitle": "Error",
+                "accountCreatedTitle": "Account Created",
+                "accountCreatedWithoutEmailConfirmation": "Your account was created successfully. You can sign in now.\n\nNote: you might not receive a confirmation email because of the current server settings.",
+                "loginAction": "Sign In",
+                "successTitle": "Success",
+                "successMessage": "Your account has been created successfully!",
+                "okAction": "OK",
+                "unexpectedError": "An unexpected error occurred. Please try again."
+            },
+            "validation": {
+                "fullNameMin": "Name must be at least 3 characters",
+                "invalidPhone": "Invalid phone number (example: 07XXXXXXXX)",
+                "invalidEmail": "Invalid email address",
+                "passwordMin": "Password must be at least 6 characters",
+                "confirmPasswordRequired": "Please confirm your password",
+                "passwordMismatch": "Passwords do not match"
+            },
+            "errors": {
+                "alreadyRegistered": "This email is already registered",
+                "passwordTooShort": "Password must be at least 6 characters",
+                "invalidApiKey": "Server connection error. Please try again later.",
+                "invalidEmailAddress": "Invalid email address",
+                "invalidPassword": "Invalid password",
+                "rateLimit": "Rate limit exceeded. Please try again shortly.",
+                "invalidData": "The entered data is invalid. Please review your information.",
+                "network": "Network error. Please check your connection.",
+                "fallbackPrefix": "Error"
+            }
+        }
     },
     "checkout": {
         "title": "Checkout",

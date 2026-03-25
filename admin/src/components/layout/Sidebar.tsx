@@ -14,6 +14,7 @@ import {
     Heart,
     LayoutGrid,
     Ticket,
+    Bell,
     X,
     ChevronLeft,
     Store
@@ -32,6 +33,7 @@ const sidebarItems = [
     { href: '/offers', label: 'العروض', icon: Tags, color: 'text-rose-600', activeBg: 'bg-rose-50' },
     { href: '/coupons', label: 'الكوبونات', icon: Ticket, color: 'text-cyan-600', activeBg: 'bg-cyan-50' },
     { href: '/homepage', label: 'الصفحة الرئيسية', icon: LayoutGrid, color: 'text-teal-600', activeBg: 'bg-teal-50' },
+    { href: '/notifications', label: 'الإشعارات', icon: Bell, color: 'text-orange-600', activeBg: 'bg-orange-50' },
     { href: '/favorites', label: 'المفضلة', icon: Heart, color: 'text-pink-600', activeBg: 'bg-pink-50' },
     { href: '/users', label: 'المستخدمين', icon: Users, color: 'text-indigo-600', activeBg: 'bg-indigo-50' },
 ];

@@ -1,4 +1,4 @@
-import { View, Text, ActivityIndicator, TouchableOpacity, ScrollView, Dimensions, Alert, Platform } from 'react-native';
+import { View, Text, ActivityIndicator, TouchableOpacity, ScrollView, Platform, useWindowDimensions } from 'react-native';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
@@ -8,8 +8,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState } from 'react';
 import { useLanguage, useCurrency } from '../../contexts';
 import { ProductCard } from '../../components/ui/ProductCard';
+import { showToast } from '../../components/ui/Toast';
+import { WishlistButton } from '../../components/ui/WishlistButton';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const PRIMARY_COLOR = '#2E7D32';
 const INACTIVE_COLOR = '#BDBDBD';
 const ACTIVE_BG = 'rgba(46, 125, 50, 0.08)';
@@ -24,6 +25,7 @@ export default function ProductDetailsScreen() {
   const { t, language, isRTL } = useLanguage();
   const { formatPrice } = useCurrency();
   const [quantity, setQuantity] = useState(1);
+  const { width } = useWindowDimensions();
 
   const { data: similarProducts } = useSimilarProducts(
     product?.category_id || '',
@@ -62,7 +64,7 @@ export default function ProductDetailsScreen() {
 
   const handleAddToCart = () => {
     addItem(product, quantity);
-    Alert.alert(t('product.addedToCart'), t('product.addedMessage'));
+    showToast(t('product.addedMessage'));
   };
 
   const discountPercentage = product.original_price && product.original_price > product.price_iqd
@@ -79,14 +81,17 @@ export default function ProductDetailsScreen() {
           <TouchableOpacity onPress={() => router.back()} className="p-2">
             <Ionicons name={isRTL ? "arrow-forward" : "arrow-back"} size={24} color="#212121" />
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => router.push('/(tabs)/cart')} className="p-2 relative">
-            <Ionicons name="cart-outline" size={24} color="#212121" />
-            {totalItems > 0 && (
-              <View className="absolute -top-1 -right-1 bg-primary w-5 h-5 rounded-full items-center justify-center">
-                <Text className="text-white text-xs font-bold">{totalItems > 9 ? '9+' : totalItems}</Text>
-              </View>
-            )}
-          </TouchableOpacity>
+          <View className={`items-center ${isRTL ? 'flex-row-reverse' : 'flex-row'}`} style={{ gap: 10 }}>
+            <WishlistButton productId={product.id} />
+            <TouchableOpacity onPress={() => router.push('/(tabs)/cart')} className="p-2 relative">
+              <Ionicons name="cart-outline" size={24} color="#212121" />
+              {totalItems > 0 && (
+                <View className={`absolute -top-1 bg-primary w-5 h-5 rounded-full items-center justify-center ${isRTL ? '-left-1' : '-right-1'}`}>
+                  <Text className="text-white text-xs font-bold">{totalItems > 9 ? '9+' : totalItems}</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+          </View>
         </View>
       </SafeAreaView>
 
@@ -95,7 +100,7 @@ export default function ProductDetailsScreen() {
         <View className="bg-gray-50 items-center py-6">
           <Image
             source={{ uri: product.image_url }}
-            style={{ width: SCREEN_WIDTH - 64, height: 220 }}
+            style={{ width: Math.max(width - 64, 0), height: 220 }}
             contentFit="contain"
           />
           {discountPercentage > 0 && (
@@ -273,7 +278,8 @@ export default function ProductDetailsScreen() {
                 <View style={{
                   position: 'absolute',
                   top: 0,
-                  right: 2,
+                  right: isRTL ? undefined : 2,
+                  left: isRTL ? 2 : undefined,
                   backgroundColor: '#D32F2F',
                   borderRadius: 8,
                   minWidth: 16,

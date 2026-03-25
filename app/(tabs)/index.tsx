@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, TouchableOpacity, RefreshControl, Dimensions, Alert } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, RefreshControl, Alert, useWindowDimensions } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
@@ -13,12 +13,9 @@ import { BannerSlider } from '../../components/ui/BannerSlider';
 import { useState, useCallback, useMemo } from 'react';
 import { useLanguage } from '../../contexts';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const BANNER_WIDTH = SCREEN_WIDTH - 32;
-const BANNER_HEIGHT = BANNER_WIDTH / 3.2;
-
 export default function HomeScreen() {
   const router = useRouter();
+  const { width } = useWindowDimensions();
   const { data: categories, isLoading: isCategoriesLoading, error: categoriesError, refetch: refetchCategories } = useMainCategories();
   const { data: specialOffers, isLoading: isOffersLoading, error: offersError, refetch: refetchOffers } = useSpecialOffers();
   const { data: bestSellers, isLoading: isBestSellersLoading, error: bestSellersError, refetch: refetchBestSellers } = useBestSellers();
@@ -30,6 +27,7 @@ export default function HomeScreen() {
   const { t, language, isRTL } = useLanguage();
 
   const [refreshing, setRefreshing] = useState(false);
+  const screenWidth = Math.max(width, 0);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -89,7 +87,7 @@ export default function HomeScreen() {
   const ErrorState = ({ onRetry, icon = 'alert-circle-outline', fullWidth = true }: { onRetry: () => void; icon?: string; fullWidth?: boolean }) => (
     <View
       className="items-center justify-center py-8 mx-4"
-      style={fullWidth ? { width: SCREEN_WIDTH - 32 } : { minWidth: SCREEN_WIDTH - 32 }}
+      style={fullWidth ? { width: screenWidth - 32 } : { minWidth: screenWidth - 32 }}
     >
       <Ionicons name={icon as any} size={40} color="#EF4444" />
       <Text className="font-ibm-regular text-text-secondary mt-2">{t('errors.loadError')}</Text>
@@ -106,7 +104,7 @@ export default function HomeScreen() {
   const EmptyState = ({ icon, message }: { icon: string; message: string }) => (
     <View
       className="items-center justify-center py-8 mx-4"
-      style={{ width: SCREEN_WIDTH - 32 }}
+      style={{ width: screenWidth - 32 }}
     >
       <Ionicons name={icon as any} size={40} color="#E0E0E0" />
       <Text className="font-ibm-regular text-text-secondary mt-2">{message}</Text>
@@ -140,7 +138,7 @@ export default function HomeScreen() {
                   transition={200}
                 />
               ) : (
-                <Ionicons name="grid-outline" size={32} color="#2E7D32" />
+                <Ionicons name={(item.icon as any) || "grid-outline"} size={32} color="#2E7D32" />
               )}
             </View>
             <Text

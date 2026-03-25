@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, Alert, ActivityIndicator, Dimensions, Modal, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, Alert, ActivityIndicator, Modal, StyleSheet, useWindowDimensions } from 'react-native';
 import { WebView } from 'react-native-webview';
 import * as Location from 'expo-location';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLanguage } from '../../contexts';
 
 interface LocationPickerProps {
@@ -12,8 +13,6 @@ interface LocationPickerProps {
   onClose: () => void;
 }
 
-const { width, height } = Dimensions.get('window');
-
 export const LocationPicker: React.FC<LocationPickerProps> = ({
   onLocationSelect,
   initialLocation,
@@ -21,6 +20,8 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
   onClose
 }) => {
   const { language, isRTL } = useLanguage();
+  const insets = useSafeAreaInsets();
+  const { height: screenHeight } = useWindowDimensions();
   const webViewRef = useRef<WebView>(null);
   const [selectedLocation, setSelectedLocation] = useState<{ latitude: number; longitude: number } | null>(
     initialLocation || null
@@ -243,6 +244,10 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
 
   if (!visible) return null;
 
+  const bottomCardPaddingBottom = Math.max(insets.bottom, 16) + 8;
+  const estimatedBottomCardHeight = 170 + bottomCardPaddingBottom;
+  const floatingButtonBottom = Math.min(Math.max(insets.bottom + 16, estimatedBottomCardHeight), Math.max(insets.bottom + 120, screenHeight * 0.34));
+
   return (
     <Modal
       visible={visible}
@@ -293,7 +298,7 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
         </View>
 
         {/* Top Bar - Floating */}
-        <View style={styles.topBar}>
+        <View style={[styles.topBar, { top: insets.top + 12 }]}> 
           <TouchableOpacity 
             onPress={onClose} 
             style={styles.closeButton}
@@ -301,7 +306,7 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
             <Ionicons name="close" size={24} color="#333" />
           </TouchableOpacity>
           
-          <View style={styles.titleContainer}>
+          <View style={[styles.titleContainer, { marginLeft: isRTL ? 0 : 12, marginRight: isRTL ? 12 : 0 }]}>
             <Text style={styles.title}>
               {language === 'ar' ? 'حدد موقع التوصيل' : 'Select Delivery Location'}
             </Text>
@@ -311,7 +316,14 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
         {/* My Location Button - Floating */}
         <TouchableOpacity 
           onPress={getCurrentLocation} 
-          style={styles.myLocationButton}
+          style={[
+            styles.myLocationButton,
+            {
+              bottom: floatingButtonBottom,
+              right: isRTL ? undefined : 16,
+              left: isRTL ? 16 : undefined,
+            },
+          ]}
           disabled={gettingLocation}
           activeOpacity={0.8}
         >
@@ -323,7 +335,7 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
         </TouchableOpacity>
 
         {/* Bottom Card */}
-        <View style={styles.bottomCard}>
+        <View style={[styles.bottomCard, { paddingBottom: bottomCardPaddingBottom }]}> 
           {/* Address Display */}
           <View style={[styles.addressContainer, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
             <View style={styles.addressIcon}>
@@ -433,7 +445,6 @@ const styles = StyleSheet.create({
   },
   topBar: {
     position: 'absolute',
-    top: 50,
     left: 16,
     right: 16,
     flexDirection: 'row',
@@ -455,7 +466,6 @@ const styles = StyleSheet.create({
   },
   titleContainer: {
     flex: 1,
-    marginLeft: 12,
     backgroundColor: '#fff',
     borderRadius: 22,
     paddingVertical: 10,
@@ -474,8 +484,6 @@ const styles = StyleSheet.create({
   },
   myLocationButton: {
     position: 'absolute',
-    bottom: 200,
-    right: 16,
     width: 52,
     height: 52,
     backgroundColor: '#fff',
@@ -499,7 +507,6 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 24,
     paddingHorizontal: 20,
     paddingTop: 20,
-    paddingBottom: 34,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.1,

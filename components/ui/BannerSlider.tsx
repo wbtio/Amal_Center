@@ -1,14 +1,10 @@
 import React, { useState, useEffect, useRef, memo } from 'react';
-import { View, ScrollView, TouchableOpacity, Text, Dimensions } from 'react-native';
+import { View, ScrollView, TouchableOpacity, Text, useWindowDimensions } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, Href } from 'expo-router';
 import { Linking } from 'react-native';
 import { Skeleton } from './Skeleton';
-
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const BANNER_WIDTH = SCREEN_WIDTH - 32;
-const BANNER_HEIGHT = BANNER_WIDTH / 3.2;
 
 interface Banner {
   id: string;
@@ -26,8 +22,11 @@ interface BannerSliderProps {
 
 export const BannerSlider = memo(({ banners, isLoading, error, onRetry, t }: BannerSliderProps) => {
   const router = useRouter();
+  const { width } = useWindowDimensions();
   const [activeBannerIndex, setActiveBannerIndex] = useState(0);
   const bannerScrollRef = useRef<ScrollView>(null);
+  const bannerWidth = Math.max(width - 32, 0);
+  const bannerHeight = bannerWidth / 3.2;
 
   useEffect(() => {
     if (!banners || banners.length <= 1) return;
@@ -36,7 +35,7 @@ export const BannerSlider = memo(({ banners, isLoading, error, onRetry, t }: Ban
       setActiveBannerIndex((prev) => {
         const nextIndex = (prev + 1) % banners.length;
         bannerScrollRef.current?.scrollTo({
-          x: nextIndex * (BANNER_WIDTH + 16),
+          x: nextIndex * (bannerWidth + 16),
           animated: true,
         });
         return nextIndex;
@@ -44,12 +43,12 @@ export const BannerSlider = memo(({ banners, isLoading, error, onRetry, t }: Ban
     }, 4000);
 
     return () => clearInterval(interval);
-  }, [banners]);
+  }, [banners, bannerWidth]);
 
   if (isLoading) {
     return (
       <View className="mt-4 mb-2 px-4">
-        <Skeleton width={BANNER_WIDTH} height={BANNER_HEIGHT} borderRadius={20} />
+        <Skeleton width={bannerWidth} height={bannerHeight} borderRadius={20} />
       </View>
     );
   }
@@ -86,11 +85,11 @@ export const BannerSlider = memo(({ banners, isLoading, error, onRetry, t }: Ban
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
-        snapToInterval={BANNER_WIDTH + 16}
+        snapToInterval={bannerWidth + 16}
         decelerationRate="fast"
         contentContainerStyle={{ paddingHorizontal: 16, gap: 16 }}
         onMomentumScrollEnd={(event) => {
-          const slideSize = BANNER_WIDTH + 16;
+          const slideSize = bannerWidth + 16;
           const offset = event.nativeEvent.contentOffset.x;
           const index = Math.round(offset / slideSize);
           setActiveBannerIndex(index);
@@ -113,8 +112,8 @@ export const BannerSlider = memo(({ banners, isLoading, error, onRetry, t }: Ban
             <View
               className="rounded-3xl overflow-hidden"
               style={{
-                width: BANNER_WIDTH,
-                height: BANNER_HEIGHT,
+                width: bannerWidth,
+                height: bannerHeight,
                 backgroundColor: '#fff',
                 shadowColor: '#000',
                 shadowOffset: { width: 0, height: 4 },

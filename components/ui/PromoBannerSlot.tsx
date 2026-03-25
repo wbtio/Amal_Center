@@ -1,19 +1,10 @@
 import React from 'react';
-import { View, TouchableOpacity, Dimensions, Linking } from 'react-native';
+import { View, TouchableOpacity, Linking, useWindowDimensions } from 'react-native';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { PromoBanner } from '../../hooks/useSupabase';
 import { Skeleton } from './Skeleton';
-
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-
-// Banner dimensions
-const BANNER_FULL_WIDTH = SCREEN_WIDTH - 32;
-const BANNER_FULL_HEIGHT = 100;
-const BANNER_HALF_WIDTH = (SCREEN_WIDTH - 48) / 2;
-const BANNER_HALF_HEIGHT = 85;
-const BANNER_SQUARE_SIZE = (SCREEN_WIDTH - 48) / 2;
-const BANNER_SQUARE_HEIGHT = 120;
+import { useLanguage } from '../../contexts';
 
 interface PromoBannerSlotProps {
     banners: PromoBanner[] | undefined;
@@ -26,6 +17,14 @@ interface PromoBannerSlotProps {
  */
 export const PromoBannerSlot: React.FC<PromoBannerSlotProps> = ({ banners, isLoading = false }) => {
     const router = useRouter();
+    const { width } = useWindowDimensions();
+    const { isRTL } = useLanguage();
+    const bannerFullWidth = Math.max(width - 32, 0);
+    const bannerFullHeight = 100;
+    const bannerHalfWidth = Math.max((width - 48) / 2, 0);
+    const bannerHalfHeight = 85;
+    const bannerSquareSize = bannerHalfWidth;
+    const bannerSquareHeight = 120;
 
     // Handle banner press
     const handlePress = (link?: string) => {
@@ -42,7 +41,7 @@ export const PromoBannerSlot: React.FC<PromoBannerSlotProps> = ({ banners, isLoa
     if (isLoading) {
         return (
             <View className="px-4 mt-4">
-                <Skeleton width={BANNER_FULL_WIDTH} height={BANNER_FULL_HEIGHT} borderRadius={16} />
+                <Skeleton width={bannerFullWidth} height={bannerFullHeight} borderRadius={16} />
             </View>
         );
     }
@@ -64,8 +63,8 @@ export const PromoBannerSlot: React.FC<PromoBannerSlotProps> = ({ banners, isLoa
                     onPress={() => handlePress(firstBanner.link)}
                     className="rounded-2xl overflow-hidden"
                     style={{
-                        width: BANNER_FULL_WIDTH,
-                        height: BANNER_FULL_HEIGHT,
+                        width: bannerFullWidth,
+                        height: bannerFullHeight,
                         backgroundColor: '#ffffff',
                         shadowColor: '#000',
                         shadowOffset: { width: 0, height: 2 },
@@ -89,14 +88,14 @@ export const PromoBannerSlot: React.FC<PromoBannerSlotProps> = ({ banners, isLoa
     if (firstBanner.size === 'square') {
         const secondBanner = banners[1];
         return (
-            <View className="px-4 mt-4 flex-row gap-4">
+            <View className={`px-4 mt-4 flex-row gap-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
                 <TouchableOpacity
                     activeOpacity={0.9}
                     onPress={() => handlePress(firstBanner.link)}
                     className="rounded-2xl overflow-hidden"
                     style={{
-                        width: BANNER_SQUARE_SIZE,
-                        height: BANNER_SQUARE_HEIGHT,
+                        width: bannerSquareSize,
+                        height: bannerSquareHeight,
                         backgroundColor: '#ffffff',
                         shadowColor: '#000',
                         shadowOffset: { width: 0, height: 2 },
@@ -119,8 +118,8 @@ export const PromoBannerSlot: React.FC<PromoBannerSlotProps> = ({ banners, isLoa
                         onPress={() => handlePress(secondBanner.link)}
                         className="rounded-2xl overflow-hidden"
                         style={{
-                            width: BANNER_SQUARE_SIZE,
-                            height: BANNER_SQUARE_HEIGHT,
+                            width: bannerSquareSize,
+                            height: bannerSquareHeight,
                             backgroundColor: '#ffffff',
                             shadowColor: '#000',
                             shadowOffset: { width: 0, height: 2 },
@@ -145,14 +144,14 @@ export const PromoBannerSlot: React.FC<PromoBannerSlotProps> = ({ banners, isLoa
     if (firstBanner.size === 'half') {
         const secondBanner = banners[1];
         return (
-            <View className="px-4 mt-4 flex-row gap-4">
+            <View className={`px-4 mt-4 flex-row gap-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
                 <TouchableOpacity
                     activeOpacity={0.9}
                     onPress={() => handlePress(firstBanner.link)}
                     className="rounded-2xl overflow-hidden"
                     style={{
-                        width: BANNER_HALF_WIDTH,
-                        height: BANNER_HALF_HEIGHT,
+                        width: bannerHalfWidth,
+                        height: bannerHalfHeight,
                         backgroundColor: '#ffffff',
                         shadowColor: '#000',
                         shadowOffset: { width: 0, height: 2 },
@@ -175,8 +174,8 @@ export const PromoBannerSlot: React.FC<PromoBannerSlotProps> = ({ banners, isLoa
                         onPress={() => handlePress(secondBanner.link)}
                         className="rounded-2xl overflow-hidden"
                         style={{
-                            width: BANNER_HALF_WIDTH,
-                            height: BANNER_HALF_HEIGHT,
+                            width: bannerHalfWidth,
+                            height: bannerHalfHeight,
                             backgroundColor: '#ffffff',
                             shadowColor: '#000',
                             shadowOffset: { width: 0, height: 2 },

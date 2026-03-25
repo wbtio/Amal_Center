@@ -4,7 +4,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     ...config,
     name: process.env.EXPO_PUBLIC_APP_NAME || "Al-Amal Hypermarket",
     slug: "al-amal-hypermarket",
-    version: process.env.EXPO_PUBLIC_APP_VERSION || config.version || "0.53",
+    version: process.env.EXPO_PUBLIC_APP_VERSION || config.version || "1.0.0",
     orientation: "portrait",
     icon: "./assets/icon.png",
     userInterfaceStyle: "light",
@@ -20,7 +20,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     },
     android: {
         package: "com.alamal.center",
-        versionCode: config.android?.versionCode ?? 5,
+        versionCode: config.android?.versionCode ?? 6,
         adaptiveIcon: {
             foregroundImage: "./assets/adaptive-icon.png",
             backgroundColor: "#2E7D32",
@@ -41,8 +41,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
         defaultCurrency: process.env.EXPO_PUBLIC_DEFAULT_CURRENCY,
         enableReviews: process.env.EXPO_PUBLIC_ENABLE_REVIEWS === "true",
-        enableWishlist: process.env.EXPO_PUBLIC_ENABLE_WISHLIST === "true",
-        enableNotifications: process.env.EXPO_PUBLIC_ENABLE_NOTIFICATIONS === "true",
+        enableWishlist: process.env.EXPO_PUBLIC_ENABLE_WISHLIST !== "false",
+        enableNotifications: process.env.EXPO_PUBLIC_ENABLE_NOTIFICATIONS !== "false",
         debugMode: process.env.EXPO_PUBLIC_DEBUG_MODE === "true",
         // eas block restored with valid ID
         eas: {

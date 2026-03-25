@@ -3,6 +3,7 @@ import { Tabs } from 'expo-router';
 import { HomeIcon, Squares2X2Icon, ShoppingCartIcon, UserIcon } from 'react-native-heroicons/outline';
 import { HomeIcon as HomeSolid, Squares2X2Icon as Squares2X2Solid, ShoppingCartIcon as ShoppingCartSolid, UserIcon as UserSolid } from 'react-native-heroicons/solid';
 import { View, Platform, Text } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MainHeader } from '../../components/ui/MainHeader';
 import { useLanguage } from '../../contexts';
 import { useCartStore } from '../../store/cartStore';
@@ -16,6 +17,9 @@ export default function TabLayout() {
   const { t, isRTL } = useLanguage();
   const { items } = useCartStore();
   const cartItemsCount = items.length;
+  const insets = useSafeAreaInsets();
+  const tabBarBottomPadding = Math.max(insets.bottom, Platform.OS === 'ios' ? 14 : 12);
+  const tabBarHeight = 52 + tabBarBottomPadding;
 
   return (
     <Tabs
@@ -26,8 +30,8 @@ export default function TabLayout() {
           backgroundColor: BG_COLOR,
           borderTopWidth: 0.5,
           borderTopColor: '#E0E0E0',
-          height: Platform.OS === 'ios' ? 88 : 68,
-          paddingBottom: Platform.OS === 'ios' ? 34 : 16, // 🔥 مساحة أكبر
+          height: tabBarHeight,
+          paddingBottom: tabBarBottomPadding,
           paddingTop: 3, // 🔥 مساحة أصغر
           paddingHorizontal: 4,
           elevation: 0,

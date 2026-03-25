@@ -2,11 +2,11 @@ import React, { useEffect, useRef } from 'react';
 import { 
   View, 
   TouchableOpacity, 
-  Dimensions, 
   StyleSheet, 
   BackHandler,
   PanResponder,
   Modal,
+  useWindowDimensions,
 } from 'react-native';
 import Animated, {
   useSharedValue,
@@ -14,8 +14,7 @@ import Animated, {
   withTiming,
   runOnJS,
 } from 'react-native-reanimated';
-
-const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface BottomSheetProps {
   visible: boolean;
@@ -30,16 +29,18 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
   children,
   maxHeight = '85%',
 }) => {
-  const translateY = useSharedValue(SCREEN_HEIGHT);
+  const { height: screenHeight } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
+  const translateY = useSharedValue(screenHeight);
   const backdropOpacity = useSharedValue(0);
   const startY = useRef(0);
 
   const maxHeightValue = typeof maxHeight === 'string' 
-    ? (parseFloat(maxHeight) / 100) * SCREEN_HEIGHT 
+    ? (parseFloat(maxHeight) / 100) * screenHeight 
     : maxHeight;
 
   const closeSheet = () => {
-    translateY.value = withTiming(SCREEN_HEIGHT, { duration: 200 });
+    translateY.value = withTiming(screenHeight, { duration: 200 });
     backdropOpacity.value = withTiming(0, { duration: 150 }, () => {
       runOnJS(onClose)();
     });
@@ -52,11 +53,11 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
 
   useEffect(() => {
     if (visible) {
-      translateY.value = SCREEN_HEIGHT;
+      translateY.value = screenHeight;
       backdropOpacity.value = 0;
       openSheet();
     }
-  }, [visible]);
+  }, [visible, screenHeight]);
 
   useEffect(() => {
     const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
@@ -128,7 +129,10 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
           style={[
             styles.sheet, 
             animatedSheetStyle,
-            { maxHeight: maxHeightValue }
+            {
+              maxHeight: Math.min(maxHeightValue, screenHeight - insets.top - 12),
+              paddingBottom: Math.max(insets.bottom, 12),
+            }
           ]}
         >
           {/* Handle - draggable */}

@@ -10,6 +10,8 @@ interface ReviewStepProps {
   deliveryType: DeliveryType;
   paymentMethod: PaymentMethod;
   deliveryCost: number;
+  couponCode?: string | null;
+  discountAmount?: number;
 }
 
 const getDeliveryLabel = (type: DeliveryType, lang: string) => {
@@ -30,7 +32,14 @@ const getPaymentLabel = (method: PaymentMethod, lang: string) => {
   return labels[method] || labels.cod;
 };
 
-export const ReviewStep: React.FC<ReviewStepProps> = ({ address, deliveryType, paymentMethod, deliveryCost }) => {
+export const ReviewStep: React.FC<ReviewStepProps> = ({
+  address,
+  deliveryType,
+  paymentMethod,
+  deliveryCost,
+  couponCode,
+  discountAmount = 0,
+}) => {
   const { items, totalIQD } = useCartStore();
   const { t, language, isRTL } = useLanguage();
   const { formatPrice } = useCurrency();
@@ -137,11 +146,22 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({ address, deliveryType, p
             <Text className="font-ibm-bold text-gray-800 text-sm">{formatPrice(deliveryCost)}</Text>
           </View>
 
+          {discountAmount > 0 && (
+            <View className={`flex-row justify-between items-center ${flexRow}`}>
+              <Text className="font-ibm text-red-500 text-sm">
+                {language === 'ar'
+                  ? `الخصم${couponCode ? ` (${couponCode})` : ''}`
+                  : `Discount${couponCode ? ` (${couponCode})` : ''}`}
+              </Text>
+              <Text className="font-ibm-bold text-red-500 text-sm">- {formatPrice(discountAmount)}</Text>
+            </View>
+          )}
+
           <View className="h-px bg-gray-100 my-1" />
 
           <View className={`flex-row justify-between items-center ${flexRow}`}>
             <Text className="font-ibm-bold text-gray-900 text-base">{t('cart.total')}</Text>
-            <Text className="font-ibm-bold text-primary text-lg">{formatPrice(totalIQD + deliveryCost)}</Text>
+            <Text className="font-ibm-bold text-primary text-lg">{formatPrice(totalIQD + deliveryCost - discountAmount)}</Text>
           </View>
         </View>
       </View>

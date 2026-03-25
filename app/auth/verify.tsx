@@ -1,109 +1,144 @@
-import { View, Text, TextInput, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
+import { Alert, Text, TouchableOpacity, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState } from 'react';
 import { supabase } from '../../lib/supabase';
+import {
+  AuthField,
+  AuthNote,
+  AuthPrimaryButton,
+  AuthScaffold,
+} from '../../components/auth/AuthUI';
 
 export default function VerifyOtpScreen() {
-    const router = useRouter();
-    const { email } = useLocalSearchParams<{ email: string }>();
-    const [otpCode, setOtpCode] = useState('');
-    const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const params = useLocalSearchParams<{ email?: string | string[] }>();
+  const email = Array.isArray(params.email) ? params.email[0] : params.email ?? '';
 
-    // إعادة إرسال الرمز
-    const resendOtp = async () => {
-        if (!email) return;
-        setLoading(true);
-        const { error } = await supabase.auth.resend({
-            type: 'signup',
-            email: email,
-        });
-        setLoading(false);
+  const [otpCode, setOtpCode] = useState('');
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [isResending, setIsResending] = useState(false);
 
-        if (error) {
-            Alert.alert('خطأ', 'حدث خطأ أثناء إعادة إرسال الرمز، يرجى المحاولة لاحقاً.');
-        } else {
-            Alert.alert('تم الإرسال', 'تم إرسال رمز جديد إلى بريدك الإلكتروني.');
-        }
-    };
+  const resendOtp = async () => {
+    if (!email) {
+      Alert.alert('تنبيه', 'لا يوجد بريد إلكتروني مرتبط بعملية التحقق.');
+      return;
+    }
 
-    const verifyOtp = async () => {
-        if (otpCode.length < 6) {
-            Alert.alert('تنبيه', 'الرجاء إدخال الرمز كاملاً');
-            return;
-        }
+    setIsResending(true);
 
-        setLoading(true);
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email,
+    });
 
-        const { data, error } = await supabase.auth.verifyOtp({
-            email: email,
-            token: otpCode,
-            type: 'signup'
-        });
+    setIsResending(false);
 
-        setLoading(false);
+    if (error) {
+      Alert.alert('خطأ', 'حدث خطأ أثناء إعادة إرسال الرمز، يرجى المحاولة لاحقاً.');
+    } else {
+      Alert.alert('تم الإرسال', 'تم إرسال رمز جديد إلى بريدك الإلكتروني.');
+    }
+  };
 
-        if (error) {
-            Alert.alert('خطأ في التحقق', 'الرمز غير صحيح أو انتهت صلاحيته.');
-        } else if (data.session) {
-            Alert.alert('تم التفعيل', 'تم تفعيل حسابك بنجاح!', [
-                { text: 'ابـدأ التسوق', onPress: () => router.replace('/(tabs)/profile') }
-            ]);
-        }
-    };
+  const verifyOtp = async () => {
+    if (!email) {
+      Alert.alert('تنبيه', 'لا يوجد بريد إلكتروني مرتبط بعملية التحقق.');
+      return;
+    }
 
-    return (
-        <SafeAreaView className="flex-1 bg-background p-6 items-center pt-20">
-            <TouchableOpacity onPress={() => router.back()} className="absolute top-12 left-6 z-10">
-                <Ionicons name="arrow-back" size={24} color="#212121" />
-            </TouchableOpacity>
+    if (otpCode.length !== 6) {
+      Alert.alert('تنبيه', 'الرجاء إدخال الرمز المكوّن من 6 أرقام.');
+      return;
+    }
 
-            <View className="w-24 h-24 bg-primary/10 rounded-full items-center justify-center mb-6">
-                <Ionicons name="shield-checkmark-outline" size={48} color="#2E7D32" />
-            </View>
+    setIsVerifying(true);
 
-            <Text className="font-ibm-bold text-2xl text-primary text-center mb-2">تأكيد الحساب</Text>
-            <Text className="font-ibm text-text-secondary text-center mb-10 px-4 leading-6">
-                الرجاء إدخال رمز التحقق (OTP) المرسل إلى:{'\n'}
-                <Text className="font-ibm-bold text-primary">{email}</Text>
-            </Text>
+    const { data, error } = await supabase.auth.verifyOtp({
+      email,
+      token: otpCode,
+      type: 'signup',
+    });
 
-            <View className="w-full mb-8">
-                <Text className="font-ibm text-right mb-2 text-text-secondary">رمز التحقق</Text>
-                <TextInput
-                    className="bg-gray-50 border border-gray-200 rounded-xl p-4 text-center font-ibm-bold text-3xl tracking-[8px] text-primary"
-                    placeholder="--------"
-                    placeholderTextColor="#cbd5e1"
-                    keyboardType="number-pad"
-                    maxLength={8}
-                    value={otpCode}
-                    onChangeText={setOtpCode}
-                    autoFocus
-                />
-            </View>
+    setIsVerifying(false);
 
-            <TouchableOpacity
-                className="bg-primary w-full py-4 rounded-xl items-center mb-6 shadow-sm"
-                onPress={verifyOtp}
-                disabled={loading}
-            >
-                {loading ? (
-                    <ActivityIndicator color="white" />
-                ) : (
-                    <Text className="text-white font-ibm-bold text-lg">تأكيد وتفعيل</Text>
-                )}
-            </TouchableOpacity>
+    if (error) {
+      Alert.alert('خطأ في التحقق', 'الرمز غير صحيح أو انتهت صلاحيته.');
+    } else if (data.session) {
+      Alert.alert('تم التفعيل', 'تم تفعيل حسابك بنجاح!', [
+        { text: 'ابدأ التسوق', onPress: () => router.replace('/(tabs)/profile') },
+      ]);
+    }
+  };
 
-            <TouchableOpacity
-                onPress={resendOtp}
-                disabled={loading}
-                className="p-2"
-            >
-                <Text className="font-ibm text-text-secondary">
-                    لم يصلك الرمز؟ <Text className="text-primary font-ibm-bold">أعد الإرسال</Text>
-                </Text>
-            </TouchableOpacity>
-        </SafeAreaView>
-    );
+  return (
+    <AuthScaffold
+      title="تأكيد الحساب"
+      subtitle="أدخل رمز التحقق المرسل إلى بريدك حتى نفعّل الحساب ونربطه بجلسة تسجيل الدخول الحالية."
+    >
+      <AuthNote iconName="mail-open-outline">
+        <View style={{ gap: 4 }}>
+          <Text style={{ fontFamily: 'IBMPlexSansArabic_400Regular', color: '#5D6F62', fontSize: 13 }}>
+            تم إرسال رمز التحقق إلى:
+          </Text>
+          <Text
+            style={{
+              fontFamily: 'IBMPlexSansArabic_700Bold',
+              color: '#214D26',
+              fontSize: 14,
+            }}
+          >
+            {email || 'لا يوجد بريد محدد'}
+          </Text>
+        </View>
+      </AuthNote>
+
+      <AuthField
+        label="رمز التحقق"
+        iconName="keypad-outline"
+        helperText="أدخل الرمز كما وصلك في البريد الإلكتروني."
+        placeholder="------"
+        keyboardType="number-pad"
+        textContentType="oneTimeCode"
+        autoComplete="one-time-code"
+        autoFocus
+        forceLTR
+        textAlign="center"
+        maxLength={6}
+        value={otpCode}
+        onChangeText={(text) => setOtpCode(text.replace(/\D/g, '').slice(0, 6))}
+      />
+
+      <AuthPrimaryButton
+        label="تأكيد وتفعيل الحساب"
+        iconName="checkmark-circle-outline"
+        onPress={verifyOtp}
+        loading={isVerifying}
+        disabled={!email}
+      />
+
+      <TouchableOpacity
+        onPress={resendOtp}
+        disabled={isResending || isVerifying || !email}
+        style={{
+          minHeight: 48,
+          alignItems: 'center',
+          justifyContent: 'center',
+          borderRadius: 16,
+          borderWidth: 1,
+          borderColor: '#DCE8DD',
+          backgroundColor: isResending ? '#F1F5F1' : '#F8FBF8',
+        }}
+      >
+        <Text
+          style={{
+            fontFamily: 'IBMPlexSansArabic_600SemiBold',
+            color: '#3B5E40',
+            fontSize: 14,
+          }}
+        >
+          {isResending ? 'جارِ إعادة الإرسال...' : 'لم يصلك الرمز؟ أعد الإرسال'}
+        </Text>
+      </TouchableOpacity>
+    </AuthScaffold>
+  );
 }
