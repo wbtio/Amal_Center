@@ -1,5 +1,7 @@
 import { ExpoConfig, ConfigContext } from "@expo/config";
 
+const androidVersionCode = Number(process.env.ANDROID_VERSION_CODE);
+
 export default ({ config }: ConfigContext): ExpoConfig => ({
     ...config,
     name: process.env.EXPO_PUBLIC_APP_NAME || "Al-Amal Hypermarket",
@@ -20,7 +22,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     },
     android: {
         package: "com.alamal.center",
-        versionCode: config.android?.versionCode ?? 6,
+        versionCode:
+            (Number.isInteger(androidVersionCode) && androidVersionCode > 0
+                ? androidVersionCode
+                : config.android?.versionCode) ?? 7,
         adaptiveIcon: {
             foregroundImage: "./assets/adaptive-icon.png",
             backgroundColor: "#2E7D32",

@@ -43,7 +43,6 @@ export function HomeBannerCarousel({
   const activeBannerHref = resolveBannerHref(activeBanner.link);
   const fallbackAlt =
     language === "ar" ? "بانر الأمل سنتر" : "Al Amal Center banner";
-  const fallbackTitle = language === "ar" ? "بنر ترويجي" : "Promotional banner";
   const previousLabel = language === "ar" ? "السابق" : "Previous";
   const nextLabel = language === "ar" ? "التالي" : "Next";
 
@@ -76,18 +75,7 @@ export function HomeBannerCarousel({
         </Link>
 
         {banners.length > 1 ? (
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 bg-gradient-to-t from-black/45 via-black/10 to-transparent px-4 pb-4 pt-20 sm:px-6 sm:pb-6">
-            <div className="pointer-events-auto min-w-0 rounded-full bg-white/90 px-4 py-2 shadow-soft backdrop-blur">
-              <div className="flex items-center gap-3">
-                <p className="truncate text-sm font-semibold text-[#1D1D1F]">
-                  {activeBanner.title || fallbackTitle}
-                </p>
-                <span className="shrink-0 text-xs font-medium text-slate-500">
-                  {currentIndex + 1} / {banners.length}
-                </span>
-              </div>
-            </div>
-
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-end bg-gradient-to-t from-black/45 via-black/10 to-transparent px-4 pb-4 pt-20 sm:px-6 sm:pb-6">
             <div className="pointer-events-auto flex items-center gap-2 rounded-full bg-white/88 p-1.5 shadow-soft backdrop-blur">
               <button
                 type="button"

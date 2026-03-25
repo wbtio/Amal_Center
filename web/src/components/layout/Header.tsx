@@ -1,6 +1,6 @@
 "use client";
 
-import appIcon from "../../../../assets/icon.png";
+import appIcon from "../../../../assets/icon.svg";
 
 import {
   Globe,
@@ -112,20 +112,19 @@ export function Header() {
 
                 <Link
                   href="/"
-                  className="inline-flex min-w-0 items-center gap-3 rounded-[1.2rem] border border-white/80 bg-white/95 px-3 py-1.5 shadow-soft transition duration-200 hover:-translate-y-0.5 hover:shadow-premium"
+                  aria-label="الأمل سنتر"
+                  title="الأمل سنتر"
+                  className="inline-flex shrink-0 items-center rounded-[1.2rem] border border-white/80 bg-white/95 p-2 shadow-soft transition duration-200 hover:-translate-y-0.5 hover:shadow-premium"
                 >
-                  <span className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full border border-slate-200 bg-white shadow-sm">
+                  <span className="relative h-11 w-11 shrink-0 overflow-hidden rounded-[0.9rem] border border-slate-200 bg-white shadow-sm sm:h-12 sm:w-12">
                     <Image
                       src={appIcon}
                       alt="الأمل سنتر"
                       fill
                       priority
-                      sizes="36px"
-                      className="object-cover scale-[1.9]"
+                      sizes="(min-width: 640px) 48px, 44px"
+                      className="object-contain"
                     />
-                  </span>
-                  <span className="min-w-0 truncate text-sm font-semibold text-[#1D1D1F] sm:text-base">
-                    الأمل سنتر
                   </span>
                 </Link>
               </div>

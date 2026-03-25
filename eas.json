@@ -17,7 +17,7 @@
             "android": {
                 "buildType": "app-bundle",
                 "env": {
-                    "ANDROID_VERSION_CODE": "6"
+                    "ANDROID_VERSION_CODE": "7"
                 }
             }
         }
