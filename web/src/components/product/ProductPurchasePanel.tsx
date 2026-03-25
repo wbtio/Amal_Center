@@ -1,7 +1,7 @@
 "use client";
 
 import { CheckCircle2, Minus, Plus, ShoppingBag } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { useStorefront } from "@/components/providers/StorefrontProvider";
 import {
@@ -26,16 +26,48 @@ export function ProductPurchasePanel({
   const addItem = useCartStore((state) => state.addItem);
   const [quantity, setQuantity] = useState(1);
   const [tab, setTab] = useState<"description" | "details">("description");
+  const [cartNotice, setCartNotice] = useState<{
+    id: number;
+    message: string;
+  } | null>(null);
   const hasDiscount =
     typeof product.original_price === "number" &&
     product.original_price > product.price_iqd;
+  const productName = getProductName(product, language);
+
+  useEffect(() => {
+    if (!cartNotice) {
+      return undefined;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setCartNotice(null);
+    }, 2600);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [cartNotice]);
+
+  function handleAddToCart() {
+    addItem(product, quantity);
+    setCartNotice(
+      {
+        id: Date.now(),
+        message:
+          language === "ar"
+            ? `تمت إضافة المنتج "${productName}" إلى السلة`
+            : `Added "${productName}" to cart`,
+      }
+    );
+  }
 
   return (
     <div className="space-y-6">
       <div className="text-start">
         <p className="eyebrow">{messages.nav.products}</p>
         <h1 className="mt-4 text-3xl font-bold tracking-tight text-[#1D1D1F] sm:text-4xl lg:text-5xl">
-          {getProductName(product, language)}
+          {productName}
         </h1>
         <p className="mt-4 max-w-2xl text-base leading-7 text-slate-500 sm:mt-5 sm:text-lg sm:leading-8">
           {getProductDescription(product, language)}
@@ -109,7 +141,7 @@ export function ProductPurchasePanel({
 
           <button
             type="button"
-            onClick={() => addItem(product, quantity)}
+            onClick={handleAddToCart}
             disabled={product.stock_quantity <= 0}
             className={cn(
               "pill-button-primary min-h-14 flex-1 gap-2 text-base",
@@ -125,6 +157,7 @@ export function ProductPurchasePanel({
             </span>
           </button>
         </div>
+
       </div>
 
       <div className="soft-panel p-5 sm:p-8">
@@ -201,6 +234,27 @@ export function ProductPurchasePanel({
           </div>
         )}
       </div>
+
+      {cartNotice ? (
+        <div
+          aria-live="polite"
+          className="pointer-events-none fixed inset-x-4 bottom-4 z-[70] flex justify-center sm:bottom-6"
+        >
+          <div className="pointer-events-auto flex w-full max-w-md items-start gap-3 rounded-[1.8rem] border border-primary/15 bg-white/95 px-4 py-4 text-start shadow-[0_24px_80px_-32px_rgba(15,23,42,0.45)] backdrop-blur-xl sm:px-5">
+            <span className="mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+              <CheckCircle2 size={20} />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold text-[#1D1D1F]">
+                {language === "ar" ? "تمت الإضافة بنجاح" : "Added to cart"}
+              </p>
+              <p className="mt-1 text-sm leading-6 text-slate-500">
+                {cartNotice.message}
+              </p>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

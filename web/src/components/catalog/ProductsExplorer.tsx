@@ -3,7 +3,13 @@
 
 import { LayoutGrid, SlidersHorizontal } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { startTransition, useEffect, useState, useTransition } from "react";
+import {
+  startTransition,
+  useEffect,
+  useRef,
+  useState,
+  useTransition,
+} from "react";
 
 import { useStorefront } from "@/components/providers/StorefrontProvider";
 import { StorefrontSearchBar } from "@/components/search/StorefrontSearchBar";
@@ -45,6 +51,7 @@ export function ProductsExplorer({
   const [isPending, startRouteTransition] = useTransition();
   const [minPrice, setMinPrice] = useState(initialMinPrice);
   const [maxPrice, setMaxPrice] = useState(initialMaxPrice);
+  const resultsRef = useRef<HTMLDivElement | null>(null);
   const {
     searchValue: search,
     setSearchValue: setSearch,
@@ -64,6 +71,11 @@ export function ProductsExplorer({
   useEffect(() => {
     setMaxPrice(initialMaxPrice);
   }, [initialMaxPrice]);
+
+  const activeCategory = categories.find((category) => category.id === initialCategory);
+  const activeCategoryName = activeCategory
+    ? getCategoryName(activeCategory, language)
+    : null;
 
   function replaceQuery(
     updates: Record<string, string | boolean | null | undefined>,
@@ -103,6 +115,20 @@ export function ProductsExplorer({
     });
   }
 
+  function revealResults() {
+    window.requestAnimationFrame(() => {
+      resultsRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    });
+  }
+
+  function handleCategoryChange(nextCategory: string | null) {
+    replaceQuery({ category: nextCategory, page: null });
+    revealResults();
+  }
+
   return (
     <div className="grid gap-6 lg:grid-cols-[260px_minmax(0,1fr)] xl:gap-8">
       <aside className="space-y-4 sm:space-y-5 lg:sticky lg:top-28 lg:h-fit">
@@ -127,7 +153,7 @@ export function ProductsExplorer({
               <div className="grid gap-2">
                 <button
                   type="button"
-                  onClick={() => replaceQuery({ category: null })}
+                  onClick={() => handleCategoryChange(null)}
                   className={cn(
                     "flex items-center gap-3 rounded-2xl border px-3 py-3 text-sm transition",
                     "text-start",
@@ -163,9 +189,7 @@ export function ProductsExplorer({
                       key={category.id}
                       type="button"
                       onClick={() =>
-                        replaceQuery({
-                          category: selected ? null : category.id,
-                        })
+                        handleCategoryChange(selected ? null : category.id)
                       }
                       className={cn(
                         "flex items-center gap-3 rounded-2xl border px-3 py-3 text-sm transition",
@@ -275,7 +299,7 @@ export function ProductsExplorer({
         </div>
       </aside>
 
-      <div className="space-y-6">
+      <div ref={resultsRef} className="space-y-6 scroll-mt-28">
         <div className="soft-panel overflow-hidden p-4 sm:p-6">
           <div className="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-center">
             <StorefrontSearchBar
@@ -332,6 +356,16 @@ export function ProductsExplorer({
               </select>
             </div>
           </div>
+
+          {activeCategoryName ? (
+            <div className="mt-4 inline-flex max-w-full items-center gap-2 rounded-full border border-primary/15 bg-primary/6 px-4 py-2 text-sm font-medium text-primary">
+              <span className="truncate">
+                {language === "ar"
+                  ? `يعرض الآن منتجات ${activeCategoryName}`
+                  : `Showing ${activeCategoryName} products`}
+              </span>
+            </div>
+          ) : null}
         </div>
 
         {products.length > 0 ? (
