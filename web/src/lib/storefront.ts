@@ -283,7 +283,7 @@ export const storefrontMessages: Record<
     },
     footer: {
       description:
-        "متجر عربي سريع ومريح لطلبات البقالة والهايبرماركت اليومية، متصل بنفس بيانات المشروع الحية.",
+        "تسوق الآن جميع المنتجات عبر الإنترنت",
       contact: "تواصل معنا",
       quickLinks: "روابط سريعة",
       rights: "جميع الحقوق محفوظة",
@@ -414,7 +414,7 @@ export const storefrontMessages: Record<
     },
     footer: {
       description:
-        "A refined Arabic-first storefront for grocery and hypermarket orders, connected to the same live project data.",
+        "Shop all products online now.",
       contact: "Contact",
       quickLinks: "Quick links",
       rights: "All rights reserved",

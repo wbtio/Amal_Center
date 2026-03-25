@@ -66,7 +66,7 @@ export default function LoginPage() {
   });
 
   return (
-    <div className="grid min-h-[calc(100vh-14rem)] gap-6 lg:grid-cols-[1.05fr_0.95fr] lg:items-stretch">
+    <div className="grid min-h-[calc(100vh-14rem)] gap-5 lg:grid-cols-[1.05fr_0.95fr] lg:items-stretch">
       <section className="hidden overflow-hidden rounded-[2.5rem] bg-[linear-gradient(180deg,#ffffff_0%,#f5f7f5_100%)] p-10 lg:flex lg:flex-col lg:justify-between">
         <div className="text-start">
           <p className="eyebrow">Al-Amal Center</p>
@@ -102,13 +102,13 @@ export default function LoginPage() {
         </div>
       </section>
 
-      <section className="soft-panel px-6 py-8 sm:px-8 lg:px-10 lg:py-10">
+      <section className="soft-panel px-5 py-6 sm:px-8 lg:px-10 lg:py-10">
         <div className="text-start">
           <p className="eyebrow">{messages.auth.loginTitle}</p>
-          <h2 className="mt-4 text-4xl font-bold tracking-tight text-[#1D1D1F]">
+          <h2 className="mt-4 text-3xl font-bold tracking-tight text-[#1D1D1F] sm:text-4xl">
             {messages.auth.loginTitle}
           </h2>
-          <p className="mt-5 text-base leading-8 text-slate-500">
+          <p className="mt-4 text-sm leading-7 text-slate-500 sm:mt-5 sm:text-base sm:leading-8">
             {messages.auth.loginSubtitle}
           </p>
         </div>

@@ -41,14 +41,14 @@ export default async function OrderDetailsPage({
 
   return (
     <div className="space-y-10">
-      <section className="soft-panel px-6 py-10 sm:px-8 lg:px-12 lg:py-14">
+      <section className="soft-panel px-5 py-8 sm:px-8 lg:px-12 lg:py-14">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="text-start">
             <p className="eyebrow">{messages.orders.details}</p>
-            <h1 className="mt-4 text-4xl font-bold tracking-tight text-[#1D1D1F] sm:text-5xl">
+            <h1 className="mt-4 text-3xl font-bold tracking-tight text-[#1D1D1F] sm:text-4xl lg:text-5xl">
               #{order.id.slice(0, 8)}
             </h1>
-            <p className="mt-5 max-w-3xl text-lg leading-8 text-slate-500">
+            <p className="mt-4 max-w-3xl text-base leading-7 text-slate-500 sm:mt-5 sm:text-lg sm:leading-8">
               {formatDateTime(order.created_at, language)}
             </p>
           </div>

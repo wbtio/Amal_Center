@@ -50,7 +50,7 @@ export default async function HomePage() {
         ) : (
           <Link
             href="/products"
-            className="group block overflow-hidden rounded-[2.75rem] border border-white/80 bg-white shadow-premium"
+            className="group block overflow-hidden rounded-[1.9rem] border border-white/80 bg-white shadow-premium sm:rounded-[2.75rem]"
           >
             {bannerVisual ? (
               <img
@@ -60,7 +60,7 @@ export default async function HomePage() {
                 loading="eager"
               />
             ) : (
-              <div className="h-[14rem] bg-[linear-gradient(135deg,#f8faf8_0%,#edf7ee_45%,#fdf7e7_100%)] sm:h-[18rem] lg:h-[24rem] xl:h-[28rem]" />
+              <div className="h-[11rem] bg-[linear-gradient(135deg,#f8faf8_0%,#edf7ee_45%,#fdf7e7_100%)] sm:h-[18rem] lg:h-[24rem] xl:h-[28rem]" />
             )}
           </Link>
         )}
@@ -90,7 +90,7 @@ export default async function HomePage() {
               <p className="eyebrow">{messages.home.offers}</p>
               <h2 className="section-heading mt-3">{messages.home.offers}</h2>
             </div>
-            <Link href="/products" className="pill-button-ghost">
+            <Link href="/products" className="pill-button-ghost w-full sm:w-auto">
               {messages.common.viewAll}
             </Link>
           </div>
@@ -126,7 +126,7 @@ export default async function HomePage() {
             <p className="eyebrow">{messages.home.newArrivals}</p>
             <h2 className="section-heading mt-3">{messages.home.newArrivals}</h2>
           </div>
-          <Link href="/products?sort=newest" className="pill-button-ghost">
+          <Link href="/products?sort=newest" className="pill-button-ghost w-full sm:w-auto">
             {messages.common.viewAll}
           </Link>
         </div>

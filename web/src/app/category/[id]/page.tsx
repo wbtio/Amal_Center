@@ -41,7 +41,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
             />
           ) : null}
           <div className="absolute inset-0 bg-gradient-to-b from-white/85 via-white/92 to-white" />
-          <div className="relative px-6 py-10 sm:px-8 lg:px-12 lg:py-14">
+          <div className="relative px-5 py-8 sm:px-8 lg:px-12 lg:py-14">
             <nav
               className="flex flex-wrap items-center gap-2 text-sm text-slate-400"
             >
@@ -63,10 +63,10 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
                 <div className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 text-xl text-primary">
                   {category.icon?.slice(0, 1) || "•"}
                 </div>
-                <h1 className="mt-5 text-4xl font-bold tracking-tight text-[#1D1D1F] sm:text-5xl">
+                <h1 className="mt-5 text-3xl font-bold tracking-tight text-[#1D1D1F] sm:text-4xl lg:text-5xl">
                   {getCategoryName(category, language)}
                 </h1>
-                <p className="mt-4 max-w-2xl text-lg leading-8 text-slate-500">
+                <p className="mt-4 max-w-2xl text-base leading-7 text-slate-500 sm:text-lg sm:leading-8">
                   {language === "ar"
                     ? "كل المنتجات النشطة داخل هذا القسم، مع نفس واجهة العرض السريعة والمبسطة."
                     : "All active products inside this category with the same fast, refined browsing experience."}

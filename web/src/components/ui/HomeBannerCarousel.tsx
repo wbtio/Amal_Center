@@ -61,7 +61,7 @@ export function HomeBannerCarousel({
 
   return (
     <div className="space-y-4 lg:space-y-5">
-      <div className="relative overflow-hidden rounded-[2.75rem] border border-white/80 bg-white shadow-premium">
+      <div className="relative overflow-hidden rounded-[1.9rem] border border-white/80 bg-white shadow-premium sm:rounded-[2.75rem]">
         <Link
           href={activeBannerHref}
           className="group block"
@@ -75,7 +75,7 @@ export function HomeBannerCarousel({
         </Link>
 
         {banners.length > 1 ? (
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-end bg-gradient-to-t from-black/45 via-black/10 to-transparent px-4 pb-4 pt-20 sm:px-6 sm:pb-6">
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-end bg-gradient-to-t from-black/45 via-black/10 to-transparent px-3 pb-3 pt-16 sm:px-6 sm:pb-6 sm:pt-20">
             <div className="pointer-events-auto flex items-center gap-2 rounded-full bg-white/88 p-1.5 shadow-soft backdrop-blur">
               <button
                 type="button"

@@ -13,21 +13,27 @@ export const APP_CONFIG = {
     HELP_CENTER_URL: 'https://help.al-amal-center.iq',
     PLAY_STORE_URL: 'https://play.google.com/store/apps/details?id=com.alamal.center',
     APP_STORE_URL: 'https://www.apple.com/app-store/',
+    APK_URL: '',
     BRANCH_LOCATIONS: [
         {
-            label_ar: 'الفرع 2',
-            label_en: 'Branch 2',
-            href: 'https://www.google.com/maps/search/?api=1&query=Al-Amal%20residential%20complex',
+            label_ar: 'الأمل 1',
+            label_en: 'Al Amal 1',
+            href: 'https://maps.google.com/maps?q=30.426891326904297%2C47.7881965637207&z=17&hl=en',
         },
         {
-            label_ar: 'الفرع 3',
-            label_en: 'Branch 3',
-            href: 'https://www.google.com/maps/search/?api=1&query=%D8%A7%D9%84%D8%A7%D9%85%D9%84%20%D8%B3%D9%86%D8%AA%D8%B1%204',
+            label_ar: 'الأمل 2',
+            label_en: 'Al Amal 2',
+            href: 'https://maps.google.com/maps?q=30.52410888671875%2C47.75685119628906&z=17&hl=en',
         },
         {
-            label_ar: 'الفرع 4',
-            label_en: 'Branch 4',
-            href: 'https://www.google.com/maps/search/?api=1&query=%D8%B3%D9%86%D8%AA%D8%B1%20%D8%A7%D9%84%D8%A7%D9%85%D9%84',
+            label_ar: 'الأمل 3',
+            label_en: 'Al Amal 3',
+            href: 'https://maps.google.com/maps?q=30.527002334594727%2C47.76530456542969&z=17&hl=en',
+        },
+        {
+            label_ar: 'الأمل 4',
+            label_en: 'Al Amal 4',
+            href: 'https://maps.google.com/maps?q=30.538890838623047%2C47.800296783447266&z=17&hl=en',
         },
     ],
 

@@ -34,15 +34,15 @@ export function ProductPurchasePanel({
     <div className="space-y-6">
       <div className="text-start">
         <p className="eyebrow">{messages.nav.products}</p>
-        <h1 className="mt-4 text-4xl font-bold tracking-tight text-[#1D1D1F] sm:text-5xl">
+        <h1 className="mt-4 text-3xl font-bold tracking-tight text-[#1D1D1F] sm:text-4xl lg:text-5xl">
           {getProductName(product, language)}
         </h1>
-        <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-500">
+        <p className="mt-4 max-w-2xl text-base leading-7 text-slate-500 sm:mt-5 sm:text-lg sm:leading-8">
           {getProductDescription(product, language)}
         </p>
       </div>
 
-      <div className="soft-panel p-6 sm:p-8">
+      <div className="soft-panel p-5 sm:p-8">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <div>
             <p className="text-sm font-medium text-slate-400">
@@ -127,7 +127,7 @@ export function ProductPurchasePanel({
         </div>
       </div>
 
-      <div className="soft-panel p-6 sm:p-8">
+      <div className="soft-panel p-5 sm:p-8">
         <div className="flex flex-wrap gap-3">
           <button
             type="button"

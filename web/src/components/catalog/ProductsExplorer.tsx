@@ -104,10 +104,10 @@ export function ProductsExplorer({
   }
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[280px_minmax(0,1fr)] xl:gap-10">
-      <aside className="space-y-5 lg:sticky lg:top-28 lg:h-fit">
-        <div className="soft-panel p-6">
-          <div className="mb-5 flex items-center gap-3">
+    <div className="grid gap-6 lg:grid-cols-[260px_minmax(0,1fr)] xl:gap-8">
+      <aside className="space-y-4 sm:space-y-5 lg:sticky lg:top-28 lg:h-fit">
+        <div className="soft-panel p-5 sm:p-6">
+          <div className="mb-4 flex items-center gap-3 sm:mb-5">
             <div className="flex h-11 w-11 items-center justify-center rounded-full bg-slate-100 text-slate-700">
               <SlidersHorizontal size={18} />
             </div>
@@ -276,8 +276,8 @@ export function ProductsExplorer({
       </aside>
 
       <div className="space-y-6">
-        <div className="soft-panel overflow-hidden p-5 sm:p-6">
-          <div className="grid gap-4 xl:grid-cols-[1fr_auto] xl:items-center">
+        <div className="soft-panel overflow-hidden p-4 sm:p-6">
+          <div className="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-center">
             <StorefrontSearchBar
               value={search}
               isRTL={isRTL}
@@ -296,7 +296,7 @@ export function ProductsExplorer({
               onSubmit={submitSearch}
             />
 
-            <div className="grid gap-3 sm:grid-cols-[auto_220px] sm:items-center">
+            <div className="grid gap-3 sm:grid-cols-[1fr_220px] sm:items-center">
               <p
                 className="text-sm text-slate-500 text-start"
               >
@@ -342,7 +342,7 @@ export function ProductsExplorer({
               ))}
             </div>
 
-            <div className="mt-8 flex items-center justify-center gap-3">
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               <button
                 type="button"
                 onClick={() => {
