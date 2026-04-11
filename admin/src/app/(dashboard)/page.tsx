@@ -1,6 +1,7 @@
 'use client';
 
 import { Header } from '@/components/layout/Header';
+import Image from 'next/image';
 import {
   ShoppingBag,
   ShoppingCart,
@@ -581,7 +582,7 @@ export default function DashboardPage() {
                       #{index + 1}
                     </div>
                     {product.image_url ? (
-                      <img src={product.image_url} alt={product.name} className="w-10 h-10 md:w-12 md:h-12 rounded-lg object-cover flex-shrink-0" />
+                      <Image src={product.image_url} alt={product.name} width={48} height={48} className="w-10 h-10 md:w-12 md:h-12 rounded-lg object-cover flex-shrink-0" />
                     ) : (
                       <div className="w-10 h-10 md:w-12 md:h-12 bg-gray-200 rounded-lg flex items-center justify-center flex-shrink-0">
                         <Package size={18} className="text-gray-400" />

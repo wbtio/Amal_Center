@@ -63,7 +63,7 @@ export default function ManualProductForm({ onBack }: ManualProductFormProps) {
 
       const { error: uploadError } = await supabase.storage
         .from('products')
-        .upload(filePath, file);
+        .upload(filePath, file, { cacheControl: '31536000' });
 
       if (uploadError) throw uploadError;
 
@@ -202,7 +202,7 @@ export default function ManualProductForm({ onBack }: ManualProductFormProps) {
               
               {imagePreview ? (
                 <div className="relative w-48 h-48 bg-gray-100 rounded-xl overflow-hidden border-2 border-gray-200">
-                  <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                  <img src={imagePreview} alt="Preview" loading="lazy" className="w-full h-full object-cover" />
                   <button
                     type="button"
                     onClick={removeImage}

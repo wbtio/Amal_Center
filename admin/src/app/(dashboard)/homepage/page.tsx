@@ -320,7 +320,7 @@ export default function HomepageManagementPage() {
             const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
             const bucket = type === 'banner' ? 'banners' : 'promo-banners';
 
-            const { error: uploadError } = await supabase.storage.from(bucket).upload(fileName, file);
+            const { error: uploadError } = await supabase.storage.from(bucket).upload(fileName, file, { cacheControl: '31536000' });
             if (uploadError) throw uploadError;
 
             const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(fileName);
@@ -529,6 +529,7 @@ export default function HomepageManagementPage() {
                                                                     <img 
                                                                         src={images[currentIndex]} 
                                                                         alt="" 
+                                                                        loading="lazy"
                                                                         className="w-full h-36 object-cover rounded-xl shadow-md" 
                                                                     />
                                                                 ) : (
@@ -599,7 +600,7 @@ export default function HomepageManagementPage() {
                                                                             }`}
                                                                         >
                                                                             {img ? (
-                                                                                <img src={img} alt="" className="w-full h-full object-cover" />
+                                                                                <img src={img} alt="" loading="lazy" className="w-full h-full object-cover" />
                                                                             ) : (
                                                                                 <div className="w-full h-full bg-gray-200 flex items-center justify-center">
                                                                                     <ImageIcon size={12} className="text-gray-400" />
@@ -645,6 +646,7 @@ export default function HomepageManagementPage() {
                                                                     <img 
                                                                         src={images[currentIndex]} 
                                                                         alt="" 
+                                                                        loading="lazy"
                                                                         className="w-full h-24 object-cover rounded-lg shadow-sm" 
                                                                     />
                                                                 ) : (
@@ -715,7 +717,7 @@ export default function HomepageManagementPage() {
                                                                             }`}
                                                                         >
                                                                             {img ? (
-                                                                                <img src={img} alt="" className="w-full h-full object-cover" />
+                                                                                <img src={img} alt="" loading="lazy" className="w-full h-full object-cover" />
                                                                             ) : (
                                                                                 <div className="w-full h-full bg-orange-100 flex items-center justify-center">
                                                                                     <ImageIcon size={10} className="text-orange-300" />
@@ -937,7 +939,7 @@ export default function HomepageManagementPage() {
                                                 />
                                                 {banner.image_url ? (
                                                     <>
-                                                        <img src={banner.image_url} alt="" className="w-full h-full object-cover" />
+                                                        <img src={banner.image_url} alt="" loading="lazy" className="w-full h-full object-cover" />
                                                         <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                                             <span className="text-white font-medium">تغيير الصورة</span>
                                                         </div>
@@ -1044,7 +1046,7 @@ export default function HomepageManagementPage() {
                                                                         }}
                                                                     />
                                                                     {promo.image_url ? (
-                                                                        <img src={promo.image_url} alt="" className="w-full h-full object-cover" />
+                                                                        <img src={promo.image_url} alt="" loading="lazy" className="w-full h-full object-cover" />
                                                                     ) : (
                                                                         <div className="flex items-center justify-center h-full text-gray-400">
                                                                             <ImageIcon size={20} />

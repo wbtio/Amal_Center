@@ -161,7 +161,8 @@ export default function AIProductForm({ onBack }: AIProductFormProps) {
             .from('products')
             .upload(filePath, imageBuffer, {
               contentType: 'image/jpeg',
-              upsert: true
+              upsert: true,
+              cacheControl: '31536000'
             });
 
           if (uploadError) throw uploadError;
@@ -342,7 +343,7 @@ export default function AIProductForm({ onBack }: AIProductFormProps) {
                 <label className="block text-sm font-medium text-gray-700 mb-2">الصورة الأمامية</label>
                 {frontImagePreview ? (
                   <div className="relative w-full h-64 bg-gray-100 rounded-xl overflow-hidden border-2 border-purple-200">
-                    <img src={frontImagePreview} alt="Front" className="w-full h-full object-contain" />
+                    <img src={frontImagePreview} alt="Front" loading="lazy" className="w-full h-full object-contain" />
                     <button
                       onClick={() => { setFrontImage(null); setFrontImagePreview(null); }}
                       className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
@@ -370,7 +371,7 @@ export default function AIProductForm({ onBack }: AIProductFormProps) {
                 <label className="block text-sm font-medium text-gray-700 mb-2">الصورة الخلفية</label>
                 {backImagePreview ? (
                   <div className="relative w-full h-64 bg-gray-100 rounded-xl overflow-hidden border-2 border-purple-200">
-                    <img src={backImagePreview} alt="Back" className="w-full h-full object-contain" />
+                    <img src={backImagePreview} alt="Back" loading="lazy" className="w-full h-full object-contain" />
                     <button
                       onClick={() => { setBackImage(null); setBackImagePreview(null); }}
                       className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
@@ -554,7 +555,7 @@ export default function AIProductForm({ onBack }: AIProductFormProps) {
                   </div>
                 )}
                 <div className="w-40 h-40 bg-gray-100 rounded-xl overflow-hidden border-2 border-gray-200">
-                  <img src={aiData.image_url} alt="Product" className="w-full h-full object-contain" />
+                  <img src={aiData.image_url} alt="Product" loading="lazy" className="w-full h-full object-contain" />
                 </div>
               </div>
             )}
@@ -612,7 +613,7 @@ export default function AIProductForm({ onBack }: AIProductFormProps) {
                 <label className="text-sm text-gray-600 mb-2 block">صورة المنتج {bgRemoved ? '(بعد إزالة الخلفية)' : '(الصورة الأصلية)'}</label>
                 <div className="w-full h-64 bg-gray-100 rounded-xl overflow-hidden border-2 border-gray-200">
                   {aiData.image_url ? (
-                    <img src={aiData.image_url} alt="Product" className="w-full h-full object-contain" />
+                    <img src={aiData.image_url} alt="Product" loading="lazy" className="w-full h-full object-contain" />
                   ) : (
                     <div className="w-full h-full flex flex-col items-center justify-center text-gray-400">
                       <ImageIcon size={48} />

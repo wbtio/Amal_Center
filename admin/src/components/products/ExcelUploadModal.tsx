@@ -157,7 +157,8 @@ export default function ExcelUploadModal({
         .from('products')
         .upload(filePath, blob, {
           contentType: blob.type || 'image/jpeg',
-          upsert: true
+          upsert: true,
+          cacheControl: '31536000'
         });
 
       if (uploadError) throw uploadError;

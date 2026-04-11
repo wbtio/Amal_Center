@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { supabase, type Profile } from '@/lib/supabase';
 import { Search, User } from 'lucide-react';
+import Image from 'next/image';
 import { format } from 'date-fns';
 import { Header } from '@/components/layout/Header';
 
@@ -67,7 +68,7 @@ export default function UsersPage() {
                 <tr key={user.id || index} className="hover:bg-gray-50">
                   <td className="px-6 py-4 flex items-center gap-3">
                     {user.avatar_url ? (
-                      <img src={user.avatar_url || ''} alt={user.full_name || ''} className="w-10 h-10 rounded-full object-cover" />
+                      <Image src={user.avatar_url || ''} alt={user.full_name || ''} width={40} height={40} className="w-10 h-10 rounded-full object-cover" />
                     ) : (
                       <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold">
                         <User size={20} />
@@ -99,7 +100,7 @@ export default function UsersPage() {
             <div key={user.id || index} className="p-3 hover:bg-gray-50 transition-colors">
               <div className="flex items-start gap-3">
                 {user.avatar_url ? (
-                  <img src={user.avatar_url || ''} alt={user.full_name || ''} className="w-10 h-10 rounded-full object-cover flex-shrink-0" />
+                  <Image src={user.avatar_url || ''} alt={user.full_name || ''} width={40} height={40} className="w-10 h-10 rounded-full object-cover flex-shrink-0" />
                 ) : (
                   <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold flex-shrink-0">
                     <User size={18} />

@@ -7,17 +7,24 @@ import { supabase } from '../lib/supabase';
 import type { Product, ProductFilters, SortOption } from '../shared/types';
 
 /**
+ * الأعمدة المطلوبة في قوائم المنتجات (تستبعد description لتقليل حجم البيانات)
+ * description و description_ar يُحملان فقط في صفحة تفاصيل المنتج
+ */
+const PRODUCT_LIST_FIELDS = 'id, name, name_ar, price_iqd, price_usd, image_url, category_id, stock_quantity, is_active, sales_count, created_at, updated_at';
+
+/**
  * جلب جميع المنتجات النشطة
  */
-export const getProducts = async (): Promise<Product[]> => {
+export const getProducts = async (limit: number = 20, offset: number = 0): Promise<Product[]> => {
     const { data, error } = await supabase
         .from('products')
-        .select('*')
+        .select(PRODUCT_LIST_FIELDS)
         .eq('is_active', true)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .range(offset, offset + limit - 1);
 
     if (error) throw error;
-    return data || [];
+    return (data || []) as unknown as Product[];
 };
 
 /**
@@ -37,15 +44,16 @@ export const getProductById = async (id: string): Promise<Product> => {
 /**
  * جلب المنتجات حسب الفئة
  */
-export const getProductsByCategory = async (categoryId: string): Promise<Product[]> => {
+export const getProductsByCategory = async (categoryId: string, limit: number = 50, offset: number = 0): Promise<Product[]> => {
     const { data, error } = await supabase
         .from('products')
-        .select('*')
+        .select(PRODUCT_LIST_FIELDS)
         .eq('category_id', categoryId)
-        .eq('is_active', true);
+        .eq('is_active', true)
+        .range(offset, offset + limit - 1);
 
     if (error) throw error;
-    return data || [];
+    return (data || []) as unknown as Product[];
 };
 
 /**
@@ -105,7 +113,7 @@ export const getSpecialOffers = async (limit: number = 6): Promise<SpecialOffers
         .from('offer_products')
         .select(`
             product_id,
-            products (*)
+            products (${PRODUCT_LIST_FIELDS})
         `)
         .eq('offer_id', activeOffer.id)
         .limit(limit);
@@ -151,7 +159,7 @@ export const getBestSellers = async (limit: number = 6): Promise<Product[]> => {
     // أولاً: محاولة جلب المنتجات الأكثر مبيعاً
     const { data, error } = await supabase
         .from('products')
-        .select('*')
+        .select(PRODUCT_LIST_FIELDS)
         .eq('is_active', true)
         .gt('sales_count', 0)
         .order('sales_count', { ascending: false })
@@ -161,7 +169,7 @@ export const getBestSellers = async (limit: number = 6): Promise<Product[]> => {
     
     // إذا وجدت منتجات مبيعة، أرجعها
     if (data && data.length > 0) {
-        return data;
+        return data as unknown as Product[];
     }
     
     // Fallback: إذا لم توجد مبيعات، أرجع منتجات عشوائية
@@ -174,13 +182,13 @@ export const getBestSellers = async (limit: number = 6): Promise<Product[]> => {
 export const getNewArrivals = async (limit: number = 6): Promise<Product[]> => {
     const { data, error } = await supabase
         .from('products')
-        .select('*')
+        .select(PRODUCT_LIST_FIELDS)
         .eq('is_active', true)
         .order('created_at', { ascending: false })
         .limit(limit);
 
     if (error) throw error;
-    return data || [];
+    return (data || []) as unknown as Product[];
 };
 
 /**
@@ -188,19 +196,20 @@ export const getNewArrivals = async (limit: number = 6): Promise<Product[]> => {
  * تستخدم كـ fallback عندما لا توجد بيانات في الأقسام الأخرى
  */
 export const getRandomProducts = async (limit: number = 6): Promise<Product[]> => {
-    // جلب عدد أكبر ثم اختيار عشوائي
+    // جلب عدد محدود ثم اختيار عشوائي
+    const fetchCount = Math.min(limit * 5, 30);
     const { data, error } = await supabase
         .from('products')
-        .select('*')
+        .select(PRODUCT_LIST_FIELDS)
         .eq('is_active', true)
-        .limit(50);
+        .limit(fetchCount);
 
     if (error) throw error;
     if (!data || data.length === 0) return [];
     
     // خلط المنتجات عشوائياً
     const shuffled = data.sort(() => Math.random() - 0.5);
-    return shuffled.slice(0, limit);
+    return shuffled.slice(0, limit) as unknown as Product[];
 };
 
 /**
@@ -212,7 +221,7 @@ export const getTrendingProducts = async (limit: number = 6): Promise<Product[]>
     // محاولة جلب المنتجات بناءً على المشاهدات أو المبيعات
     const { data, error } = await supabase
         .from('products')
-        .select('*')
+        .select(PRODUCT_LIST_FIELDS)
         .eq('is_active', true)
         .gt('sales_count', 0)
         .order('sales_count', { ascending: false })
@@ -221,7 +230,7 @@ export const getTrendingProducts = async (limit: number = 6): Promise<Product[]>
     if (error) throw error;
     
     if (data && data.length > 0) {
-        return data;
+        return data as unknown as Product[];
     }
     
     // Fallback: منتجات عشوائية
@@ -239,35 +248,36 @@ export const getSimilarProducts = async (
 ): Promise<Product[]> => {
     const { data, error } = await supabase
         .from('products')
-        .select('*')
+        .select(PRODUCT_LIST_FIELDS)
         .eq('category_id', categoryId)
         .neq('id', excludeProductId)
         .eq('is_active', true)
         .limit(limit);
 
     if (error) throw error;
-    return data || [];
+    return (data || []) as unknown as Product[];
 };
 
 /**
  * البحث في المنتجات
  */
-export const searchProducts = async (query: string): Promise<Product[]> => {
+export const searchProducts = async (query: string, limit: number = 30): Promise<Product[]> => {
     const { data, error } = await supabase
         .from('products')
-        .select('*')
+        .select(PRODUCT_LIST_FIELDS)
         .eq('is_active', true)
-        .or(`name.ilike.%${query}%,name_ar.ilike.%${query}%,description.ilike.%${query}%,description_ar.ilike.%${query}%`);
+        .or(`name.ilike.%${query}%,name_ar.ilike.%${query}%`)
+        .limit(limit);
 
     if (error) throw error;
-    return data || [];
+    return (data || []) as unknown as Product[];
 };
 
 /**
  * جلب المنتجات مع فلترة
  */
-export const getFilteredProducts = async (filters: ProductFilters): Promise<Product[]> => {
-    let query = supabase.from('products').select('*').eq('is_active', true);
+export const getFilteredProducts = async (filters: ProductFilters, limit: number = 50, offset: number = 0): Promise<Product[]> => {
+    let query = supabase.from('products').select(PRODUCT_LIST_FIELDS).eq('is_active', true);
 
     if (filters.category_id) {
         query = query.eq('category_id', filters.category_id);
@@ -291,10 +301,11 @@ export const getFilteredProducts = async (filters: ProductFilters): Promise<Prod
         );
     }
 
+    query = query.range(offset, offset + limit - 1);
     const { data, error } = await query;
 
     if (error) throw error;
-    return data || [];
+    return (data || []) as unknown as Product[];
 };
 
 /**
@@ -308,9 +319,13 @@ export const getProductsByCategoryWithFilters = async (
         minPrice?: number;
         maxPrice?: number;
         inStock?: boolean;
+        limit?: number;
+        offset?: number;
     }
 ): Promise<Product[]> => {
-    let query = supabase.from('products').select('*').eq('is_active', true);
+    const limit = options?.limit ?? 50;
+    const offset = options?.offset ?? 0;
+    let query = supabase.from('products').select(PRODUCT_LIST_FIELDS).eq('is_active', true);
 
     // إذا كان هناك قسم فرعي محدد، استخدمه، وإلا استخدم القسم الرئيسي
     if (options?.subcategoryId) {
@@ -356,10 +371,11 @@ export const getProductsByCategoryWithFilters = async (
             query = query.order('created_at', { ascending: false });
     }
 
+    query = query.range(offset, offset + limit - 1);
     const { data, error } = await query;
 
     if (error) throw error;
-    return data || [];
+    return (data || []) as unknown as Product[];
 };
 
 /**
@@ -373,13 +389,17 @@ export const getProductsByMainCategory = async (
         minPrice?: number;
         maxPrice?: number;
         inStock?: boolean;
+        limit?: number;
+        offset?: number;
     }
 ): Promise<Product[]> => {
+    const limit = options?.limit ?? 50;
+    const offset = options?.offset ?? 0;
     const allCategoryIds = [categoryId, ...subcategoryIds];
 
     let query = supabase
         .from('products')
-        .select('*')
+        .select(PRODUCT_LIST_FIELDS)
         .eq('is_active', true)
         .in('category_id', allCategoryIds);
 
@@ -420,8 +440,9 @@ export const getProductsByMainCategory = async (
             query = query.order('created_at', { ascending: false });
     }
 
+    query = query.range(offset, offset + limit - 1);
     const { data, error } = await query;
 
     if (error) throw error;
-    return data || [];
+    return (data || []) as unknown as Product[];
 };

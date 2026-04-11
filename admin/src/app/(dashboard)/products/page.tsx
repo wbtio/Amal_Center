@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import { PackagePlus, SquarePen, Trash2, Search, FileSpreadsheet, ChevronRight, ChevronLeft, SlidersHorizontal, CircleX } from 'lucide-react';
+import Image from 'next/image';
 import ExcelUploadModal from '@/components/products/ExcelUploadModal';
 import Link from 'next/link';
 import { formatIQD } from '@/lib/utils';
@@ -268,9 +269,9 @@ export default function ProductsPage() {
                 {products.map((product) => (
                   <tr key={product.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 flex items-center gap-3">
-                      <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
+                      <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden relative">
                         {product.image_url ? (
-                          <img src={product.image_url} alt={product.name_ar} className="w-full h-full object-cover" />
+                          <Image src={product.image_url} alt={product.name_ar} fill className="object-cover" sizes="48px" />
                         ) : (
                           <ImageOff className="text-gray-400" size={24} />
                         )}
@@ -318,9 +319,9 @@ export default function ProductsPage() {
             {products.map((product) => (
               <div key={product.id} className="p-3 hover:bg-gray-50">
                 <div className="flex items-start gap-3">
-                  <div className="w-14 h-14 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
+                  <div className="w-14 h-14 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0 relative">
                     {product.image_url ? (
-                      <img src={product.image_url} alt={product.name_ar} className="w-full h-full object-cover" />
+                      <Image src={product.image_url} alt={product.name_ar} fill className="object-cover" sizes="56px" />
                     ) : (
                       <ImageOff className="text-gray-400" size={24} />
                     )}

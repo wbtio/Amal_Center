@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { FolderPlus, SquarePen, Trash2, MoveUp, MoveDown, ImageOff, ImagePlus, LinkIcon, Loader2, GripVertical, X, Plus, ArrowUp, ArrowDown, ImageIcon, Edit, Upload } from 'lucide-react';
+import Image from 'next/image';
 import { format } from 'date-fns';
 import { Header } from '@/components/layout/Header';
 
@@ -74,7 +75,8 @@ export default function CategoriesPage() {
       const { error: uploadError } = await supabase.storage
         .from('categories')
         .upload(fileName, blob, {
-          contentType: blob.type
+          contentType: blob.type,
+          cacheControl: '31536000'
         });
 
       if (uploadError) throw uploadError;
@@ -118,7 +120,7 @@ export default function CategoriesPage() {
     try {
       const { error: uploadError } = await supabase.storage
         .from('categories')
-        .upload(filePath, file);
+        .upload(filePath, file, { cacheControl: '31536000' });
 
       if (uploadError) throw uploadError;
 
@@ -204,7 +206,7 @@ export default function CategoriesPage() {
     try {
       const { error: uploadError } = await supabase.storage
         .from('categories')
-        .upload(filePath, file);
+        .upload(filePath, file, { cacheControl: '31536000' });
 
       if (uploadError) throw uploadError;
 
@@ -336,9 +338,9 @@ export default function CategoriesPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
+                      <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden relative">
                         {category.image_url ? (
-                          <img src={category.image_url} alt={category.name_ar} className="w-full h-full object-cover" />
+                          <Image src={category.image_url} alt={category.name_ar} fill className="object-cover" sizes="48px" />
                         ) : (
                           <ImageIcon className="text-gray-400" size={24} />
                         )}
@@ -385,9 +387,9 @@ export default function CategoriesPage() {
             {categories.map((category, index) => (
               <div key={category.id} className="p-3 hover:bg-gray-50 transition-colors">
                 <div className="flex items-start gap-3">
-                  <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
+                  <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0 relative">
                     {category.image_url ? (
-                      <img src={category.image_url} alt={category.name_ar} className="w-full h-full object-cover" />
+                      <Image src={category.image_url} alt={category.name_ar} fill className="object-cover" sizes="48px" />
                     ) : (
                       <ImageIcon className="text-gray-400" size={20} />
                     )}
@@ -564,7 +566,7 @@ export default function CategoriesPage() {
 
                   {formData.image_url && (
                     <div className="mt-3 w-full h-40 bg-gray-50 rounded-lg border border-gray-200 flex items-center justify-center relative group">
-                      <img src={formData.image_url} alt="Preview" className="max-w-full max-h-full object-contain" />
+                      <img src={formData.image_url} alt="Preview" loading="lazy" className="max-w-full max-h-full object-contain" />
                       <button
                         type="button"
                         onClick={() => setFormData({ ...formData, image_url: '' })}
@@ -709,7 +711,7 @@ export default function CategoriesPage() {
 
                   {editFormData.image_url && (
                     <div className="mt-3 w-full h-40 bg-gray-50 rounded-lg border border-gray-200 flex items-center justify-center relative group">
-                      <img src={editFormData.image_url} alt="Preview" className="max-w-full max-h-full object-contain" />
+                      <img src={editFormData.image_url} alt="Preview" loading="lazy" className="max-w-full max-h-full object-contain" />
                       <button
                         type="button"
                         onClick={() => setEditFormData({ ...editFormData, image_url: '' })}

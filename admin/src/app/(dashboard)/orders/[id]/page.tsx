@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { ArrowRight, Printer, MapPin, Phone, User, Clock, CreditCard, Truck, Package, Calendar, Receipt, CheckCircle, XCircle } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { Header } from '@/components/layout/Header';
 import { formatIQD } from '@/lib/utils';
@@ -477,7 +478,9 @@ export default function OrderDetailsPage() {
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           {item.product_snapshot?.image_url && (
-                            <img src={item.product_snapshot.image_url} className="w-12 h-12 rounded-lg object-cover bg-gray-100" />
+                            <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 relative flex-shrink-0">
+                              <Image src={item.product_snapshot.image_url} alt="" fill className="object-cover" sizes="48px" />
+                            </div>
                           )}
                           <div>
                             <p className="font-bold text-gray-800 text-sm">{item.product_snapshot?.name_ar || 'منتج غير معروف'}</p>
@@ -503,7 +506,9 @@ export default function OrderDetailsPage() {
               {items.map((item, index) => (
                 <div key={item.id} className="p-3 flex items-start gap-2">
                   {item.product_snapshot?.image_url && (
-                    <img src={item.product_snapshot.image_url} className="w-12 h-12 rounded-lg object-cover bg-gray-100 flex-shrink-0" />
+                    <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 relative flex-shrink-0">
+                      <Image src={item.product_snapshot.image_url} alt="" fill className="object-cover" sizes="48px" />
+                    </div>
                   )}
                   <div className="flex-1 min-w-0">
                     <p className="font-bold text-gray-800 text-xs truncate">{item.product_snapshot?.name_ar || 'منتج غير معروف'}</p>
