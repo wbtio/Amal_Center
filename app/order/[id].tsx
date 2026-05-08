@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, FlatList, RefreshControl, Modal } from 'react-native';
+import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, FlatList, RefreshControl, Modal, Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -78,6 +78,37 @@ export default function OrderDetailsScreen() {
     setRefreshing(true);
     fetchOrderDetails();
   }, [id]);
+
+  const canCancel = order?.status === 'pending' || order?.status === 'confirmed';
+
+  const handleCancelOrder = () => {
+    Alert.alert(
+      t('checkout.cancelOrder') || (language === 'ar' ? 'إلغاء الطلب' : 'Cancel Order'),
+      t('checkout.cancelOrderConfirm') || (language === 'ar' ? 'هل أنت متأكد من رغبتك في إلغاء هذا الطلب؟' : 'Are you sure you want to cancel this order?'),
+      [
+        { text: t('common.cancel') || (language === 'ar' ? 'إلغاء' : 'Cancel'), style: 'cancel' },
+        {
+          text: t('common.delete') || (language === 'ar' ? 'حذف' : 'Delete'),
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              const { error } = await supabase
+                .from('orders')
+                .update({ status: 'cancelled' })
+                .eq('id', id);
+              if (error) throw error;
+              setOrder((prev: any) => ({ ...prev, status: 'cancelled' }));
+            } catch (error) {
+              Alert.alert(
+                t('common.error') || (language === 'ar' ? 'خطأ' : 'Error'),
+                language === 'ar' ? 'فشل في إلغاء الطلب' : 'Failed to cancel order'
+              );
+            }
+          },
+        },
+      ]
+    );
+  };
 
 
   const getStatusText = (status: string) => {
@@ -185,7 +216,7 @@ export default function OrderDetailsScreen() {
         </View>
 
         {/* Total Summary */}
-        <View className="bg-white p-4 rounded-lg shadow-sm mb-8 border border-gray-100">
+        <View className="bg-white p-4 rounded-lg shadow-sm mb-4 border border-gray-100">
           <View className={`flex-row justify-between items-center mb-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
             <Text className="font-ibm-bold text-text-primary">
               {t('cart.total') || (language === 'ar' ? 'المجموع الكلي' : 'Total')}
@@ -193,6 +224,19 @@ export default function OrderDetailsScreen() {
             <Text className="font-ibm-bold text-text-primary">{formatPrice(order.total_iqd)}</Text>
           </View>
         </View>
+
+        {/* Cancel Order Button */}
+        {canCancel && (
+          <TouchableOpacity
+            className="bg-red-50 border border-red-200 rounded-xl py-3.5 items-center mb-8"
+            onPress={handleCancelOrder}
+            activeOpacity={0.7}
+          >
+            <Text className="font-ibm-bold text-red-600 text-base">
+              {t('checkout.cancelOrder') || (language === 'ar' ? 'إلغاء الطلب' : 'Cancel Order')}
+            </Text>
+          </TouchableOpacity>
+        )}
       </ScrollView>
 
       {/* Thank You Modal */}

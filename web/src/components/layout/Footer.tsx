@@ -24,6 +24,9 @@ const QUICK_LINKS = [
   { href: "/products", key: "nav.products" },
   { href: "/cart", key: "nav.cart" },
   { href: "/account", key: "nav.account" },
+  { href: "/privacy", key: "footer.privacy" },
+  { href: "/terms", key: "footer.terms" },
+  { href: "/support", key: "footer.support" },
 ];
 
 const FOOTER_WEBSITE_URL = "https://centeralamal.shop";

@@ -19,6 +19,16 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     ios: {
         supportsTablet: true,
         bundleIdentifier: "com.alamal.center",
+        buildNumber: process.env.IOS_BUILD_NUMBER || "1",
+        appleTeamId: "NY6P4YM6M9",
+        infoPlist: {
+            NSCameraUsageDescription: "This app needs camera access to take a profile photo / يحتاج التطبيق إلى الكاميرا لالتقاط صورة الملف الشخصي",
+            NSPhotoLibraryUsageDescription: "This app needs photo library access to select a profile photo / يحتاج التطبيق إلى معرض الصور لاختيار صورة الملف الشخصي",
+            NSLocationWhenInUseUsageDescription: "This app needs your location to show it on the map and provide accurate delivery address / يحتاج التطبيق إلى موقعك لعرضه على الخريطة وتوفير عنوان توصيل دقيق",
+        },
+        config: {
+            usesNonExemptEncryption: false,
+        },
     },
     android: {
         package: "com.alamal.center",
@@ -35,7 +45,24 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         favicon: "./assets/favicon.png",
         bundler: "metro",
     },
-    plugins: ["expo-router", "expo-font", "expo-secure-store"],
+    plugins: [
+        "expo-router",
+        "expo-font",
+        "expo-secure-store",
+        [
+            "expo-image-picker",
+            {
+                cameraPermission: "This app needs camera access to take a profile photo / يحتاج التطبيق إلى الكاميرا لالتقاط صورة الملف الشخصي",
+                photosPermission: "This app needs photo library access to select a profile photo / يحتاج التطبيق إلى معرض الصور لاختيار صورة الملف الشخصي",
+            },
+        ],
+        [
+            "expo-location",
+            {
+                locationWhenInUsePermission: "This app needs your location to show it on the map and provide accurate delivery address / يحتاج التطبيق إلى موقعك لعرضه على الخريطة وتوفير عنوان توصيل دقيق",
+            },
+        ],
+    ],
     experiments: {
         typedRoutes: true,
     },

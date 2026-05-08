@@ -130,6 +130,8 @@ export default function ProfileScreen() {
                   className="flex-1 py-3.5 bg-white rounded-xl"
                   onPress={() => router.push('/auth/login')}
                   activeOpacity={0.8}
+                  accessibilityRole="button"
+                  accessibilityLabel={t('profile.login')}
                 >
                   <Text className="text-primary font-ibm-bold text-base text-center">
                     {t('profile.login')}
@@ -139,6 +141,8 @@ export default function ProfileScreen() {
                   className="flex-1 py-3.5 bg-white/20 rounded-xl border border-white/30"
                   onPress={() => router.push('/auth/register')}
                   activeOpacity={0.8}
+                  accessibilityRole="button"
+                  accessibilityLabel={t('profile.createAccount')}
                 >
                   <Text className="text-white font-ibm-bold text-base text-center">
                     {t('profile.createAccount')}
@@ -217,6 +221,22 @@ export default function ProfileScreen() {
                 iconBg="bg-green-50"
                 iconColor="#25D366"
               />
+              <View className="h-px bg-gray-100 mx-4" />
+              <MenuButton
+                icon="shield-outline"
+                title={t('profile.privacyPolicy')}
+                onPress={() => router.push('/help/privacy')}
+                iconBg="bg-purple-50"
+                iconColor="#7C3AED"
+              />
+              <View className="h-px bg-gray-100 mx-4" />
+              <MenuButton
+                icon="document-text-outline"
+                title={t('profile.termsOfService')}
+                onPress={() => router.push('/help/terms')}
+                iconBg="bg-amber-50"
+                iconColor="#D97706"
+              />
             </View>
 
             <Text className="text-center text-gray-400 font-ibm text-xs mt-4">
@@ -261,6 +281,8 @@ export default function ProfileScreen() {
               className="w-10 h-10 rounded-full bg-white/20 items-center justify-center"
               onPress={() => router.push('/profile/edit')}
               activeOpacity={0.7}
+              accessibilityRole="button"
+              accessibilityLabel={t('profile.editProfile')}
             >
               <Ionicons name="settings-outline" size={20} color="#fff" />
             </TouchableOpacity>
@@ -359,11 +381,37 @@ export default function ProfileScreen() {
             />
             <View className="h-px bg-gray-100 mx-4" />
             <MenuButton
+              icon="shield-outline"
+              title={t('profile.privacyPolicy')}
+              onPress={() => router.push('/help/privacy')}
+              iconBg="bg-purple-50"
+              iconColor="#7C3AED"
+            />
+            <View className="h-px bg-gray-100 mx-4" />
+            <MenuButton
+              icon="document-text-outline"
+              title={t('profile.termsOfService')}
+              onPress={() => router.push('/help/terms')}
+              iconBg="bg-amber-50"
+              iconColor="#D97706"
+            />
+            <View className="h-px bg-gray-100 mx-4" />
+            <MenuButton
               icon="log-out-outline"
               title={t('profile.logout')}
               onPress={handleLogout}
               iconBg="bg-red-50"
               iconColor="#EF4444"
+            />
+          </View>
+
+          <View className="bg-white rounded-2xl overflow-hidden mb-3">
+            <MenuButton
+              icon="trash-outline"
+              title={t('profile.deleteAccount')}
+              onPress={() => router.push('/profile/delete-account')}
+              iconBg="bg-red-50"
+              iconColor="#D32F2F"
             />
           </View>
 
@@ -386,6 +434,8 @@ const ActionCard = ({ icon, title, onPress, isLast = false }: {
     className={`flex-1 py-3.5 items-center ${!isLast ? 'border-r border-gray-100' : ''}`}
     onPress={onPress}
     activeOpacity={0.7}
+    accessibilityRole="button"
+    accessibilityLabel={title}
   >
     <View className="w-10 h-10 bg-primary/10 rounded-full items-center justify-center mb-1.5">
       <Ionicons name={icon} size={20} color="#2E7D32" />
@@ -431,6 +481,8 @@ const MenuButton = ({ icon, title, onPress, iconBg, iconColor }: {
       className={`p-4 flex-row items-center justify-between active:bg-gray-50 ${isRTL ? 'flex-row-reverse' : ''}`}
       onPress={onPress}
       activeOpacity={0.7}
+      accessibilityRole="button"
+      accessibilityLabel={title}
     >
       <View className={`flex-row items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
         <View

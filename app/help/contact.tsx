@@ -147,8 +147,8 @@ export default function ContactScreen() {
                         lineHeight: 22
                     }}>
                         {language === 'ar' 
-                            ? 'فريق الدعم متاح على مدار الساعة للإجابة على استفساراتك'
-                            : 'Our support team is available 24/7 to answer your questions'}
+                            ? 'فريق الدعم متاح خلال ساعات العمل للإجابة على استفساراتك'
+                            : 'Our support team is available during working hours to answer your questions'}
                     </Text>
                 </View>
 

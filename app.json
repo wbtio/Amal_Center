@@ -13,27 +13,35 @@
       [
         "expo-font",
         {
-          "fonts": [
-            "./assets/fonts/IBMPlexSansArabic-Regular.ttf",
-            "./assets/fonts/IBMPlexSansArabic-SemiBold.ttf",
-            "./assets/fonts/IBMPlexSansArabic-Bold.ttf"
-          ]
+          "fonts": []
         }
       ],
       [
         "expo-location",
         {
-          "locationAlwaysAndWhenInUsePermission": "This app needs access to location to show your position on the map and provide accurate delivery location."
+          "locationWhenInUsePermission": "This app needs your location to show it on the map and provide accurate delivery address / يحتاج التطبيق إلى موقعك لعرضه على الخريطة وتوفير عنوان توصيل دقيق"
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "This app needs camera access to take a profile photo / يحتاج التطبيق إلى الكاميرا لالتقاط صورة الملف الشخصي",
+          "photosPermission": "This app needs photo library access to select a profile photo / يحتاج التطبيق إلى معرض الصور لاختيار صورة الملف الشخصي"
         }
       ]
     ],
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#2E7D32"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.alamal.center",
+      "buildNumber": "1",
+      "config": {
+        "usesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "com.alamal.center",

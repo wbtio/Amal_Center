@@ -97,6 +97,65 @@
         "couponUsed": "You have already used this coupon",
         "couponLimitReached": "This coupon usage limit has been reached"
     },
+    "privacy": {
+        "title": "Privacy Policy",
+        "intro": "At Al-Amal Center, we take your privacy seriously. This policy explains how we collect, use, and protect your data.",
+        "dataCollected": "Data We Collect",
+        "dataCollectedContent": "Full name, phone number, email address, delivery address, profile photo (optional)",
+        "howWeUse": "How We Use Your Data",
+        "howWeUseContent": "Processing and delivering orders, contacting you about your orders, sending promotional notifications (you can disable them), improving your shopping experience",
+        "dataStorage": "Data Storage",
+        "dataStorageContent": "Your data is securely stored on encrypted Supabase servers. We do not share your data with third parties.",
+        "yourRights": "Your Rights",
+        "yourRightsContent": "You can access and modify your data from profile settings. You can delete your account completely at any time. You can disable notifications at any time.",
+        "contactUs": "For any privacy-related inquiries",
+        "readFullPolicy": "Read the full policy on our website"
+    },
+    "terms": {
+        "title": "Terms of Service",
+        "intro": "By using the Al-Amal Center app, you agree to the following terms.",
+        "ordering": "Ordering & Payment",
+        "orderingContent": "You can order through the app and pay on delivery or by card. Orders must meet the minimum amount requirement.",
+        "returns": "Return Policy",
+        "returnsContent": "You can return products within 7 days of receipt provided they are in their original condition. Perishable food products are non-returnable.",
+        "delivery": "Delivery & Shipping",
+        "deliveryContent": "Standard delivery within 24-48 hours. Express delivery within 2 hours. Free delivery for orders over 50,000 IQD.",
+        "coupons": "Coupon Usage",
+        "couponsContent": "Coupons are valid for one use per user unless otherwise stated. Multiple coupons cannot be combined in a single order.",
+        "liability": "Liability",
+        "liabilityContent": "We strive to provide the best service, but we are not responsible for delays caused by circumstances beyond our control.",
+        "changes": "Changes",
+        "changesContent": "We reserve the right to modify these terms at any time. You will be notified of any significant changes.",
+        "readFullTerms": "Read the full terms on our website"
+    },
+    "deleteAccount": {
+        "title": "Delete Account",
+        "warning": "Warning: This action is permanent and cannot be undone!",
+        "dataDeleted": "Data that will be deleted:",
+        "profileData": "Profile data (name, phone, photo)",
+        "addressesData": "All saved delivery addresses",
+        "notificationsData": "All notifications",
+        "wishlistData": "Wishlist items",
+        "ordersNote": "Your previous orders will be kept for legal and accounting purposes",
+        "confirmType": "Type \"delete\" to confirm",
+        "confirmPlaceholder": "Type delete here",
+        "deleteButton": "Delete my account permanently",
+        "deleting": "Deleting account...",
+        "success": "Your account has been deleted successfully",
+        "error": "An error occurred while deleting your account. Please try again or contact support."
+    },
+    "forgotPassword": {
+        "title": "Forgot Password",
+        "subtitle": "Enter your email address and we'll send you a link to reset your password",
+        "email": "Email",
+        "emailPlaceholder": "example@email.com",
+        "sendLink": "Send Reset Link",
+        "sending": "Sending...",
+        "success": "Email Sent",
+        "successMessage": "A password reset link has been sent to your email. Please check your inbox.",
+        "error": "An error occurred. Please verify your email and try again.",
+        "backToLogin": "Back to Login"
+    },
     "profile": {
         "title": "My Account",
         "welcome": "Welcome to Al-Amal Center",
@@ -149,10 +208,14 @@
         "nameMinLength": "Name must be at least 2 characters",
         "invalidPhone": "Invalid phone number (starts with 07 and 11 digits)",
         "sessionExpired": "Session expired, please login again",
-        "noChanges": "No changes were made"
+        "noChanges": "No changes were made",
+        "privacyPolicy": "Privacy Policy",
+        "termsOfService": "Terms of Service",
+        "deleteAccount": "Delete Account"
     },
     "auth": {
         "login": "Login",
+        "forgotPassword": "Forgot Password?",
         "back": "Back",
         "register": {
             "eyebrow": "Get Started In A Minute",

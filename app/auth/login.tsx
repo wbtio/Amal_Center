@@ -1,4 +1,4 @@
-import { Alert, TouchableOpacity } from 'react-native';
+import { Alert, Text, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -150,6 +150,14 @@ export default function LoginScreen() {
           />
         )}
       />
+
+      <TouchableOpacity
+        className="self-end mt-1 mb-3"
+        onPress={() => router.push('/auth/forgot-password')}
+        activeOpacity={0.7}
+      >
+        <Text className="font-ibm text-sm text-primary">نسيت كلمة المرور؟</Text>
+      </TouchableOpacity>
 
       <AuthPrimaryButton
         label="دخول إلى الحساب"

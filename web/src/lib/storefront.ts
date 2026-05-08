@@ -151,6 +151,9 @@ type StorefrontMessages = {
     contact: string;
     quickLinks: string;
     rights: string;
+    privacy: string;
+    terms: string;
+    support: string;
   };
   common: {
     retry: string;
@@ -287,6 +290,9 @@ export const storefrontMessages: Record<
       contact: "تواصل معنا",
       quickLinks: "روابط سريعة",
       rights: "جميع الحقوق محفوظة",
+      privacy: "سياسة الخصوصية",
+      terms: "شروط الاستخدام",
+      support: "الدعم والمساعدة",
     },
     common: {
       retry: "إعادة المحاولة",
@@ -418,6 +424,9 @@ export const storefrontMessages: Record<
       contact: "Contact",
       quickLinks: "Quick links",
       rights: "All rights reserved",
+      privacy: "Privacy Policy",
+      terms: "Terms of Service",
+      support: "Support & Help",
     },
     common: {
       retry: "Retry",

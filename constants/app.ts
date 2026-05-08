@@ -4,7 +4,7 @@
  */
 
 export const APP_CONFIG = {
-    VERSION: '0.50',
+    VERSION: '1.0.1',
     WHATSAPP_NUMBER: '9647801234567',
     WHATSAPP_URL: 'https://wa.me/9647801234567',
 
@@ -36,6 +36,11 @@ export const APP_CONFIG = {
             href: 'https://maps.google.com/maps?q=30.538890838623047%2C47.800296783447266&z=17&hl=en',
         },
     ],
+
+    // Legal Pages
+    PRIVACY_POLICY_URL: 'https://centerlamal.shop/privacy',
+    TERMS_OF_SERVICE_URL: 'https://centerlamal.shop/terms',
+    SUPPORT_URL: 'https://centerlamal.shop/support',
 
     // Social Media
     FACEBOOK_URL: 'https://facebook.com/alamalcenter',
