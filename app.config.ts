@@ -17,9 +17,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         backgroundColor: "#2E7D32",
     },
     ios: {
+        ...config.ios,
         supportsTablet: true,
         bundleIdentifier: "com.alamal.center",
-        buildNumber: process.env.IOS_BUILD_NUMBER || "1",
+        buildNumber: process.env.IOS_BUILD_NUMBER || config.ios?.buildNumber || "1",
         appleTeamId: "NY6P4YM6M9",
         infoPlist: {
             NSCameraUsageDescription: "This app needs camera access to take a profile photo / يحتاج التطبيق إلى الكاميرا لالتقاط صورة الملف الشخصي",
@@ -31,6 +32,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         },
     },
     android: {
+        ...config.android,
         package: "com.alamal.center",
         versionCode:
             (Number.isInteger(androidVersionCode) && androidVersionCode > 0
@@ -40,6 +42,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
             foregroundImage: "./assets/adaptive-icon.png",
             backgroundColor: "#2E7D32",
         },
+        edgeToEdgeEnabled: true,
+        predictiveBackGestureEnabled: false,
     },
     web: {
         favicon: "./assets/favicon.png",

@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, DimensionValue } from 'react-native';
-import { Image } from 'expo-image';
+import { CachedImage as Image } from './CachedImage';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useCartStore } from '../../store/cartStore';
@@ -22,9 +22,22 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, showDiscount 
 
   const handleAddToCart = (e: any) => {
     e.stopPropagation();
-    addItem(product);
-    showToast(language === 'ar' ? 'تم إضافة المنتج إلى السلة' : 'Product added to cart');
+    try {
+      addItem(product);
+      showToast(language === 'ar' ? 'تم إضافة المنتج إلى السلة' : 'Product added to cart');
+    } catch {
+      showToast(language === 'ar' ? 'لا يوجد مخزون كافٍ' : 'Not enough stock');
+    }
   };
+
+  // خصم حقيقي فقط: عند وجود سعر أصلي أعلى من السعر الحالي
+  const hasRealDiscount =
+    showDiscount &&
+    typeof product.original_price === 'number' &&
+    product.original_price > product.price_iqd;
+  const discountPercentage = hasRealDiscount
+    ? Math.round((1 - product.price_iqd / (product.original_price as number)) * 100)
+    : 0;
 
   return (
     <TouchableOpacity
@@ -56,10 +69,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, showDiscount 
           <Ionicons name="add" size={20} color="white" />
         </TouchableOpacity>
         
-        {/* شارة الخصم */}
-        {showDiscount && (
+        {/* شارة الخصم — تظهر فقط عند وجود خصم حقيقي */}
+        {hasRealDiscount && (
           <View className={`absolute top-2 ${isRTL ? 'right-2' : 'left-2'} bg-red-500 px-2 py-0.5 rounded-full`}>
-            <Text className="text-white text-[10px] font-ibm-bold">-20%</Text>
+            <Text className="text-white text-[10px] font-ibm-bold">-{discountPercentage}%</Text>
           </View>
         )}
       </View>
@@ -77,9 +90,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, showDiscount 
           {formatPrice(product.price_iqd)}
         </Text>
         
-        {showDiscount && (
+        {hasRealDiscount && (
           <Text className={`text-gray-400 font-ibm text-[10px] line-through ${isRTL ? 'text-right' : 'text-left'}`}>
-            {formatPrice(product.price_iqd * 1.2)}
+            {formatPrice(product.original_price as number)}
           </Text>
         )}
       </View>

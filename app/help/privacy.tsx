@@ -4,22 +4,36 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLanguage } from '../../contexts';
 import { APP_CONFIG } from '../../constants/app';
+import { useContentPage, useAppSettings } from '../../hooks/useSupabase';
+import { DEFAULT_SETTINGS } from '../../services/settings.service';
 
 export default function PrivacyPolicyScreen() {
     const router = useRouter();
     const insets = useSafeAreaInsets();
-    const { t, isRTL } = useLanguage();
+    const { t, isRTL, language } = useLanguage();
+    const { data: page } = useContentPage('privacy');
+    const { data: settings } = useAppSettings();
+    const supportEmail = (settings ?? DEFAULT_SETTINGS).contact.supportEmail;
 
     const openFullPolicy = () => {
         Linking.openURL(APP_CONFIG.PRIVACY_POLICY_URL);
     };
 
-    const sections = [
-        { title: t('privacy.dataCollected'), content: t('privacy.dataCollectedContent'), icon: 'document-text-outline' },
-        { title: t('privacy.howWeUse'), content: t('privacy.howWeUseContent'), icon: 'settings-outline' },
-        { title: t('privacy.dataStorage'), content: t('privacy.dataStorageContent'), icon: 'server-outline' },
-        { title: t('privacy.yourRights'), content: t('privacy.yourRightsContent'), icon: 'shield-checkmark-outline' },
-    ];
+    const pageTitle = page ? (language === 'ar' ? page.title_ar : page.title_en) : t('privacy.title');
+    const pageIntro = page ? (language === 'ar' ? page.intro_ar : page.intro_en) : t('privacy.intro');
+
+    const sections = page && page.sections?.length
+        ? page.sections.map(sec => ({
+            title: language === 'ar' ? sec.title_ar : sec.title_en,
+            content: language === 'ar' ? sec.content_ar : sec.content_en,
+            icon: sec.icon || 'document-text-outline',
+        }))
+        : [
+            { title: t('privacy.dataCollected'), content: t('privacy.dataCollectedContent'), icon: 'document-text-outline' },
+            { title: t('privacy.howWeUse'), content: t('privacy.howWeUseContent'), icon: 'settings-outline' },
+            { title: t('privacy.dataStorage'), content: t('privacy.dataStorageContent'), icon: 'server-outline' },
+            { title: t('privacy.yourRights'), content: t('privacy.yourRightsContent'), icon: 'shield-checkmark-outline' },
+        ];
 
     return (
         <View className="flex-1 bg-gray-50">
@@ -28,12 +42,12 @@ export default function PrivacyPolicyScreen() {
                     <TouchableOpacity onPress={() => router.back()} className="p-2">
                         <Ionicons name={isRTL ? "chevron-forward" : "chevron-back"} size={24} color="#333" />
                     </TouchableOpacity>
-                    <Text className="text-lg font-ibm-bold text-gray-800">{t('privacy.title')}</Text>
+                    <Text className="text-lg font-ibm-bold text-gray-800">{pageTitle}</Text>
                     <View className="w-8" />
                 </View>
             </View>
 
-            <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+            <ScrollView className="flex-1" showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: insets.bottom + 16 }}>
                 <View className="p-4">
                     <View className="bg-white rounded-2xl p-5 mb-4">
                         <View className="flex-row items-center mb-3">
@@ -41,7 +55,7 @@ export default function PrivacyPolicyScreen() {
                                 <Ionicons name="shield-outline" size={20} color="#2E7D32" />
                             </View>
                             <Text className="font-ibm-bold text-base text-gray-800 flex-1">
-                                {t('privacy.intro')}
+                                {pageIntro}
                             </Text>
                         </View>
                     </View>
@@ -75,12 +89,12 @@ export default function PrivacyPolicyScreen() {
                         </View>
                         <TouchableOpacity
                             className="flex-row items-center mt-1"
-                            onPress={() => Linking.openURL(`mailto:${APP_CONFIG.SUPPORT_EMAIL}`)}
+                            onPress={() => Linking.openURL(`mailto:${supportEmail}`)}
                         >
                             <Ionicons name="mail" size={16} color="#2E7D32"
                                 style={{ marginRight: isRTL ? 0 : 6, marginLeft: isRTL ? 6 : 0 }} />
                             <Text className="font-ibm text-sm text-primary">
-                                {APP_CONFIG.SUPPORT_EMAIL}
+                                {supportEmail}
                             </Text>
                         </TouchableOpacity>
                     </View>

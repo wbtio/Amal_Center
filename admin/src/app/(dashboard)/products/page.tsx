@@ -7,6 +7,7 @@ import Image from 'next/image';
 import ExcelUploadModal from '@/components/products/ExcelUploadModal';
 import Link from 'next/link';
 import { formatIQD } from '@/lib/utils';
+import { getProductThumbnailUrl } from '@/lib/imageUrl';
 import { ImageOff } from 'lucide-react';
 import { Header } from '@/components/layout/Header';
 
@@ -45,7 +46,7 @@ export default function ProductsPage() {
   }, [searchTerm]);
 
   const fetchCategories = async () => {
-    const { data } = await supabase.from('categories').select('*').eq('is_active', true);
+    const { data } = await supabase.from('categories').select('id, name_ar, is_active').eq('is_active', true);
     setCategories(data || []);
   };
 
@@ -57,7 +58,7 @@ export default function ProductsPage() {
 
     let query = supabase
       .from('products')
-      .select('*, categories(name_ar)', { count: 'exact' })
+      .select('id, name, name_ar, image_url, price_iqd, stock_quantity, is_active, created_at, category_id, categories(name_ar)', { count: 'exact' })
       .order('created_at', { ascending: false });
 
     if (debouncedSearch) {
@@ -271,7 +272,7 @@ export default function ProductsPage() {
                     <td className="px-6 py-4 flex items-center gap-3">
                       <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden relative">
                         {product.image_url ? (
-                          <Image src={product.image_url} alt={product.name_ar} fill className="object-cover" sizes="48px" />
+                          <Image src={getProductThumbnailUrl(product.image_url)!} alt={product.name_ar} fill className="object-cover" sizes="48px" />
                         ) : (
                           <ImageOff className="text-gray-400" size={24} />
                         )}
@@ -321,7 +322,7 @@ export default function ProductsPage() {
                 <div className="flex items-start gap-3">
                   <div className="w-14 h-14 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0 relative">
                     {product.image_url ? (
-                      <Image src={product.image_url} alt={product.name_ar} fill className="object-cover" sizes="56px" />
+                      <Image src={getProductThumbnailUrl(product.image_url)!} alt={product.name_ar} fill className="object-cover" sizes="56px" />
                     ) : (
                       <ImageOff className="text-gray-400" size={24} />
                     )}

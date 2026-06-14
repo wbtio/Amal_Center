@@ -3,6 +3,13 @@
 import React, { useState, useRef } from 'react';
 import * as XLSX from 'xlsx';
 import { supabase } from '@/lib/supabase';
+import {
+  createStorageImageName,
+  optimizeImageForStorage,
+  PRODUCT_IMAGE_OPTIONS,
+  STORAGE_IMAGE_CACHE_CONTROL,
+} from '@/lib/image-optimizer';
+import { uploadProductThumbnail } from '@/lib/product-image-upload';
 import { FileUp, Loader2, X, CheckCircle2, AlertCircle, Download } from 'lucide-react';
 
 interface ExcelProduct {
@@ -135,11 +142,6 @@ export default function ExcelUploadModal({
   const downloadImageAndUpload = async (url: string, productName: string) => {
     try {
       // 1. Safe filename: remove Arabic characters and special symbols for Supabase Storage
-      const fileExt = url.split('.').pop()?.split('?')[0] || 'jpg';
-      const safeName = Math.random().toString(36).substring(2, 10);
-      const fileName = `${Date.now()}-${safeName}.${fileExt}`;
-      const filePath = `products/${fileName}`;
-
       // 2. Try download with proxy for CORS
       let response;
       try {
@@ -152,16 +154,24 @@ export default function ExcelUploadModal({
 
       if (!response.ok) throw new Error('فشل تحميل الصورة من الرابط');
       const blob = await response.blob();
+      const sourceFile = new File([blob], `${productName || 'product'}.jpg`, {
+        type: blob.type || 'image/jpeg',
+      });
+      const optimizedImage = await optimizeImageForStorage(sourceFile, PRODUCT_IMAGE_OPTIONS);
+      const fileName = createStorageImageName(optimizedImage.extension);
+      const filePath = `products/${fileName}`;
       
       const { error: uploadError } = await supabase.storage
         .from('products')
-        .upload(filePath, blob, {
-          contentType: blob.type || 'image/jpeg',
+        .upload(filePath, optimizedImage.file, {
+          contentType: optimizedImage.contentType,
           upsert: true,
-          cacheControl: '31536000'
+          cacheControl: STORAGE_IMAGE_CACHE_CONTROL
         });
 
       if (uploadError) throw uploadError;
+
+      await uploadProductThumbnail(filePath, optimizedImage.file);
 
       const { data: { publicUrl } } = supabase.storage
         .from('products')

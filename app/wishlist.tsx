@@ -1,5 +1,6 @@
-import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, Image } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { showToast } from '../components/ui/Toast';
+import { CachedImage as Image } from '../components/ui/CachedImage';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -34,8 +35,6 @@ export default function WishlistScreen() {
                 return;
             }
 
-            console.log('Fetching wishlist for user:', session.user.id);
-            
             const { data, error } = await supabase
                 .from('wishlist')
                 .select(`
@@ -53,12 +52,8 @@ export default function WishlistScreen() {
                 `)
                 .eq('user_id', session.user.id);
 
-            console.log('Wishlist data:', data);
-            console.log('Wishlist error:', error);
-
             if (error) {
                 if (error.code === '42P01' || error.message.includes('does not exist')) {
-                    console.log('Wishlist table does not exist yet');
                     setWishlist([]);
                 } else {
                     throw error;
@@ -160,7 +155,7 @@ export default function WishlistScreen() {
                                 borderRadius: 12,
                                 backgroundColor: '#F9FAFB',
                             }}
-                            resizeMode="cover"
+                            contentFit="cover"
                         />
                         {isOutOfStock && (
                             <View style={{
@@ -311,7 +306,7 @@ export default function WishlistScreen() {
                 <FlatList
                     data={wishlist}
                     keyExtractor={(item) => item.id}
-                    contentContainerStyle={{ padding: 16 }}
+                    contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 24 }}
                     ListEmptyComponent={
                         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 60 }}>
                             <View style={{

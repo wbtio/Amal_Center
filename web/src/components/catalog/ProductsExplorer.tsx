@@ -1,7 +1,7 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { LayoutGrid, SlidersHorizontal } from "lucide-react";
+import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   startTransition,
@@ -18,6 +18,7 @@ import { ProductCard } from "@/components/ui/ProductCard";
 import type { ProductSortOption } from "@/lib/storefront-data";
 import { cn } from "@/lib/utils";
 import { getCategoryName } from "@/lib/storefront";
+import { getProductThumbnailUrl } from "@/lib/imageUrl";
 import type { Category, Product } from "@/lib/types";
 
 type ProductsExplorerProps = {
@@ -201,18 +202,19 @@ export function ProductsExplorer({
                     >
                       <span
                         className={cn(
-                          "flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl border",
+                          "relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl border",
                           selected
                             ? "border-primary/20 bg-primary/10"
                             : "border-slate-200 bg-slate-100"
                         )}
                       >
                         {category.image_url ? (
-                          <img
-                            src={category.image_url}
+                          <Image
+                            src={getProductThumbnailUrl(category.image_url) ?? category.image_url}
                             alt={categoryName}
-                            className="h-full w-full object-cover"
-                            loading="lazy"
+                            fill
+                            sizes="44px"
+                            className="object-cover"
                           />
                         ) : (
                           <span

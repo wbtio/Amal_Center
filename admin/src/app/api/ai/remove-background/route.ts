@@ -1,17 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import Replicate from 'replicate';
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-const supabase = createClient(supabaseUrl, supabaseKey);
+import { requireAdmin } from '@/lib/api-auth';
 
 // استخدام Replicate API - سريع ورخيص ($0.00053 لكل صورة)
 const REPLICATE_API_TOKEN = process.env.REPLICATE_API_TOKEN || '';
 
 export async function POST(request: NextRequest) {
   try {
+    const auth = await requireAdmin();
+    if (!auth.ok) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
+    }
+
     console.log('=== Starting Background Removal ===');
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (!supabaseUrl || !supabaseKey) {
+      return NextResponse.json(
+        { error: 'إعدادات Supabase غير مكتملة على الخادم' },
+        { status: 500 }
+      );
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseKey);
     const { image } = await request.json();
 
     if (!image) {
@@ -28,6 +41,10 @@ export async function POST(request: NextRequest) {
 
     // محاولة إزالة الخلفية باستخدام Replicate API
     try {
+      if (!REPLICATE_API_TOKEN) {
+        throw new Error('REPLICATE_API_TOKEN is missing');
+      }
+
       console.log('Attempting to remove background with Replicate...');
       console.log('API Token:', REPLICATE_API_TOKEN.substring(0, 10) + '...');
       
@@ -132,6 +149,23 @@ export async function POST(request: NextRequest) {
       });
 
     if (uploadError) throw uploadError;
+
+    // توليد نسخة مصغّرة (~400px webp) ورفعها إلى thumbs/ — تُستخدم في القوائم لتقليل الـ egress
+    try {
+      const sharp = (await import('sharp')).default;
+      const thumbBuffer = await sharp(imageBuffer)
+        .resize({ width: 400, height: 400, fit: 'inside', withoutEnlargement: true })
+        .webp({ quality: 70 })
+        .toBuffer();
+
+      await supabase.storage.from('products').upload(`thumbs/${fileName}`, thumbBuffer, {
+        contentType: 'image/webp',
+        upsert: true,
+        cacheControl: '31536000',
+      });
+    } catch (thumbError) {
+      console.warn('Thumbnail generation skipped:', thumbError);
+    }
 
     const { data: { publicUrl } } = supabase.storage
       .from('products')

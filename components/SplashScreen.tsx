@@ -5,7 +5,7 @@ import Animated, {
   useAnimatedStyle,
   withTiming,
 } from 'react-native-reanimated';
-import { Image } from 'expo-image';
+import { CachedImage as Image } from './ui/CachedImage';
 
 interface SplashScreenProps {
   onFinish: () => void;

@@ -29,11 +29,12 @@ export const getProducts = async (limit: number = 20, offset: number = 0): Promi
 
 /**
  * جلب منتج واحد بواسطة الـ ID
+ * نستبعد الأعمدة الثقيلة التي لا يحتاجها تطبيق الموبايل
  */
 export const getProductById = async (id: string): Promise<Product> => {
     const { data, error } = await supabase
         .from('products')
-        .select('*')
+        .select('id, name, name_ar, description, description_ar, price_iqd, price_usd, original_price, image_url, category_id, stock_quantity, is_active, sales_count, created_at, updated_at')
         .eq('id', id)
         .single();
 
@@ -75,7 +76,7 @@ export const getSpecialOffers = async (limit: number = 6): Promise<SpecialOffers
     // جلب العرض النشط الحالي
     const { data: activeOffer, error: offerError } = await supabase
         .from('offers')
-        .select('*')
+        .select('id, name, name_ar, discount_type, discount_value, start_date, end_date')
         .eq('is_active', true)
         .lte('start_date', now)
         .gte('end_date', now)
@@ -84,27 +85,11 @@ export const getSpecialOffers = async (limit: number = 6): Promise<SpecialOffers
         .single();
 
     if (offerError || !activeOffer) {
-        // Fallback: إذا لم يوجد عرض نشط، أرجع منتجات عشوائية كـ "عروض اليوم"
-        const randomProducts = await getRandomProducts(limit);
-        
-        // إضافة خصم وهمي للعرض (10-30%)
-        const productsWithFakeDiscount = randomProducts.map(product => {
-            const discountPercent = Math.floor(Math.random() * 21) + 10; // 10-30%
-            const originalPrice = product.price_iqd;
-            const discountedPrice = Math.round(originalPrice * (1 - discountPercent / 100));
-            
-            return {
-                ...product,
-                original_price: originalPrice,
-                price_iqd: discountedPrice,
-                discount_percentage: discountPercent
-            };
-        });
-        
+        // لا يوجد عرض نشط حقيقي → لا نعرض خصومات وهمية، ويختفي القسم في الواجهة
         return {
-            products: productsWithFakeDiscount,
+            products: [],
             offerEndDate: null,
-            offerName: 'عروض اليوم'
+            offerName: null
         };
     }
 
@@ -192,11 +177,16 @@ export const getNewArrivals = async (limit: number = 6): Promise<Product[]> => {
 };
 
 /**
- * جلب منتجات عشوائية
- * تستخدم كـ fallback عندما لا توجد بيانات في الأقسام الأخرى
+ * Cache عشوائي للمنتجات حسب اليوم — يقلل الاستدعاءات من 4× يومياً إلى 1× يومياً
  */
-export const getRandomProducts = async (limit: number = 6): Promise<Product[]> => {
-    // جلب عدد محدود ثم اختيار عشوائي
+let _randomCache: { key: string; data: Product[] } | null = null;
+
+const getRandomProductsCached = async (limit: number = 6): Promise<Product[]> => {
+    const cacheKey = `${new Date().toISOString().slice(0, 10)}-${limit}`;
+    if (_randomCache && _randomCache.key === cacheKey) {
+        return _randomCache.data.slice(0, limit);
+    }
+
     const fetchCount = Math.min(limit * 5, 30);
     const { data, error } = await supabase
         .from('products')
@@ -205,11 +195,22 @@ export const getRandomProducts = async (limit: number = 6): Promise<Product[]> =
         .limit(fetchCount);
 
     if (error) throw error;
-    if (!data || data.length === 0) return [];
-    
-    // خلط المنتجات عشوائياً
-    const shuffled = data.sort(() => Math.random() - 0.5);
-    return shuffled.slice(0, limit) as unknown as Product[];
+    const arr = (data || []) as unknown as Product[];
+    // خلط ثابت deterministic — لا حاجة لإعادة الفرز
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = (i * 9301 + 49297) % (i + 1);
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    _randomCache = { key: cacheKey, data: arr };
+    return arr.slice(0, limit);
+};
+
+/**
+ * جلب منتجات عشوائية
+ * تُستخدم كـ fallback عندما لا توجد بيانات في الأقسام الأخرى
+ */
+export const getRandomProducts = async (limit: number = 6): Promise<Product[]> => {
+    return getRandomProductsCached(limit);
 };
 
 /**

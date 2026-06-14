@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تقرير المراجعة الشاملة — الأمل سنتر</title>
+<style>
+  :root{
+    --green:#2E7D32; --green-dark:#1B5E20; --green-soft:#E8F5E9;
+    --red:#D32F2F; --red-soft:#FDECEA; --amber:#B26A00; --amber-soft:#FFF4E5;
+    --blue:#1565C0; --blue-soft:#E7F0FB; --ink:#1f2937; --muted:#6b7280;
+    --line:#e5e7eb; --bg:#f6f8f7; --card:#ffffff;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI","Tahoma","Noto Naskh Arabic",sans-serif;
+    line-height:1.85; font-size:16px;
+  }
+  .wrap{max-width:980px; margin:0 auto; padding:24px 18px 80px;}
+  header.hero{
+    background:linear-gradient(135deg,var(--green) 0%,var(--green-dark) 100%);
+    color:#fff; border-radius:22px; padding:34px 28px; margin-bottom:26px;
+    box-shadow:0 12px 30px rgba(27,94,32,.25);
+  }
+  header.hero h1{margin:0 0 8px; font-size:30px;}
+  header.hero p{margin:0; opacity:.92; font-size:16px;}
+  .meta{display:flex; flex-wrap:wrap; gap:10px; margin-top:18px;}
+  .meta span{background:rgba(255,255,255,.16); padding:6px 14px; border-radius:999px; font-size:13.5px;}
+
+  .summary{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:14px; margin-bottom:30px;}
+  .stat{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:18px; text-align:center;}
+  .stat .num{font-size:30px; font-weight:800; color:var(--green); line-height:1;}
+  .stat .lbl{font-size:13.5px; color:var(--muted); margin-top:6px;}
+
+  section{background:var(--card); border:1px solid var(--line); border-radius:18px; padding:24px; margin-bottom:22px;}
+  section h2{margin:0 0 4px; font-size:22px; display:flex; align-items:center; gap:10px;}
+  section .sub{color:var(--muted); font-size:14px; margin:0 0 18px;}
+  .icn{width:38px;height:38px;border-radius:11px;display:inline-flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;}
+  .icn.g{background:var(--green-soft);} .icn.r{background:var(--red-soft);}
+  .icn.b{background:var(--blue-soft);} .icn.a{background:var(--amber-soft);}
+
+  .item{border:1px solid var(--line); border-radius:14px; padding:16px 18px; margin-bottom:12px; background:#fcfdfc;}
+  .item:last-child{margin-bottom:0;}
+  .item .h{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:6px;}
+  .item .h strong{font-size:16.5px;}
+  .badge{font-size:12px; font-weight:700; padding:3px 11px; border-radius:999px; white-space:nowrap;}
+  .b-done{background:var(--green-soft); color:var(--green-dark);}
+  .b-fix{background:var(--blue-soft); color:var(--blue);}
+  .b-sec{background:var(--red-soft); color:var(--red);}
+  .b-rec{background:var(--amber-soft); color:var(--amber);}
+  .item p{margin:6px 0 0; color:#374151; font-size:14.5px;}
+  .item .why{margin-top:8px; font-size:13.5px; color:var(--muted);}
+  code{background:#eef2f1; padding:2px 7px; border-radius:6px; font-family:"Consolas","Courier New",monospace; font-size:13px; direction:ltr; display:inline-block;}
+  .files{margin-top:8px; font-size:12.5px; color:var(--muted);}
+  .files code{background:#f3f4f6;}
+
+  .crit{border:2px solid var(--red); background:var(--red-soft);}
+  .crit .h strong{color:var(--red);}
+
+  .note{background:var(--amber-soft); border:1px solid #f0d9b5; border-radius:14px; padding:16px 18px; font-size:14.5px;}
+  .note b{color:var(--amber);}
+  details{margin-top:10px;} summary{cursor:pointer; font-weight:700; color:var(--green-dark);}
+  table{width:100%; border-collapse:collapse; margin-top:10px; font-size:14px;}
+  th,td{border:1px solid var(--line); padding:9px 12px; text-align:right;}
+  th{background:var(--green-soft); color:var(--green-dark);}
+  footer{text-align:center; color:var(--muted); font-size:13px; margin-top:30px;}
+  .legend{display:flex; flex-wrap:wrap; gap:14px; margin:0 0 26px; font-size:13px; color:var(--muted);}
+  .legend span{display:inline-flex; align-items:center; gap:6px;}
+  .dot{width:11px;height:11px;border-radius:50%;display:inline-block;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <h1>تقرير المراجعة الشاملة 🛠️</h1>
+    <p>مراجعة وإصلاح المشاريع الثلاثة: تطبيق الهاتف (Expo) + الموقع (Next.js) + لوحة التحكم (Next.js) — مع قاعدة بيانات Supabase.</p>
+    <div class="meta">
+      <span>📅 التاريخ: 11 يونيو 2026</span>
+      <span>📦 المشاريع: 3</span>
+      <span>✅ فحص TypeScript: 0 أخطاء في الكل</span>
+      <span>🗄️ هجرات قاعدة بيانات: 3</span>
+    </div>
+  </header>
+
+  <div class="summary">
+    <div class="stat"><div class="num">3</div><div class="lbl">ثغرات أمنية أُغلقت</div></div>
+    <div class="stat"><div class="num">17</div><div class="lbl">خطأ برمجي أُصلح</div></div>
+    <div class="stat"><div class="num">15+</div><div class="lbl">شاشة حُسّنت للهاتف</div></div>
+    <div class="stat"><div class="num">3</div><div class="lbl">تسريبات بيانات عُولجت</div></div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot" style="background:var(--red)"></span> ثغرة أمنية</span>
+    <span><span class="dot" style="background:var(--blue)"></span> إصلاح خطأ</span>
+    <span><span class="dot" style="background:var(--green)"></span> تم بنجاح</span>
+    <span><span class="dot" style="background:var(--amber)"></span> توصية لك</span>
+  </div>
+
+  <!-- ===================== 1) الأمان ===================== -->
+  <section>
+    <h2><span class="icn r">🔐</span> أولاً: الثغرات الأمنية (الأخطر)</h2>
+    <p class="sub">هذه أخطر ما وجدته — كانت تسمح بأضرار حقيقية. كلها أُغلقت.</p>
+
+    <div class="item crit">
+      <div class="h"><strong>① تنفيذ SQL عشوائي للعموم — خطيرة جداً</strong><span class="badge b-sec">ثغرة</span><span class="badge b-done">أُصلحت ✓</span></div>
+      <p>وجدت دالة <code>exec_sql</code> في قاعدة البيانات يمكن استدعاؤها بالمفتاح العام (anon) المضمّن داخل التطبيق والموقع. هذا يعني أن <b>أي شخص</b> كان يستطيع تنفيذ أي أمر SQL على قاعدة بياناتك — قراءة، تعديل، أو حذف كل البيانات وتجاوز كل الحمايات.</p>
+      <p class="why"><b>أنا سويت:</b> سحبت صلاحية تنفيذها من الأدوار العامة (anon و authenticated) وثبّتّ مسار البحث، مع إبقائها لـ service_role فقط (الذي يستخدمه سكربت الهجرات المحلي). تحقّقت أن anon=ممنوع و service_role=مسموح.</p>
+    </div>
+
+    <div class="item">
+      <div class="h"><strong>② مسارات API بلا أي حماية</strong><span class="badge b-sec">ثغرة</span><span class="badge b-done">أُصلحت ✓</span></div>
+      <p>الحارس الأمني (middleware) في لوحة التحكم كان يستثني مسارات <code>/api/</code>، فكانت خدمات الذكاء الاصطناعي (تحليل المنتج، إزالة الخلفية، الاختبار) <b>مفتوحة لأي زائر</b>. أي شخص كان يستطيع استنزاف رصيدك في Replicate و OpenRouter و Gemini ورفع صور على حسابك.</p>
+      <p class="why"><b>أنا سويت:</b> أنشأت حارساً جديداً <code>requireAdmin()</code> يتحقق من جلسة الدخول وأن المستخدم مدير، وأضفته في بداية كل مسارات API الأربعة. الآن لا أحد يستطيع استدعاءها إلا المدير المسجَّل دخوله.</p>
+      <div class="files">الملفات: <code>admin/src/lib/api-auth.ts</code> (جديد) — <code>api/ai/analyze-product</code> — <code>api/ai/remove-background</code> — <code>api/ai/test</code></div>
+    </div>
+
+    <div class="item">
+      <div class="h"><strong>③ ثغرة SSRF في مسار proxy-image</strong><span class="badge b-sec">ثغرة</span><span class="badge b-done">أُصلحت ✓</span></div>
+      <p>مسار <code>proxy-image</code> كان يجلب <b>أي رابط</b> يُرسل إليه ويعيده، بلا مصادقة. يمكن استغلاله للوصول لعناوين داخلية في الخادم أو استخدامه كبروكسي مفتوح.</p>
+      <p class="why"><b>أنا سويت:</b> أضفت المصادقة + منعت البروتوكولات غير http(s) + حظرت العناوين الداخلية/الخاصة (localhost, 127.x, 10.x, 192.168.x, 169.254.x...) + قبول الصور فقط.</p>
+      <div class="files">الملف: <code>admin/src/app/api/proxy-image/route.ts</code></div>
+    </div>
+
+    <div class="item">
+      <div class="h"><strong>④ تحصين دوال قاعدة البيانات</strong><span class="badge b-sec">تحصين</span><span class="badge b-done">تم ✓</span></div>
+      <p>كانت 7 دوال بـ <code>search_path</code> غير مثبّت (يُمكن نظرياً اختطاف تحليل الأسماء بداخلها)، ودالة <code>handle_new_user</code> (دالة trigger) قابلة للاستدعاء المباشر.</p>
+      <p class="why"><b>أنا سويت:</b> ثبّتّ <code>search_path</code> على كل الدوال السبع، وسحبت صلاحية استدعاء <code>handle_new_user</code> من العموم. أبقيتُ <code>is_admin()</code> متاحة عمداً لأن سياسات الحماية (RLS) تعتمد عليها.</p>
+    </div>
+  </section>
+
+  <!-- ===================== 2) Egress ===================== -->
+  <section>
+    <h2><span class="icn g">📉</span> ثانياً: حماية الخطة المجانية (استهلاك البيانات)</h2>
+    <p class="sub">طلبك الأهم: ألّا تُستنزف الخطة المجانية بسرعة. الخبر الجيد أن الكود مُحسَّن أصلاً — وجدت تسريبات قليلة وأصلحتها.</p>
+
+    <div class="item">
+      <div class="h"><strong>① صورة الواجهة الرئيسية كانت تُحمَّل خام من Supabase</strong><span class="badge b-fix">تحسين</span><span class="badge b-done">أُصلح ✓</span></div>
+      <p>الصور هي أكبر مستنزف لحصة البيانات. وجدت صورة "البانر" في الصفحة الرئيسية للموقع تُعرض من الرابط الخام مباشرة بدل المرور عبر <b>ImageKit</b> (الذي يكاش الصور ويلغي الاستهلاك المتكرر).</p>
+      <p class="why"><b>أنا سويت:</b> وجّهتها عبر <code>getProductFullUrl</code> فصارت تُخدَّم من ImageKit المكاش.</p>
+      <div class="files">الملف: <code>web/src/app/page.tsx</code></div>
+    </div>
+
+    <div class="item">
+      <div class="h"><strong>② استعلام الدفع كان يجلب أعمدة ثقيلة بلا داعٍ</strong><span class="badge b-fix">تحسين</span><span class="badge b-done">أُصلح ✓</span></div>
+      <p>عند الدفع، كان الكود يجلب <code>select("*")</code> لكل منتج في السلة — بما فيها أوصاف المنتجات الطويلة التي لا تُستخدم.</p>
+      <p class="why"><b>أنا سويت:</b> ضيّقت الاستعلام للحقول الضرورية فقط (السعر، المخزون، الاسم، الصورة).</p>
+      <div class="files">الملف: <code>web/src/components/checkout/CheckoutFlow.tsx</code></div>
+    </div>
+
+    <div class="item">
+      <div class="h"><strong>③ توحيد المشروع — اكتشاف مهم</strong><span class="badge b-fix">إعداد</span><span class="badge b-done">تم ✓</span></div>
+      <p>اكتشفت أن لديك <b>مشروعَي Supabase</b>: قديم وجديد. ملف بناء التطبيق <code>eas.json</code> كان لا يزال يشير للمشروع القديم، بينما التطوير والموقع يشيران للجديد — أي أن التطبيق المنشور قد يتصل بقاعدة بيانات مختلفة!</p>
+      <p class="why"><b>أنا سويت (بعد تأكيدك):</b> وحّدت <code>eas.json</code> (البيئات الثلاث) على المشروع الجديد <code>ulngc</code>. تحققت أنه لا يوجد عملاء أو طلبات على المشروع الجديد (مستخدم واحد فقط = المدير، 0 طلبات) فالانتقال آمن تماماً بلا فقدان بيانات.</p>
+    </div>
+
+    <div class="item">
+      <div class="h"><strong>تحققت أن البنية سليمة وغير مستنزِفة ✓</strong><span class="badge b-done">فحص</span></div>
+      <p>راجعت كل استدعاءات البيانات ووجدتها مُحسَّنة جيداً: الصور كلها عبر ImageKit + كاش على الجهاز؛ القوائم تجلب حقولاً محددة فقط (تستثني الأوصاف الثقيلة) مع ترقيم صفحات؛ كاش 15 دقيقة يمنع إعادة الجلب؛ واشتراك Realtime مُقيّد بطلبات المستخدم نفسه فقط.</p>
+    </div>
+  </section>
+
+  <!-- ===================== 3) واجهة الهاتف ===================== -->
+  <section>
+    <h2><span class="icn b">📱</span> ثالثاً: تناسق التطبيق مع شاشات الهواتف</h2>
+    <p class="sub">التأكد أن كل الشاشات تتناسق مع النوتش العلوي، وشريط الإيماءات/الأزرار الثلاثة السفلي، ولوحة المفاتيح.</p>
+
+    <div class="item">
+      <div class="h"><strong>① المساحة الآمنة السفلية في القوائم</strong><span class="badge b-fix">تحسين</span><span class="badge b-done">أُصلح ✓</span></div>
+      <p>كانت عدة شاشات تعرض آخر عنصر خلف شريط الإيماءات/الأزرار الثلاثة (لأنها لم تحترم <code>insets.bottom</code>).</p>
+      <p class="why"><b>أنا سويت:</b> أضفت مساحة سفلية تحترم حافة الجهاز في 10 شاشات: الطلبات، الإشعارات، المفضلة، العناوين، البحث، وصفحات المساعدة الأربع، وتفاصيل الطلب.</p>
+    </div>
+
+    <div class="item">
+      <div class="h"><strong>② التعامل مع لوحة المفاتيح في شاشة حذف الحساب</strong><span class="badge b-fix">تحسين</span><span class="badge b-done">أُصلح ✓</span></div>
+      <p>شاشة حذف الحساب فيها حقل تأكيد وزر، لكنها لم تكن تتعامل مع لوحة المفاتيح (قد تغطّي الحقل).</p>
+      <p class="why"><b>أنا سويت:</b> أضفت تمرير الحقل تلقائياً فوق لوحة المفاتيح ومساحة سفلية مناسبة.</p>
+    </div>
+
+    <div class="item">
+      <div class="h"><strong>③ إعدادات Android (edge-to-edge)</strong><span class="badge b-fix">إعداد</span><span class="badge b-done">أُصلح ✓</span></div>
+      <p>كان ملف <code>app.config.ts</code> يُسقِط إعدادات Android المهمة (edge-to-edge وإيماءة الرجوع).</p>
+      <p class="why"><b>أنا سويت:</b> ثبّتّها بشكل صريح لضمان التناسق مع كل الأجهزة.</p>
+    </div>
+  </section>
+
+  <!-- ===================== 4) أخطاء برمجية ===================== -->
+  <section>
+    <h2><span class="icn b">🐛</span> رابعاً: أخطاء برمجية (TypeScript) أُصلحت</h2>
+    <p class="sub">كانت 17 خطأً تمنع البناء السليم. الآن المشاريع الثلاثة كلها نظيفة 100%.</p>
+
+    <div class="item">
+      <div class="h"><strong>لوحة التحكم — 17 خطأ</strong><span class="badge b-done">أُصلحت ✓</span></div>
+      <p>أهمها <b>خطأ وظيفي حقيقي</b>: شاشة تعديل العرض (offer) كانت <b>لا تحمّل الوصف العربي ولا صورة العرض</b> لأن الاستعلام كان ينقص عمودين — تحققت من وجودهما في قاعدة البيانات وأضفتهما. + إصلاح أنواع لوحة المعلومات والمستخدمين.</p>
+    </div>
+
+    <div class="item">
+      <div class="h"><strong>التطبيق — أخطاء مخفية</strong><span class="badge b-done">أُصلحت ✓</span></div>
+      <p>كان <code>tsconfig.json</code> يفحص مجلدي <code>admin</code> و <code>web</code> ويُغرق فحص التطبيق بضجيج يُخفي أخطاءه الحقيقية. عزلتُها، ثم أصلحت الأخطاء التي ظهرت (أنواع خدمات الفئات والطلبات، تعريف مكتبة الترجمة، وغيرها).</p>
+    </div>
+  </section>
+
+  <!-- ===================== توصيات ===================== -->
+  <section>
+    <h2><span class="icn a">💡</span> خامساً: توصيات تحتاج إجراءً منك</h2>
+    <p class="sub">أمور لم أنفّذها لأنها إعدادات في لوحة Supabase (لا تُغيَّر من الكود) أو تحتاج قرارك.</p>
+
+    <div class="item">
+      <div class="h"><strong>① فعّل حماية كلمات المرور المسرّبة</strong><span class="badge b-rec">توصية</span></div>
+      <p>من لوحة Supabase ← Authentication ← Policies، فعّل فحص كلمات المرور المسرّبة (HaveIBeenPwned). يمنع المستخدمين من استخدام كلمات مرور معروفة الاختراق.</p>
+    </div>
+
+    <div class="item">
+      <div class="h"><strong>② تقييد سرد ملفات الـ Storage (اختياري)</strong><span class="badge b-rec">توصية</span></div>
+      <p>خمسة buckets عامة تسمح بسرد قائمة ملفاتها. الخطر منخفض (الصور عامة بأسماء عشوائية)، لكن يُفضّل تقييد سياسة القراءة لاحقاً. تركتها لأن تعديل سياسات التخزين حساس وقد يؤثر على الرفع.</p>
+    </div>
+
+    <div class="item">
+      <div class="h"><strong>③ لا تغيّر إعداد روابط الصور</strong><span class="badge b-rec">تنبيه</span></div>
+      <p>روابط الصور في قاعدة البيانات الجديدة ما زالت تشير لتخزين المشروع القديم (و ImageKit يخدمها من هناك). <b>أبقِ</b> ملف <code>imageUrl.ts</code> مشيراً للمشروع القديم — تغييره سيكسر عرض كل الصور.</p>
+    </div>
+  </section>
+
+  <!-- ===================== جدول الملفات ===================== -->
+  <section>
+    <h2><span class="icn g">📂</span> ملخص الملفات التي عدّلتها</h2>
+    <details open>
+      <summary>عرض القائمة الكاملة</summary>
+      <table>
+        <tr><th>المجال</th><th>الملفات</th></tr>
+        <tr><td>أمان (جديد)</td><td><code>admin/src/lib/api-auth.ts</code></td></tr>
+        <tr><td>أمان (مسارات API)</td><td>analyze-product · remove-background · test · proxy-image</td></tr>
+        <tr><td>قاعدة البيانات</td><td>3 هجرات: سحب exec_sql · تثبيت search_path · سحب handle_new_user</td></tr>
+        <tr><td>Egress / أداء</td><td><code>web/app/page.tsx</code> · <code>web/.../CheckoutFlow.tsx</code> · <code>eas.json</code></td></tr>
+        <tr><td>واجهة الهاتف</td><td>orders · notifications · wishlist · addresses · search · help/(faq,contact,privacy,terms) · profile/delete-account · order/[id] · app.config.ts</td></tr>
+        <tr><td>أخطاء TypeScript</td><td>admin/(page · offers/[id] · users) · tsconfig.json · checkout.tsx · services/(categories · orders) · types/i18n-js-require.d.ts</td></tr>
+      </table>
+    </details>
+  </section>
+
+  <div class="note">
+    <b>الخلاصة:</b> أُغلقت ثلاث ثغرات أمنية (أخطرها تنفيذ SQL للعموم)، وأُصلح 17 خطأ برمجياً، وحُسّنت واجهة الهاتف، وعُولجت تسريبات استهلاك البيانات، ووُحّد المشروع. المشاريع الثلاثة الآن تمر بفحص TypeScript بنظافة تامة (0 أخطاء). الكود في حالة أفضل بكثير وأكثر أماناً وأوفر لحصتك المجانية. 🚀
+  </div>
+
+  <footer>
+    أُنشئ هذا التقرير تلقائياً بعد جلسة مراجعة شاملة — الأمل سنتر · يونيو 2026
+  </footer>
+
+</div>
+</body>
+</html>

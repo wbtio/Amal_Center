@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import {
@@ -11,6 +10,7 @@ import {
   UserCircle2,
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   usePathname,
   useRouter,
@@ -486,12 +486,14 @@ export function AccountDashboard({
           <section className="soft-panel p-6 sm:p-8">
             <div className="flex flex-col gap-8 xl:flex-row xl:items-start">
               <div className="rounded-[2.5rem] bg-slate-50 px-8 py-8 text-center xl:w-[320px]">
-                <div className="mx-auto flex h-36 w-36 items-center justify-center overflow-hidden rounded-full bg-white shadow-soft">
+                <div className="relative mx-auto flex h-36 w-36 items-center justify-center overflow-hidden rounded-full bg-white shadow-soft">
                   {profile?.avatar_url ? (
-                    <img
+                    <Image
                       src={profile.avatar_url}
                       alt={profile?.full_name || "Avatar"}
-                      className="h-full w-full object-cover"
+                      fill
+                      sizes="144px"
+                      className="object-cover"
                     />
                   ) : (
                     <Star size={34} className="text-slate-300" />

@@ -1,5 +1,5 @@
-/* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 
 import { ProductCard } from "@/components/ui/ProductCard";
@@ -9,8 +9,9 @@ import {
   getActiveProductsByCategory,
 } from "@/lib/storefront-data";
 import { getCategoryName, getMessages } from "@/lib/storefront";
+import { getProductFullUrl } from "@/lib/imageUrl";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 type CategoryPageProps = {
   params: Promise<{ id: string }>;
@@ -34,10 +35,13 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
       <section className="soft-panel overflow-hidden">
         <div className="relative">
           {category.image_url ? (
-            <img
-              src={category.image_url}
+            <Image
+              src={getProductFullUrl(category.image_url) ?? category.image_url}
               alt={getCategoryName(category, language)}
-              className="absolute inset-0 h-full w-full object-cover"
+              fill
+              sizes="100vw"
+              priority
+              className="object-cover"
             />
           ) : null}
           <div className="absolute inset-0 bg-gradient-to-b from-white/85 via-white/92 to-white" />

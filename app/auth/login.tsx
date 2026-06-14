@@ -4,7 +4,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Ionicons } from '@expo/vector-icons';
 import * as z from 'zod';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import {
   AuthField,
@@ -12,28 +12,23 @@ import {
   AuthScaffold,
   AuthSwitchPrompt,
 } from '../../components/auth/AuthUI';
+import { useLanguage } from '../../contexts';
 
-const loginSchema = z.object({
-  email: z.string().email('البريد الإلكتروني غير صحيح'),
-  password: z.string().min(6, 'كلمة المرور يجب أن تكون 6 أحرف على الأقل'),
-});
+const buildLoginSchema = (t: (key: string) => string) =>
+  z.object({
+    email: z.string().email(t('auth.loginValidation.invalidEmail')),
+    password: z.string().min(6, t('auth.loginValidation.passwordMin')),
+  });
 
-type LoginFormData = z.infer<typeof loginSchema>;
-
-const getErrorMessage = (error: string) => {
-  const errorMessages: Record<string, string> = {
-    'Invalid login credentials': 'البريد الإلكتروني أو كلمة المرور غير صحيحة',
-    'Email not confirmed': 'يرجى تأكيد بريدك الإلكتروني أولاً',
-    'Invalid email or password': 'البريد الإلكتروني أو كلمة المرور غير صحيحة',
-  };
-
-  return errorMessages[error] || 'حدث خطأ، يرجى المحاولة مرة أخرى';
-};
+type LoginFormData = { email: string; password: string };
 
 export default function LoginScreen() {
   const router = useRouter();
+  const { t, language } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  const loginSchema = useMemo(() => buildLoginSchema(t), [language, t]);
 
   const {
     control,
@@ -41,43 +36,33 @@ export default function LoginScreen() {
     formState: { errors },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: '',
-      password: '',
-    },
+    defaultValues: { email: '', password: '' },
   });
+
+  const getErrorMessage = (error: string) => {
+    if (error.includes('Invalid login credentials') || error.includes('Invalid email or password')) {
+      return t('auth.loginErrors.invalidCredentials');
+    }
+    if (error.includes('Email not confirmed')) {
+      return t('auth.loginErrors.emailNotConfirmed');
+    }
+    return t('auth.loginErrors.fallback');
+  };
 
   const onSubmit = async (data: LoginFormData) => {
     setLoading(true);
-
     const { error } = await supabase.auth.signInWithPassword({
       email: data.email.trim().toLowerCase(),
       password: data.password,
     });
-
     setLoading(false);
 
     if (error) {
       if (error.message.includes('Email not confirmed')) {
-        Alert.alert(
-          'تأكيد الحساب',
-          'البريد الإلكتروني غير مؤكد. هل تريد إدخال رمز التحقق الآن؟',
-          [
-            { text: 'إلغاء', style: 'cancel' },
-            {
-              text: 'نعم، تفعيل الحساب',
-              onPress: () =>
-                router.push({
-                  pathname: '/auth/verify',
-                  params: { email: data.email.trim().toLowerCase() },
-                }),
-            },
-          ]
-        );
+        Alert.alert(t('auth.emailConfirmTitle'), t('auth.emailConfirmMessage'));
       } else {
-        Alert.alert('خطأ', getErrorMessage(error.message));
+        Alert.alert(t('auth.loginErrorTitle'), getErrorMessage(error.message));
       }
-
       return;
     }
 
@@ -86,12 +71,12 @@ export default function LoginScreen() {
 
   return (
     <AuthScaffold
-      title="تسجيل الدخول"
-      subtitle="ادخل إلى حسابك لمتابعة طلباتك، عناوينك المفضلة، وكل ما يخص تجربة التسوق في الأمل سنتر."
+      title={t('auth.login')}
+      subtitle={t('auth.loginSubtitle')}
       footer={
         <AuthSwitchPrompt
-          prompt="ليس لديك حساب؟"
-          actionLabel="أنشئ حساباً الآن"
+          prompt={t('auth.noAccount')}
+          actionLabel={t('auth.createAccountNow')}
           onPress={() => router.push('/auth/register')}
         />
       }
@@ -101,7 +86,7 @@ export default function LoginScreen() {
         name="email"
         render={({ field: { onChange, value } }) => (
           <AuthField
-            label="البريد الإلكتروني"
+            label={t('auth.emailLabel')}
             iconName="mail-outline"
             error={errors.email?.message}
             forceLTR
@@ -122,10 +107,10 @@ export default function LoginScreen() {
         name="password"
         render={({ field: { onChange, value } }) => (
           <AuthField
-            label="كلمة المرور"
+            label={t('auth.passwordLabel')}
             iconName="lock-closed-outline"
             error={errors.password?.message}
-            placeholder="أدخل كلمة المرور"
+            placeholder={t('auth.passwordPlaceholder')}
             secureTextEntry={!showPassword}
             autoCorrect={false}
             autoCapitalize="none"
@@ -136,8 +121,8 @@ export default function LoginScreen() {
             trailing={
               <TouchableOpacity
                 accessibilityRole="button"
-                accessibilityLabel={showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
-                onPress={() => setShowPassword((current) => !current)}
+                accessibilityLabel={showPassword ? t('auth.hidePassword') : t('auth.showPassword')}
+                onPress={() => setShowPassword((v) => !v)}
                 style={{ minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' }}
               >
                 <Ionicons
@@ -156,11 +141,11 @@ export default function LoginScreen() {
         onPress={() => router.push('/auth/forgot-password')}
         activeOpacity={0.7}
       >
-        <Text className="font-ibm text-sm text-primary">نسيت كلمة المرور؟</Text>
+        <Text className="font-ibm text-sm text-primary">{t('auth.forgotPassword')}</Text>
       </TouchableOpacity>
 
       <AuthPrimaryButton
-        label="دخول إلى الحساب"
+        label={t('auth.loginAction')}
         iconName="log-in-outline"
         onPress={handleSubmit(onSubmit)}
         loading={loading}

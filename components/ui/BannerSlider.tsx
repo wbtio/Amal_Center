@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, memo } from 'react';
 import { View, ScrollView, TouchableOpacity, Text, useWindowDimensions } from 'react-native';
-import { Image } from 'expo-image';
+import { CachedImage as Image } from './CachedImage';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, Href } from 'expo-router';
 import { Linking } from 'react-native';

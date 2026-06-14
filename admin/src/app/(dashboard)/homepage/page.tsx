@@ -8,6 +8,12 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { Header } from '@/components/layout/Header';
+import {
+    BANNER_IMAGE_OPTIONS,
+    createStorageImageName,
+    optimizeImageForStorage,
+    STORAGE_IMAGE_CACHE_CONTROL,
+} from '@/lib/image-optimizer';
 
 // Types
 type Banner = {
@@ -128,9 +134,9 @@ export default function HomepageManagementPage() {
             setIsLoading(true);
 
             const [bannersRes, sectionsRes, promoRes, categoriesRes] = await Promise.all([
-                supabase.from('banners').select('*').order('created_at', { ascending: false }),
-                supabase.from('home_sections').select('*').order('order_index', { ascending: true }),
-                supabase.from('promo_banners').select('*').order('slot').order('position'),
+                supabase.from('banners').select('id, image_url, title, subtitle, discount, active, link, created_at').order('created_at', { ascending: false }),
+                supabase.from('home_sections').select('id, type, title, active, order_index, category_id, icon, description').order('order_index', { ascending: true }),
+                supabase.from('promo_banners').select('id, slot, position, size, image_url, link, title, active').order('slot').order('position'),
                 supabase.from('categories').select('id, name, name_ar, image_url').eq('is_active', true).order('sort_order')
             ]);
 
@@ -316,11 +322,24 @@ export default function HomepageManagementPage() {
     // Image Upload
     const handleImageUpload = async (file: File, id: string, type: 'banner' | 'promo') => {
         try {
-            const fileExt = file.name.split('.').pop();
-            const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+            if (!file.type.startsWith('image/')) {
+                alert('يرجى اختيار ملف صورة صالح');
+                return;
+            }
+
+            if (file.size > 15 * 1024 * 1024) {
+                alert('حجم الصورة يجب أن يكون أقل من 15 ميجابايت');
+                return;
+            }
+
+            const optimizedImage = await optimizeImageForStorage(file, BANNER_IMAGE_OPTIONS);
+            const fileName = createStorageImageName(optimizedImage.extension);
             const bucket = type === 'banner' ? 'banners' : 'promo-banners';
 
-            const { error: uploadError } = await supabase.storage.from(bucket).upload(fileName, file, { cacheControl: '31536000' });
+            const { error: uploadError } = await supabase.storage.from(bucket).upload(fileName, optimizedImage.file, {
+                cacheControl: STORAGE_IMAGE_CACHE_CONTROL,
+                contentType: optimizedImage.contentType,
+            });
             if (uploadError) throw uploadError;
 
             const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(fileName);

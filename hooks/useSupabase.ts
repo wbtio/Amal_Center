@@ -31,6 +31,8 @@ import {
 import { getProductsByMainCategory } from '../services/products.service';
 import { getActiveBanners, getHomeSections, getAllPromoBanners } from '../services/content.service';
 export type { Banner, HomeSection, PromoBanner } from '../services/content.service';
+import { getAppSettings, getFaqItems, getContentPage } from '../services/settings.service';
+export type { AppSettings, FaqItem, ContentPage, WorkingHour, Branch } from '../services/settings.service';
 
 // Re-export types for backward compatibility
 export type { Product, Category, CategoryWithSubcategories, SortOption } from '../shared/types';
@@ -234,5 +236,37 @@ export const useRandomProducts = (limit: number = 6) => {
   return useQuery({
     queryKey: ['randomProducts', limit],
     queryFn: () => getRandomProducts(limit),
+  });
+};
+
+/**
+ * جلب إعدادات التطبيق القابلة للتعديل من لوحة التحكم (تواصل/فروع/توصيل...)
+ */
+export const useAppSettings = () => {
+  return useQuery({
+    queryKey: ['appSettings'],
+    queryFn: getAppSettings,
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+/**
+ * جلب الأسئلة الشائعة
+ */
+export const useFaq = () => {
+  return useQuery({
+    queryKey: ['faqItems'],
+    queryFn: getFaqItems,
+  });
+};
+
+/**
+ * جلب صفحة محتوى (الشروط / الخصوصية / من نحن)
+ */
+export const useContentPage = (slug: string) => {
+  return useQuery({
+    queryKey: ['contentPage', slug],
+    queryFn: () => getContentPage(slug),
+    enabled: !!slug,
   });
 };

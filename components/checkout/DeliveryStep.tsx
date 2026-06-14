@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { DeliveryType } from '../../types/checkout';
+import { DELIVERY_OPTIONS } from '../../constants/delivery';
 import { useLanguage, useCurrency } from '../../contexts';
 
 interface DeliveryStepProps {
@@ -14,29 +15,13 @@ export const DeliveryStep: React.FC<DeliveryStepProps> = ({ selectedType, onSele
   const { formatPrice } = useCurrency();
   const alignClass = isRTL ? 'text-right' : 'text-left';
 
-  const deliveryOptions = [
-    {
-      id: 'scheduled' as DeliveryType,
-      title: language === 'ar' ? 'توصيل عادي' : 'Standard',
-      desc: language === 'ar' ? '24-48 ساعة' : '24-48 hrs',
-      price: 2000,
-      icon: 'bicycle-outline'
-    },
-    {
-      id: 'express' as DeliveryType,
-      title: language === 'ar' ? 'سريع' : 'Express',
-      desc: language === 'ar' ? 'نفس اليوم' : 'Same day',
-      price: 5000,
-      icon: 'flash-outline'
-    },
-    {
-      id: 'electronics' as DeliveryType,
-      title: language === 'ar' ? 'أجهزة' : 'Fragile',
-      desc: language === 'ar' ? 'عناية فائقة' : 'Extra care',
-      price: 10000,
-      icon: 'tv-outline'
-    }
-  ];
+  const deliveryOptions = DELIVERY_OPTIONS.map((o) => ({
+    id: o.id,
+    title: language === 'ar' ? o.title_ar : o.title_en,
+    desc: language === 'ar' ? o.desc_ar : o.desc_en,
+    price: o.price_iqd,
+    icon: o.icon,
+  }));
 
   return (
     <View className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-4">

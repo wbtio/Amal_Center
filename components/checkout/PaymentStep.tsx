@@ -7,9 +7,10 @@ import { useLanguage } from '../../contexts';
 interface PaymentStepProps {
   selectedMethod: PaymentMethod;
   onSelect: (method: PaymentMethod) => void;
+  waylEnabled?: boolean;
 }
 
-export const PaymentStep: React.FC<PaymentStepProps> = ({ selectedMethod, onSelect }) => {
+export const PaymentStep: React.FC<PaymentStepProps> = ({ selectedMethod, onSelect, waylEnabled = false }) => {
   const { isRTL, language } = useLanguage();
   const alignClass = isRTL ? 'text-right' : 'text-left';
 
@@ -21,16 +22,16 @@ export const PaymentStep: React.FC<PaymentStepProps> = ({ selectedMethod, onSele
       icon: 'cash'
     },
     {
+      id: 'wayl' as PaymentMethod,
+      title: language === 'ar' ? 'الدفع الإلكتروني (بطاقة/محفظة)' : 'Online Payment (Card/Wallet)',
+      available: waylEnabled,
+      icon: 'card'
+    },
+    {
       id: 'wallet' as PaymentMethod,
       title: language === 'ar' ? 'زين كاش (قريباً)' : 'Zain Cash (Soon)',
       available: false,
       icon: 'phone-portrait'
-    },
-    {
-      id: 'card' as PaymentMethod,
-      title: language === 'ar' ? 'بطاقة بنكية (قريباً)' : 'Credit Card (Soon)',
-      available: false,
-      icon: 'card'
     }
   ];
 

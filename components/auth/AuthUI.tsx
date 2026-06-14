@@ -29,6 +29,7 @@ interface AuthScaffoldProps {
   children: ReactNode;
   footer?: ReactNode;
   backAccessibilityLabel?: string;
+  onBack?: () => void;
 }
 
 interface AuthFieldProps extends TextInputProps {
@@ -62,6 +63,7 @@ export function AuthScaffold({
   children,
   footer,
   backAccessibilityLabel,
+  onBack,
 }: AuthScaffoldProps) {
   const router = useRouter();
   const { isRTL } = useLanguage();
@@ -83,7 +85,7 @@ export function AuthScaffold({
           <TouchableOpacity
             accessibilityRole="button"
             accessibilityLabel={backAccessibilityLabel || (isRTL ? 'الرجوع' : 'Back')}
-            onPress={() => router.back()}
+            onPress={() => onBack ? onBack() : router.back()}
             style={styles.backButton}
           >
             <Ionicons name={isRTL ? 'arrow-forward' : 'arrow-back'} size={22} color={COLORS.TEXT_PRIMARY} />

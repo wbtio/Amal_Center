@@ -60,7 +60,7 @@ export default function NotificationsPage() {
 
       const [profilesRes, notificationsRes] = await Promise.all([
         supabase.from('profiles').select('id, full_name, phone').order('created_at', { ascending: false }),
-        supabase.from('notifications').select('*').order('created_at', { ascending: false }).limit(50),
+        supabase.from('notifications').select('id, user_id, title, title_ar, message, message_ar, type, is_read, created_at').order('created_at', { ascending: false }).limit(50),
       ]);
 
       if (profilesRes.error) throw profilesRes.error;

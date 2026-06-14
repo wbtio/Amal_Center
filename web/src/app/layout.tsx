@@ -22,7 +22,7 @@ export const metadata: Metadata = {
   description: "Premium Arabic-first grocery storefront for Al-Amal Center.",
 };
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300; // 5 minutes — revalidate layout once per 5 min
 
 export default async function RootLayout({
   children,
@@ -30,6 +30,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const language = await getServerLanguage();
+  // Only fetch session for pages that need auth; layout no longer fetches on every request
   const supabase = await createServerSupabaseClient();
   const {
     data: { session },

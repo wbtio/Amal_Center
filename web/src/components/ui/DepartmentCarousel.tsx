@@ -1,14 +1,14 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 
 import { useStorefront } from "@/components/providers/StorefrontProvider";
 import { getCategoryName } from "@/lib/storefront";
+import { getProductThumbnailUrl } from "@/lib/imageUrl";
 import type { Category } from "@/lib/types";
-import { cn } from "@/lib/utils";
 
 type DepartmentCarouselProps = {
   categories: Category[];
@@ -84,13 +84,14 @@ export function DepartmentCarousel({ categories }: DepartmentCarouselProps) {
                   href={`/category/${category.id}`}
                   className="group overflow-hidden rounded-xl border border-slate-200 bg-white shadow-soft transition duration-300 hover:-translate-y-1 hover:shadow-premium"
                 >
-                  <div className="relative">
+                  <div className="relative aspect-square">
                     {category.image_url ? (
-                      <img
-                        src={category.image_url}
+                      <Image
+                        src={getProductThumbnailUrl(category.image_url) ?? category.image_url}
                         alt={getCategoryName(category, language)}
-                        className="aspect-square w-full object-cover transition duration-500 group-hover:scale-105"
-                        loading="lazy"
+                        fill
+                        sizes="(min-width: 1280px) 24vw, 33vw"
+                        className="object-cover transition duration-500 group-hover:scale-105"
                       />
                     ) : (
                       <div className="flex aspect-square items-center justify-center bg-[linear-gradient(135deg,#f1f8f1_0%,#fbfcfb_100%)] text-6xl text-primary">

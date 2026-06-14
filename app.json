@@ -38,17 +38,17 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.alamal.center",
-      "buildNumber": "1",
+      "buildNumber": "9",
       "config": {
         "usesNonExemptEncryption": false
       }
     },
     "android": {
       "package": "com.alamal.center",
-      "versionCode": 7,
+      "versionCode": 9,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#2E7D32"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false

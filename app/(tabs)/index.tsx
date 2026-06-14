@@ -1,7 +1,8 @@
 import { View, Text, ScrollView, TouchableOpacity, RefreshControl, Alert, useWindowDimensions } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
-import { Image } from 'expo-image';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { CachedImage as Image } from '../../components/ui/CachedImage';
+import { getCategoryIcon } from '../../lib/categoryIcons';
 import { useCategories, useSpecialOffers, useBestSellers, useBanners, useHomeSections, useMainCategories, useNewArrivals, usePromoBanners, useTrendingProducts, HomeSection } from '../../hooks/useSupabase';
 import { ProductCardSkeleton, Skeleton } from '../../components/ui/Skeleton';
 import { SectionHeader } from '../../components/ui/SectionHeader';
@@ -130,16 +131,11 @@ export default function HomeScreen() {
               shadowRadius: 3,
               elevation: 2,
             }}>
-              {item.image_url ? (
-                <Image
-                  source={{ uri: item.image_url }}
-                  style={{ width: 50, height: 50, backgroundColor: 'transparent' }}
-                  contentFit="contain"
-                  transition={200}
-                />
-              ) : (
-                <Ionicons name={(item.icon as any) || "grid-outline"} size={32} color="#2E7D32" />
-              )}
+              <MaterialCommunityIcons
+                name={getCategoryIcon(item.name || '', item.name_ar || '')}
+                size={32}
+                color="#2E7D32"
+              />
             </View>
             <Text
               className="font-ibm-semibold text-[10px] text-text-primary text-center mt-1 w-[70px]"
@@ -364,6 +360,35 @@ export default function HomeScreen() {
         return null;
     }
   };
+
+  // Check if we have a global error (e.g. categories failed to load, which indicates Supabase / Network connection is down)
+  const isGlobalError = !!categoriesError;
+
+  if (isGlobalError && !isCategoriesLoading) {
+    return (
+      <View className="flex-1 bg-white justify-center items-center px-6">
+        <Stack.Screen options={{ headerShown: false }} />
+        <View className="w-20 h-20 bg-red-50 rounded-full items-center justify-center mb-6">
+          <Ionicons name="wifi-outline" size={48} color="#EF4444" />
+        </View>
+        <Text className="font-ibm-bold text-xl text-gray-800 text-center mb-3">
+          فشل الاتصال بالخادم
+        </Text>
+        <Text className="font-ibm-regular text-sm text-gray-500 text-center leading-6 mb-8">
+          يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.
+        </Text>
+        <TouchableOpacity
+          className="bg-primary rounded-xl py-3.5 px-8 w-full max-w-xs"
+          onPress={onRefresh}
+          activeOpacity={0.7}
+        >
+          <Text className="font-ibm-bold text-base text-white text-center">
+            إعادة المحاولة
+          </Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   return (
     <View className="flex-1 bg-white">

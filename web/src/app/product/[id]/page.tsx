@@ -1,5 +1,5 @@
-/* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 
 import { ProductPurchasePanel } from "@/components/product/ProductPurchasePanel";
@@ -11,8 +11,9 @@ import {
   getRelatedProducts,
 } from "@/lib/storefront-data";
 import { getCategoryName, getMessages, getProductName } from "@/lib/storefront";
+import { getProductFullUrl } from "@/lib/imageUrl";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 600; // Product detail — cache 10 minutes
 
 type ProductPageProps = {
   params: Promise<{ id: string }>;
@@ -60,11 +61,14 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
       <section className="grid gap-8 lg:grid-cols-[0.98fr_1.02fr] lg:items-start xl:gap-12">
         <div className="soft-panel overflow-hidden bg-white p-6 sm:p-8">
-          <div className="rounded-[2.5rem] bg-slate-50">
-            <img
-              src={product.image_url}
+          <div className="relative aspect-square rounded-[2.5rem] bg-slate-50">
+            <Image
+              src={getProductFullUrl(product.image_url) ?? product.image_url}
               alt={getProductName(product, language)}
-              className="h-full w-full object-contain p-10 sm:p-14"
+              fill
+              sizes="(min-width: 1024px) 50vw, 100vw"
+              priority
+              className="object-contain p-10 sm:p-14"
             />
           </div>
         </div>

@@ -18,10 +18,12 @@ export default function OrdersPage() {
   }, []);
 
   const fetchOrders = async () => {
+    // جلب الأعمدة المطلوبة فقط مع pagination — الطلبات القديمة لا نحتاجها فوراً
     const { data, error } = await supabase
       .from('orders')
-      .select('*')
-      .order('created_at', { ascending: false });
+      .select('id, status, total_iqd, customer_name, delivery_phone, created_at, payment_method, payment_status')
+      .order('created_at', { ascending: false })
+      .limit(200);
 
     if (!error) {
       setOrders(data || []);

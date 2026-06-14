@@ -136,7 +136,7 @@ export default function NotificationsScreen() {
 
             const { data, error } = await supabase
                 .from('notifications')
-                .select('*')
+                .select('id, title, title_ar, message, message_ar, type, is_read, created_at')
                 .eq('user_id', session.user.id)
                 .order('created_at', { ascending: false });
 
@@ -372,7 +372,7 @@ export default function NotificationsScreen() {
                 <FlatList
                     data={notifications}
                     keyExtractor={(item) => item.id}
-                    contentContainerStyle={{ padding: 16, paddingTop: 8 }}
+                    contentContainerStyle={{ padding: 16, paddingTop: 8, paddingBottom: insets.bottom + 24 }}
                     ListEmptyComponent={
                         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 60 }}>
                             <View style={{

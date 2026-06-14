@@ -5,6 +5,7 @@
 
 export const APP_CONFIG = {
     VERSION: '1.0.1',
+    WEBSITE_URL: 'https://www.centeralamal.shop',
     WHATSAPP_NUMBER: '9647801234567',
     WHATSAPP_URL: 'https://wa.me/9647801234567',
 
@@ -38,9 +39,9 @@ export const APP_CONFIG = {
     ],
 
     // Legal Pages
-    PRIVACY_POLICY_URL: 'https://centerlamal.shop/privacy',
-    TERMS_OF_SERVICE_URL: 'https://centerlamal.shop/terms',
-    SUPPORT_URL: 'https://centerlamal.shop/support',
+    PRIVACY_POLICY_URL: 'https://www.centeralamal.shop/privacy',
+    TERMS_OF_SERVICE_URL: 'https://www.centeralamal.shop/terms',
+    SUPPORT_URL: 'https://www.centeralamal.shop/support',
 
     // Social Media
     FACEBOOK_URL: 'https://facebook.com/alamalcenter',

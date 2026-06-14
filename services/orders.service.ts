@@ -30,7 +30,7 @@ export const createOrderItems = async (items: OrderItemInsert[]): Promise<OrderI
         .select();
 
     if (error) throw error;
-    return data || [];
+    return (data || []) as unknown as OrderItem[];
 };
 
 /**
@@ -56,12 +56,12 @@ export const getOrderById = async (id: string): Promise<OrderWithItems> => {
 export const getUserOrders = async (userId: string): Promise<Order[]> => {
     const { data, error } = await supabase
         .from('orders')
-        .select('*')
+        .select('id, status, total_iqd, payment_method, payment_status, created_at, customer_name, delivery_address')
         .eq('user_id', userId)
         .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return data || [];
+    return (data || []) as unknown as Order[];
 };
 
 /**
@@ -70,11 +70,11 @@ export const getUserOrders = async (userId: string): Promise<Order[]> => {
 export const getAllOrders = async (): Promise<Order[]> => {
     const { data, error } = await supabase
         .from('orders')
-        .select('*')
+        .select('id, status, total_iqd, payment_method, payment_status, created_at, customer_name, delivery_phone')
         .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return data || [];
+    return (data || []) as unknown as Order[];
 };
 
 /**

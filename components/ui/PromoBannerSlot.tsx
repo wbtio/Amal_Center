@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, TouchableOpacity, Linking, useWindowDimensions } from 'react-native';
-import { Image } from 'expo-image';
+import { CachedImage as Image } from './CachedImage';
 import { useRouter } from 'expo-router';
 import { PromoBanner } from '../../hooks/useSupabase';
 import { Skeleton } from './Skeleton';

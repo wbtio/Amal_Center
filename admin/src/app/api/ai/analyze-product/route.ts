@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { requireAdmin } from '@/lib/api-auth';
 
 // ===== OpenRouter API =====
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
@@ -70,6 +71,11 @@ function parseAIResponse(text: string): any {
 
 export async function POST(request: NextRequest) {
   try {
+    const auth = await requireAdmin();
+    if (!auth.ok) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
+    }
+
     console.log('=== Starting AI Analysis (OpenRouter) ===');
 
     if (!OPENROUTER_API_KEY) {

@@ -1,11 +1,11 @@
 import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, FlatList, RefreshControl, Modal, Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useLanguage, useCurrency } from '../../contexts';
-import { Image } from 'expo-image';
+import { CachedImage as Image } from '../../components/ui/CachedImage';
 
 export default function OrderDetailsScreen() {
   const { id, isNewOrder } = useLocalSearchParams();
@@ -17,6 +17,7 @@ export default function OrderDetailsScreen() {
   const [showThankYou, setShowThankYou] = useState(isNewOrder === 'true');
   const { t, language, isRTL } = useLanguage();
   const { formatPrice } = useCurrency();
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     fetchOrderDetails();
@@ -33,7 +34,6 @@ export default function OrderDetailsScreen() {
           filter: `id=eq.${id}`
         },
         (payload) => {
-          console.log('Order updated:', payload);
           setOrder((prevOrder: any) => ({ ...prevOrder, ...payload.new }));
         }
       )
@@ -47,21 +47,21 @@ export default function OrderDetailsScreen() {
 
   const fetchOrderDetails = async () => {
     try {
-      // Fetch Order
-      const { data: orderData, error: orderError } = await supabase
-        .from('orders')
-        .select('*')
-        .eq('id', id)
-        .single();
+    // Fetch Order
+    const { data: orderData, error: orderError } = await supabase
+      .from('orders')
+      .select('id, status, total_iqd, payment_method, payment_status, delivery_type, delivery_address, delivery_phone, customer_name, customer_notes, created_at, updated_at')
+      .eq('id', id)
+      .single();
 
-      if (orderError) throw orderError;
-      setOrder(orderData);
+    if (orderError) throw orderError;
+    setOrder(orderData);
 
-      // Fetch Items
-      const { data: itemsData, error: itemsError } = await supabase
-        .from('order_items')
-        .select('*')
-        .eq('order_id', id);
+    // Fetch Items
+    const { data: itemsData, error: itemsError } = await supabase
+      .from('order_items')
+      .select('id, product_id, quantity, price_iqd, product_snapshot')
+      .eq('order_id', id);
 
       if (itemsError) throw itemsError;
       setItems(itemsData || []);
@@ -155,7 +155,8 @@ export default function OrderDetailsScreen() {
       </View>
 
       <ScrollView
-        className="flex-1 p-4"
+        className="flex-1"
+        contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 24 }}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}

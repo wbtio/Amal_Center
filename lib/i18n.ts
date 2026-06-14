@@ -37,36 +37,28 @@ export async function initializeLanguage(): Promise<string> {
         i18n.locale = supportedLocale;
         return supportedLocale;
     } catch (error) {
-        console.error('Error loading language:', error);
         return 'ar';
     }
 }
 
-// Get current language
 export function getCurrentLanguage(): string {
     return i18n.locale;
 }
 
-// Check if current language is RTL
 export function isRTL(): boolean {
     return i18n.locale === 'ar';
 }
 
-// Set language and save to storage
 export async function setLanguage(language: 'ar' | 'en'): Promise<boolean> {
     try {
         await AsyncStorage.setItem(LANGUAGE_KEY, language);
         i18n.locale = language;
 
-        // Just set allowRTL, don't force RTL change at runtime
-        // The Stack component with key prop will handle the remount
         const shouldBeRTL = language === 'ar';
         I18nManager.allowRTL(shouldBeRTL);
 
-        // Return false - no restart needed, key prop handles remount
         return false;
     } catch (error) {
-        console.error('Error saving language:', error);
         return false;
     }
 }

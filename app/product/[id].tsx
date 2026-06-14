@@ -1,6 +1,6 @@
-import { View, Text, ActivityIndicator, TouchableOpacity, ScrollView, Platform, useWindowDimensions } from 'react-native';
+import { View, Text, ActivityIndicator, TouchableOpacity, ScrollView, useWindowDimensions } from 'react-native';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
-import { Image } from 'expo-image';
+import { CachedImage as Image } from '../../components/ui/CachedImage';
 import { Ionicons } from '@expo/vector-icons';
 import { useProduct, useSimilarProducts } from '../../hooks/useSupabase';
 import { useCartStore } from '../../store/cartStore';
@@ -11,17 +11,14 @@ import { ProductCard } from '../../components/ui/ProductCard';
 import { showToast } from '../../components/ui/Toast';
 import { WishlistButton } from '../../components/ui/WishlistButton';
 
-const PRIMARY_COLOR = '#2E7D32';
-const INACTIVE_COLOR = '#BDBDBD';
-const ACTIVE_BG = 'rgba(46, 125, 50, 0.08)';
-
 export default function ProductDetailsScreen() {
   const { id: rawId } = useLocalSearchParams();
   const id = Array.isArray(rawId) ? rawId[0] : rawId;
   const router = useRouter();
   const { data: product, isLoading, error } = useProduct(id as string);
   const addItem = useCartStore(state => state.addItem);
-  const totalItems = useCartStore(state => state.totalItems);
+  // عدد المنتجات المختلفة في السلة — موحّد مع الشريط العائم ورأس السلة
+  const cartCount = useCartStore(state => state.items.length);
   const { t, language, isRTL } = useLanguage();
   const { formatPrice } = useCurrency();
   const [quantity, setQuantity] = useState(1);
@@ -63,8 +60,12 @@ export default function ProductDetailsScreen() {
   }
 
   const handleAddToCart = () => {
-    addItem(product, quantity);
-    showToast(t('product.addedMessage'));
+    try {
+      addItem(product, quantity);
+      showToast(t('product.addedMessage'));
+    } catch {
+      showToast(language === 'ar' ? 'لا يوجد مخزون كافٍ' : 'Not enough stock');
+    }
   };
 
   const discountPercentage = product.original_price && product.original_price > product.price_iqd
@@ -85,9 +86,9 @@ export default function ProductDetailsScreen() {
             <WishlistButton productId={product.id} />
             <TouchableOpacity onPress={() => router.push('/(tabs)/cart')} className="p-2 relative">
               <Ionicons name="cart-outline" size={24} color="#212121" />
-              {totalItems > 0 && (
+              {cartCount > 0 && (
                 <View className={`absolute -top-1 bg-primary w-5 h-5 rounded-full items-center justify-center ${isRTL ? '-left-1' : '-right-1'}`}>
-                  <Text className="text-white text-xs font-bold">{totalItems > 9 ? '9+' : totalItems}</Text>
+                  <Text className="text-white text-xs font-bold">{cartCount > 9 ? '9+' : cartCount}</Text>
                 </View>
               )}
             </TouchableOpacity>
@@ -100,6 +101,7 @@ export default function ProductDetailsScreen() {
         <View className="bg-gray-50 items-center py-6">
           <Image
             source={{ uri: product.image_url }}
+            thumbnail={false}
             style={{ width: Math.max(width - 64, 0), height: 220 }}
             contentFit="contain"
           />
@@ -194,7 +196,7 @@ export default function ProductDetailsScreen() {
       </ScrollView>
 
       {/* Bottom Bar - Add to Cart */}
-      <View className="bg-white border-t border-gray-100 px-4 py-3">
+      <SafeAreaView edges={['bottom']} className="bg-white border-t border-gray-100 px-4 py-3">
         <View className={`flex-row items-center gap-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
           <View className={`${isRTL ? 'items-end' : 'items-start'}`}>
             <Text className="text-xs text-gray-500 font-ibm">{t('cart.total')}</Text>
@@ -208,113 +210,6 @@ export default function ProductDetailsScreen() {
             <Ionicons name="cart" size={20} color="white" />
             <Text className="text-white font-ibm-bold text-base">
               {product.stock_quantity > 0 ? t('common.addToCart') : t('common.outOfStock')}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      {/* Bottom Tab Bar */}
-      <SafeAreaView edges={['bottom']} className="bg-white border-t border-gray-200">
-        <View 
-          className="flex-row justify-around items-center"
-          style={{ 
-            height: Platform.OS === 'ios' ? 54 : 58,
-            paddingTop: 6,
-          }}
-        >
-          {/* Home */}
-          <TouchableOpacity 
-            onPress={() => router.replace('/(tabs)' as any)}
-            className="items-center justify-center flex-1"
-          >
-            <View style={{ 
-              alignItems: 'center', 
-              justifyContent: 'center', 
-              height: 32,
-              width: 44,
-              borderRadius: 10,
-            }}>
-              <Ionicons name="home-outline" size={22} color={INACTIVE_COLOR} />
-            </View>
-            <Text style={{ fontFamily: 'IBMPlexSansArabic_700Bold', fontSize: 10, color: INACTIVE_COLOR, marginTop: 2 }}>
-              {t('common.home')}
-            </Text>
-          </TouchableOpacity>
-
-          {/* Categories */}
-          <TouchableOpacity 
-            onPress={() => router.replace('/(tabs)/categories' as any)}
-            className="items-center justify-center flex-1"
-          >
-            <View style={{ 
-              alignItems: 'center', 
-              justifyContent: 'center', 
-              height: 32,
-              width: 44,
-              borderRadius: 10,
-            }}>
-              <Ionicons name="grid-outline" size={22} color={INACTIVE_COLOR} />
-            </View>
-            <Text style={{ fontFamily: 'IBMPlexSansArabic_700Bold', fontSize: 10, color: INACTIVE_COLOR, marginTop: 2 }}>
-              {t('common.categories')}
-            </Text>
-          </TouchableOpacity>
-
-          {/* Cart */}
-          <TouchableOpacity 
-            onPress={() => router.replace('/(tabs)/cart' as any)}
-            className="items-center justify-center flex-1"
-          >
-            <View style={{ 
-              alignItems: 'center', 
-              justifyContent: 'center', 
-              height: 32,
-              width: 44,
-              borderRadius: 10,
-              position: 'relative',
-            }}>
-              <Ionicons name="cart-outline" size={22} color={INACTIVE_COLOR} />
-              {totalItems > 0 && (
-                <View style={{
-                  position: 'absolute',
-                  top: 0,
-                  right: isRTL ? undefined : 2,
-                  left: isRTL ? 2 : undefined,
-                  backgroundColor: '#D32F2F',
-                  borderRadius: 8,
-                  minWidth: 16,
-                  height: 16,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  paddingHorizontal: 3,
-                }}>
-                  <Text style={{ fontFamily: 'IBMPlexSansArabic_700Bold', fontSize: 9, color: '#FFFFFF' }}>
-                    {totalItems > 9 ? '9+' : totalItems}
-                  </Text>
-                </View>
-              )}
-            </View>
-            <Text style={{ fontFamily: 'IBMPlexSansArabic_700Bold', fontSize: 10, color: INACTIVE_COLOR, marginTop: 2 }}>
-              {t('common.cart')}
-            </Text>
-          </TouchableOpacity>
-
-          {/* Profile */}
-          <TouchableOpacity 
-            onPress={() => router.replace('/(tabs)/profile' as any)}
-            className="items-center justify-center flex-1"
-          >
-            <View style={{ 
-              alignItems: 'center', 
-              justifyContent: 'center', 
-              height: 32,
-              width: 44,
-              borderRadius: 10,
-            }}>
-              <Ionicons name="person-outline" size={22} color={INACTIVE_COLOR} />
-            </View>
-            <Text style={{ fontFamily: 'IBMPlexSansArabic_700Bold', fontSize: 10, color: INACTIVE_COLOR, marginTop: 2 }}>
-              {t('common.profile')}
             </Text>
           </TouchableOpacity>
         </View>

@@ -1,4 +1,4 @@
-/* eslint-disable @next/next/no-img-element */
+import Image from "next/image";
 import Link from "next/link";
 
 import { CategoriesCarousel } from "@/components/ui/CategoriesCarousel";
@@ -13,9 +13,10 @@ import {
   getOfferProducts,
 } from "@/lib/storefront-data";
 import { getMessages, getProductName } from "@/lib/storefront";
+import { getProductFullUrl } from "@/lib/imageUrl";
 
 
-export const dynamic = "force-dynamic";
+export const revalidate = 180; // Home page revalidates every 3 minutes (was every request)
 
 export default async function HomePage() {
   const language = await getServerLanguage();
@@ -29,10 +30,12 @@ export default async function HomePage() {
 
   const heroProduct = offers[0] ?? newArrivals[0] ?? null;
   const fallbackCategory = categories.find((category) => category.image_url);
-  const bannerVisual =
+  const rawBannerVisual =
     fallbackCategory?.image_url ??
     heroProduct?.image_url ??
     null;
+  // Route through ImageKit so the hero never pulls raw bytes from Supabase Storage (egress).
+  const bannerVisual = rawBannerVisual ? getProductFullUrl(rawBannerVisual) ?? rawBannerVisual : null;
   const bannerAlt =
     (heroProduct
       ? getProductName(heroProduct, language)
@@ -53,11 +56,14 @@ export default async function HomePage() {
             className="group block overflow-hidden rounded-[1.9rem] border border-white/80 bg-white shadow-premium sm:rounded-[2.75rem]"
           >
             {bannerVisual ? (
-              <img
+              <Image
                 src={bannerVisual}
                 alt={bannerAlt}
+                width={1600}
+                height={500}
+                sizes="100vw"
+                priority
                 className="h-auto w-full transition duration-700 group-hover:scale-[1.02]"
-                loading="eager"
               />
             ) : (
               <div className="h-[11rem] bg-[linear-gradient(135deg,#f8faf8_0%,#edf7ee_45%,#fdf7e7_100%)] sm:h-[18rem] lg:h-[24rem] xl:h-[28rem]" />

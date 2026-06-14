@@ -7,6 +7,7 @@ import { BadgePlus, Search, Tags, CalendarClock, Percent, TimerOff, SquarePen, T
 import { format, formatDistanceToNow, isPast, isFuture } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { Header } from '@/components/layout/Header';
+import { getProductThumbnailUrl } from '@/lib/imageUrl';
 
 interface Offer {
   id: string;
@@ -299,7 +300,7 @@ export default function OffersPage() {
                   <div className="h-32 bg-gradient-to-br from-primary/80 to-primary relative">
                     {offer.image_url && (
                       <img
-                        src={offer.image_url}
+                        src={getProductThumbnailUrl(offer.image_url)}
                         alt={offer.name_ar}
                         className="w-full h-full object-cover"
                       />

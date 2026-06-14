@@ -1,8 +1,9 @@
-/* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 
 import { getServerLanguage } from "@/lib/server-language";
+import { getProductThumbnailUrl } from "@/lib/imageUrl";
 import {
   getOrderWithItemsForUser,
   requireAuthenticatedUser,
@@ -112,12 +113,14 @@ export default async function OrderDetailsPage({
                 className="soft-panel flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between"
               >
                 <div className="flex items-center gap-4">
-                  <div className="h-20 w-20 rounded-[2rem] bg-slate-50">
+                  <div className="relative h-20 w-20 rounded-[2rem] bg-slate-50">
                     {snapshot.image_url ? (
-                      <img
-                        src={snapshot.image_url}
+                      <Image
+                        src={getProductThumbnailUrl(snapshot.image_url)!}
                         alt={snapshot.name_ar || snapshot.name || "Product"}
-                        className="h-full w-full object-contain p-3"
+                        fill
+                        sizes="80px"
+                        className="object-contain p-3"
                       />
                     ) : null}
                   </div>

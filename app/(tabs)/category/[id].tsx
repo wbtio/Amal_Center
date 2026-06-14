@@ -1,7 +1,7 @@
 import { View, Text, ActivityIndicator, FlatList, TouchableOpacity, ScrollView, StatusBar } from 'react-native';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Image } from 'expo-image';
+import { CachedImage as Image } from '../../../components/ui/CachedImage';
 import { useCategoryWithSubcategories, useProductsWithFilters } from '../../../hooks/useSupabase';
 import type { SortOption, Category } from '../../../shared/types';
 import { useCartStore } from '../../../store/cartStore';
@@ -91,7 +91,7 @@ export default function CategoryScreen() {
       activeOpacity={0.7}
       onPress={() => {
         if (isViewAll) {
-          // عرض جميع المنتجات - يمكن إضافة صفحة خاصة لاحقاً
+          router.push(`/(tabs)/categories` as any);
         } else {
           router.push(`/(tabs)/category/${sub.id}` as any);
         }
@@ -196,7 +196,7 @@ export default function CategoryScreen() {
   if (isCategoryLoading) {
     return (
       <View className="flex-1 justify-center items-center bg-white">
-        <ActivityIndicator size="large" color="#3F51B5" />
+<ActivityIndicator size="large" color="#2E7D32" />
       </View>
     );
   }
@@ -274,7 +274,7 @@ export default function CategoryScreen() {
             <TouchableOpacity
               activeOpacity={0.7}
               onPress={() => {
-                // يمكن إضافة منطق خاص هنا
+                router.push(`/(tabs)/categories` as any);
               }}
               className="flex-row items-center bg-white"
               style={{

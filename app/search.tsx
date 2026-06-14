@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useState, useEffect, useRef } from 'react';
-import { Image } from 'expo-image';
+import { CachedImage as Image } from '../components/ui/CachedImage';
 import { supabase } from '../lib/supabase';
 import { Product } from '../hooks/useSupabase';
 import { formatIQD } from '../store/cartStore';
@@ -32,7 +32,7 @@ export default function SearchScreen() {
       try {
         const { data, error } = await supabase
           .from('products')
-          .select('*')
+          .select('id, name, name_ar, price_iqd, image_url, stock_quantity, is_active, category_id')
           .or(`name.ilike.%${query}%,name_ar.ilike.%${query}%`)
           .eq('is_active', true)
           .limit(20);
@@ -119,7 +119,7 @@ export default function SearchScreen() {
         <FlatList
           data={results}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={{ padding: 16 }}
+          contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 24 }}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="on-drag"
           ListEmptyComponent={

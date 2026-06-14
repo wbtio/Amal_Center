@@ -17,7 +17,9 @@ import {
     Bell,
     X,
     ChevronLeft,
-    Store
+    Store,
+    Settings,
+    CreditCard
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
@@ -36,6 +38,8 @@ const sidebarItems = [
     { href: '/notifications', label: 'الإشعارات', icon: Bell, color: 'text-orange-600', activeBg: 'bg-orange-50' },
     { href: '/favorites', label: 'المفضلة', icon: Heart, color: 'text-pink-600', activeBg: 'bg-pink-50' },
     { href: '/users', label: 'المستخدمين', icon: Users, color: 'text-indigo-600', activeBg: 'bg-indigo-50' },
+    { href: '/payment', label: 'الدفع الإلكتروني', icon: CreditCard, color: 'text-green-600', activeBg: 'bg-green-50' },
+    { href: '/content', label: 'المحتوى والإعدادات', icon: Settings, color: 'text-slate-600', activeBg: 'bg-slate-50' },
 ];
 
 // Define which items each role can see

@@ -6,6 +6,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { ArrowRight, Save, Tag, Calendar, Percent, Package, Search, X, Plus } from 'lucide-react';
 import NextImage from 'next/image';
 import Link from 'next/link';
+import { getProductThumbnailUrl } from '@/lib/imageUrl';
 import { Header } from '@/components/layout/Header';
 
 interface Product {
@@ -51,7 +52,7 @@ export default function EditOfferPage() {
       // Fetch offer
       const { data: offer, error: offerError } = await supabase
         .from('offers')
-        .select('*')
+        .select('id, name, name_ar, description, description_ar, discount_type, discount_value, start_date, end_date, is_active, image_url, created_at, updated_at')
         .eq('id', offerId)
         .single();
 
@@ -412,7 +413,7 @@ export default function EditOfferPage() {
                         >
                           <div className="w-10 h-10 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 relative">
                             {product.image_url ? (
-                              <NextImage src={product.image_url} alt="" fill className="object-cover" sizes="40px" />
+                              <NextImage src={getProductThumbnailUrl(product.image_url)!} alt="" fill className="object-cover" sizes="40px" />
                             ) : (
                               <Package className="w-full h-full p-2 text-gray-400" />
                             )}
@@ -444,7 +445,7 @@ export default function EditOfferPage() {
                     >
                       <div className="w-12 h-12 bg-white rounded-lg overflow-hidden flex-shrink-0 border relative">
                         {product.image_url ? (
-                          <NextImage src={product.image_url} alt="" fill className="object-cover" sizes="48px" />
+                          <NextImage src={getProductThumbnailUrl(product.image_url)!} alt="" fill className="object-cover" sizes="48px" />
                         ) : (
                           <Package className="w-full h-full p-2 text-gray-400" />
                         )}

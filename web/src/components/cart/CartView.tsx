@@ -1,11 +1,12 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { Minus, Plus, ShoppingBag, TicketPercent, Trash2 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 
 import { useStorefront } from "@/components/providers/StorefrontProvider";
+import { getProductThumbnailUrl } from "@/lib/imageUrl";
 import { formatIQD, getProductName } from "@/lib/storefront";
 import { useCartStore } from "@/store/cart";
 
@@ -44,11 +45,13 @@ export function CartView() {
             key={item.product.id}
             className="soft-panel flex flex-col gap-5 p-5 sm:flex-row sm:items-center sm:p-6"
           >
-            <div className="h-28 w-full rounded-[2rem] bg-slate-50 sm:w-28">
-              <img
-                src={item.product.image_url}
+            <div className="relative h-28 w-full rounded-[2rem] bg-slate-50 sm:w-28">
+              <Image
+                src={getProductThumbnailUrl(item.product.image_url)!}
                 alt={getProductName(item.product, language)}
-                className="h-full w-full object-contain p-4"
+                fill
+                sizes="112px"
+                className="object-contain p-4"
               />
             </div>
 

@@ -45,7 +45,7 @@ export default function CouponsPage() {
   const fetchCoupons = async () => {
     const { data, error } = await supabase
       .from('coupons')
-      .select('*')
+      .select('id, code, discount_type, discount_value, min_order_amount, max_discount_amount, usage_limit, used_count, is_active, starts_at, expires_at, created_at')
       .order('created_at', { ascending: false });
 
     if (!error) {

@@ -1,5 +1,6 @@
-import { View, Text, TextInput, TouchableOpacity, Alert, ActivityIndicator, Image, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert, ActivityIndicator, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
+import { CachedImage as Image } from '../../components/ui/CachedImage';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useForm, Controller } from 'react-hook-form';
@@ -71,7 +72,7 @@ export default function EditProfileScreen() {
             // Try to get profile from profiles table
             const { data: profile, error } = await supabase
                 .from('profiles')
-                .select('*')
+                .select('id, full_name, phone, avatar_url, notifications_enabled, role')
                 .eq('id', session.user.id)
                 .single();
 
@@ -147,7 +148,7 @@ export default function EditProfileScreen() {
             });
 
             if (!result.canceled && result.assets[0]) {
-                await uploadImage(result.assets[0].uri);
+                await uploadImage(result.assets[0]);
             }
         } catch (error) {
             console.error('Error picking image:', error);
@@ -155,7 +156,7 @@ export default function EditProfileScreen() {
         }
     };
 
-    const uploadImage = async (uri: string) => {
+    const uploadImage = async (asset: ImagePicker.ImagePickerAsset) => {
         try {
             setUploadingImage(true);
 
@@ -166,19 +167,24 @@ export default function EditProfileScreen() {
                 return;
             }
 
-            // Create file name
-            const fileExt = uri.split('.').pop()?.toLowerCase() || 'jpg';
+            // نوع المحتوى الصحيح من منتقي الصور — لا نشتقّه من رابط blob (يسبب هيدر غير صالح على الويب)
+            const contentType = asset.mimeType || 'image/jpeg';
+            const fileExt = contentType.includes('png')
+                ? 'png'
+                : contentType.includes('webp')
+                    ? 'webp'
+                    : 'jpg';
             const fileName = `${session.user.id}-${Date.now()}.${fileExt}`;
 
-            // Convert URI to arraybuffer for React Native
-            const response = await fetch(uri);
+            // تحويل الرابط إلى ArrayBuffer (يعمل على الموبايل والويب)
+            const response = await fetch(asset.uri);
             const arrayBuffer = await response.arrayBuffer();
 
             // Upload to Supabase Storage
             const { error: uploadError } = await supabase.storage
                 .from('avatars')
                 .upload(fileName, arrayBuffer, {
-                    contentType: `image/${fileExt === 'jpg' ? 'jpeg' : fileExt}`,
+                    contentType,
                     upsert: true
                 });
 

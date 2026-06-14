@@ -39,7 +39,7 @@ export type AddressData = z.infer<typeof addressSchema>;
 
 export type DeliveryType = 'scheduled' | 'express' | 'electronics';
 
-export type PaymentMethod = 'cod' | 'card' | 'wallet';
+export type PaymentMethod = 'cod' | 'card' | 'wallet' | 'wayl';
 
 export interface CheckoutState {
   step: number;

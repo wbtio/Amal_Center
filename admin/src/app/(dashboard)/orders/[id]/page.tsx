@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase';
 import { ArrowRight, Printer, MapPin, Phone, User, Clock, CreditCard, Truck, Package, Calendar, Receipt, CheckCircle, XCircle } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { getProductThumbnailUrl } from '@/lib/imageUrl';
 import { Header } from '@/components/layout/Header';
 import { formatIQD } from '@/lib/utils';
 import { format } from 'date-fns';
@@ -29,26 +30,10 @@ export default function OrderDetailsPage() {
   const fetchOrderDetails = async () => {
     if (!id) return;
 
-    // Debug: Check current user
-    const { data: { session } } = await supabase.auth.getSession();
-    console.log('Current Session:', session);
-    if (session) {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', session.user.id)
-        .single();
-      console.log('Current Profile:', profile);
-
-      if (profile?.role !== 'admin') {
-        console.warn('User is NOT an admin!');
-      }
-    }
-
-    // Fetch Order
+    // Fetch Order — الأعمدة المطلوبة فقط
     const { data: orderData, error: orderError } = await supabase
       .from('orders')
-      .select('*')
+      .select('id, status, total_iqd, total_usd, payment_method, payment_status, delivery_type, delivery_address, delivery_phone, customer_name, customer_notes, coupon_code, discount_amount, created_at, updated_at')
       .eq('id', id)
       .single();
 
@@ -61,7 +46,7 @@ export default function OrderDetailsPage() {
     // Fetch Items
     const { data: itemsData, error: itemsError } = await supabase
       .from('order_items')
-      .select('*')
+      .select('id, product_id, quantity, price_iqd, product_snapshot')
       .eq('order_id', id);
 
     if (itemsError) {
@@ -72,7 +57,7 @@ export default function OrderDetailsPage() {
     setLoading(false);
   };
 
-  // Debug helper
+  // التحقق من صلاحية الأدمن — أعمدة محددة فقط
   const checkAdminStatus = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
@@ -81,7 +66,7 @@ export default function OrderDetailsPage() {
     }
     const { data: profile } = await supabase
       .from('profiles')
-      .select('*')
+      .select('role')
       .eq('id', session.user.id)
       .single();
 
@@ -479,7 +464,7 @@ export default function OrderDetailsPage() {
                         <div className="flex items-center gap-3">
                           {item.product_snapshot?.image_url && (
                             <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 relative flex-shrink-0">
-                              <Image src={item.product_snapshot.image_url} alt="" fill className="object-cover" sizes="48px" />
+                              <Image src={getProductThumbnailUrl(item.product_snapshot.image_url)!} alt="" fill className="object-cover" sizes="48px" />
                             </div>
                           )}
                           <div>
@@ -507,7 +492,7 @@ export default function OrderDetailsPage() {
                 <div key={item.id} className="p-3 flex items-start gap-2">
                   {item.product_snapshot?.image_url && (
                     <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 relative flex-shrink-0">
-                      <Image src={item.product_snapshot.image_url} alt="" fill className="object-cover" sizes="48px" />
+                      <Image src={getProductThumbnailUrl(item.product_snapshot.image_url)!} alt="" fill className="object-cover" sizes="48px" />
                     </div>
                   )}
                   <div className="flex-1 min-w-0">

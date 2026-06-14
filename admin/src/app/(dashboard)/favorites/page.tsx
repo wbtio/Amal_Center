@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase';
 import { Heart, Search, TrendingUp, Users } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { getProductThumbnailUrl } from '@/lib/imageUrl';
 import { formatIQD } from '@/lib/utils';
 import { Header } from '@/components/layout/Header';
 
@@ -209,7 +210,7 @@ export default function FavoritesPage() {
                         )}
                         <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden relative">
                           {product.image_url ? (
-                            <Image src={product.image_url} alt={product.name_ar} fill className="object-cover" sizes="48px" />
+                            <Image src={getProductThumbnailUrl(product.image_url)!} alt={product.name_ar} fill className="object-cover" sizes="48px" />
                           ) : (
                             <Heart className="text-gray-400" size={24} />
                           )}
@@ -260,7 +261,7 @@ export default function FavoritesPage() {
                     )}
                     <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden relative">
                       {product.image_url ? (
-                        <Image src={product.image_url} alt={product.name_ar} fill className="object-cover" sizes="48px" />
+                        <Image src={getProductThumbnailUrl(product.image_url)!} alt={product.name_ar} fill className="object-cover" sizes="48px" />
                       ) : (
                         <Heart className="text-gray-400" size={20} />
                       )}

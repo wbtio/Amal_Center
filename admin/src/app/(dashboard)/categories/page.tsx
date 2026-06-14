@@ -2,8 +2,15 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
+import {
+  CATEGORY_IMAGE_OPTIONS,
+  createStorageImageName,
+  optimizeImageForStorage,
+  STORAGE_IMAGE_CACHE_CONTROL,
+} from '@/lib/image-optimizer';
 import { FolderPlus, SquarePen, Trash2, MoveUp, MoveDown, ImageOff, ImagePlus, LinkIcon, Loader2, GripVertical, X, Plus, ArrowUp, ArrowDown, ImageIcon, Edit, Upload } from 'lucide-react';
 import Image from 'next/image';
+import { getProductThumbnailUrl } from '@/lib/imageUrl';
 import { format } from 'date-fns';
 import { Header } from '@/components/layout/Header';
 
@@ -31,7 +38,7 @@ export default function CategoriesPage() {
   const fetchMainCategories = async () => {
     const { data, error } = await supabase
       .from('categories')
-      .select('*')
+      .select('id, name_ar, name, is_active, sort_order')
       .is('parent_id', null)
       .eq('is_active', true)
       .order('sort_order', { ascending: true });
@@ -44,8 +51,8 @@ export default function CategoriesPage() {
   const fetchCategories = async () => {
     const { data, error } = await supabase
       .from('categories')
-      .select('*')
-      .order('sort_order', { ascending: true }); // Ordered by sort_order
+      .select('id, name, name_ar, image_url, parent_id, sort_order, is_active')
+      .order('sort_order', { ascending: true });
 
     if (!error) {
       setCategories(data || []);
@@ -69,14 +76,17 @@ export default function CategoriesPage() {
       if (!res.ok) throw new Error('Failed to fetch image');
 
       const blob = await res.blob();
-      const fileExt = blob.type.split('/')[1] || 'png';
-      const fileName = `${Date.now()}.${fileExt}`;
+      const sourceFile = new File([blob], `category-${Date.now()}`, {
+        type: blob.type || 'image/jpeg',
+      });
+      const optimizedImage = await optimizeImageForStorage(sourceFile, CATEGORY_IMAGE_OPTIONS);
+      const fileName = createStorageImageName(optimizedImage.extension);
 
       const { error: uploadError } = await supabase.storage
         .from('categories')
-        .upload(fileName, blob, {
-          contentType: blob.type,
-          cacheControl: '31536000'
+        .upload(fileName, optimizedImage.file, {
+          contentType: optimizedImage.contentType,
+          cacheControl: STORAGE_IMAGE_CACHE_CONTROL
         });
 
       if (uploadError) throw uploadError;
@@ -107,20 +117,28 @@ export default function CategoriesPage() {
     }
 
     const file = e.target.files[0];
-    if (file.type !== 'image/png') {
-      alert('يرجى اختيار صورة بصيغة PNG فقط');
+    if (!file.type.startsWith('image/')) {
+      alert('يرجى اختيار ملف صورة صالح');
+      return;
+    }
+
+    if (file.size > 8 * 1024 * 1024) {
+      alert('حجم الصورة يجب أن يكون أقل من 8 ميجابايت');
       return;
     }
 
     setUploading(true);
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${Date.now()}.${fileExt}`;
-    const filePath = `${fileName}`;
 
     try {
+      const optimizedImage = await optimizeImageForStorage(file, CATEGORY_IMAGE_OPTIONS);
+      const filePath = createStorageImageName(optimizedImage.extension);
+
       const { error: uploadError } = await supabase.storage
         .from('categories')
-        .upload(filePath, file, { cacheControl: '31536000' });
+        .upload(filePath, optimizedImage.file, {
+          cacheControl: STORAGE_IMAGE_CACHE_CONTROL,
+          contentType: optimizedImage.contentType,
+        });
 
       if (uploadError) throw uploadError;
 
@@ -193,20 +211,28 @@ export default function CategoriesPage() {
     }
 
     const file = e.target.files[0];
-    if (file.type !== 'image/png') {
-      alert('يرجى اختيار صورة بصيغة PNG فقط');
+    if (!file.type.startsWith('image/')) {
+      alert('يرجى اختيار ملف صورة صالح');
+      return;
+    }
+
+    if (file.size > 8 * 1024 * 1024) {
+      alert('حجم الصورة يجب أن يكون أقل من 8 ميجابايت');
       return;
     }
 
     setEditUploading(true);
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${Date.now()}.${fileExt}`;
-    const filePath = `${fileName}`;
 
     try {
+      const optimizedImage = await optimizeImageForStorage(file, CATEGORY_IMAGE_OPTIONS);
+      const filePath = createStorageImageName(optimizedImage.extension);
+
       const { error: uploadError } = await supabase.storage
         .from('categories')
-        .upload(filePath, file, { cacheControl: '31536000' });
+        .upload(filePath, optimizedImage.file, {
+          cacheControl: STORAGE_IMAGE_CACHE_CONTROL,
+          contentType: optimizedImage.contentType,
+        });
 
       if (uploadError) throw uploadError;
 
@@ -340,7 +366,7 @@ export default function CategoriesPage() {
                     <td className="px-6 py-4">
                       <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden relative">
                         {category.image_url ? (
-                          <Image src={category.image_url} alt={category.name_ar} fill className="object-cover" sizes="48px" />
+                          <Image src={getProductThumbnailUrl(category.image_url)!} alt={category.name_ar} fill className="object-cover" sizes="48px" />
                         ) : (
                           <ImageIcon className="text-gray-400" size={24} />
                         )}
@@ -389,7 +415,7 @@ export default function CategoriesPage() {
                 <div className="flex items-start gap-3">
                   <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0 relative">
                     {category.image_url ? (
-                      <Image src={category.image_url} alt={category.name_ar} fill className="object-cover" sizes="48px" />
+                      <Image src={getProductThumbnailUrl(category.image_url)!} alt={category.name_ar} fill className="object-cover" sizes="48px" />
                     ) : (
                       <ImageIcon className="text-gray-400" size={20} />
                     )}
@@ -530,7 +556,7 @@ export default function CategoriesPage() {
                     <div className="flex items-center gap-4">
                       <input
                         type="file"
-                        accept="image/png"
+                        accept="image/*"
                         onChange={handleImageUpload}
                         className="hidden"
                         id="image-upload"
@@ -540,7 +566,7 @@ export default function CategoriesPage() {
                         className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 bg-white w-full justify-center"
                       >
                         <Upload size={20} className="text-gray-500" />
-                        <span className="text-sm text-gray-600">اختر صورة (PNG)</span>
+                        <span className="text-sm text-gray-600">اختر صورة</span>
                       </label>
                     </div>
                   ) : (
@@ -675,7 +701,7 @@ export default function CategoriesPage() {
                     <div className="flex items-center gap-4">
                       <input
                         type="file"
-                        accept="image/png"
+                        accept="image/*"
                         onChange={handleEditImageUpload}
                         className="hidden"
                         id="edit-image-upload"
@@ -685,7 +711,7 @@ export default function CategoriesPage() {
                         className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 bg-white w-full justify-center"
                       >
                         <Upload size={20} className="text-gray-500" />
-                        <span className="text-sm text-gray-600">تغيير الصورة (PNG)</span>
+                        <span className="text-sm text-gray-600">تغيير الصورة</span>
                       </label>
                     </div>
                   ) : (

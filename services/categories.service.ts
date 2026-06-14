@@ -6,18 +6,30 @@
 import { supabase } from '../lib/supabase';
 import type { Category, CategoryWithSubcategories } from '../shared/types';
 
+const CATEGORY_LIST_FIELDS = 'id, name, name_ar, icon, image_url, parent_id, sort_order, is_active';
+
+// كاش في الذاكرة للفئات — لا تتغير غالباً
+let _categoriesCache: { ts: number; data: Category[] } | null = null;
+const CATEGORIES_TTL = 10 * 60 * 1000;
+
 /**
  * جلب جميع الفئات النشطة
  */
 export const getCategories = async (): Promise<Category[]> => {
+    if (_categoriesCache && Date.now() - _categoriesCache.ts < CATEGORIES_TTL) {
+        return _categoriesCache.data;
+    }
     const { data, error } = await supabase
         .from('categories')
-        .select('*')
+        .select(CATEGORY_LIST_FIELDS)
         .eq('is_active', true)
         .order('sort_order', { ascending: true });
 
     if (error) throw error;
-    return data || [];
+    // CATEGORY_LIST_FIELDS يحتوي على الأعمدة الأساسية فقط، created_at/updated_at تُجلب عند الحاجة
+    const arr = (data || []) as unknown as Category[];
+    _categoriesCache = { ts: Date.now(), data: arr };
+    return arr;
 };
 
 /**
@@ -26,12 +38,12 @@ export const getCategories = async (): Promise<Category[]> => {
 export const getCategoryById = async (id: string): Promise<Category> => {
     const { data, error } = await supabase
         .from('categories')
-        .select('*')
+        .select(CATEGORY_LIST_FIELDS)
         .eq('id', id)
         .single();
 
     if (error) throw error;
-    return data;
+    return data as Category;
 };
 
 /**
@@ -40,26 +52,29 @@ export const getCategoryById = async (id: string): Promise<Category> => {
 export const getAllCategories = async (): Promise<Category[]> => {
     const { data, error } = await supabase
         .from('categories')
-        .select('*')
+        .select('id, name, name_ar, icon, image_url, parent_id, sort_order, is_active')
         .order('sort_order', { ascending: true });
 
     if (error) throw error;
-    return data || [];
+    return (data || []) as Category[];
 };
 
 /**
  * جلب الفئات الرئيسية فقط (التي ليس لها parent_id)
  */
 export const getMainCategories = async (): Promise<Category[]> => {
+    if (_categoriesCache && Date.now() - _categoriesCache.ts < CATEGORIES_TTL) {
+        return _categoriesCache.data.filter(c => !c.parent_id);
+    }
     const { data, error } = await supabase
         .from('categories')
-        .select('*')
+        .select(CATEGORY_LIST_FIELDS)
         .is('parent_id', null)
         .eq('is_active', true)
         .order('sort_order', { ascending: true });
 
     if (error) throw error;
-    return data || [];
+    return (data || []) as Category[];
 };
 
 /**
@@ -68,43 +83,43 @@ export const getMainCategories = async (): Promise<Category[]> => {
 export const getSubcategories = async (parentId: string): Promise<Category[]> => {
     const { data, error } = await supabase
         .from('categories')
-        .select('*')
+        .select(CATEGORY_LIST_FIELDS)
         .eq('parent_id', parentId)
         .eq('is_active', true)
         .order('sort_order', { ascending: true });
 
     if (error) throw error;
-    return data || [];
+    return (data || []) as Category[];
 };
 
 /**
  * جلب جميع الفئات الرئيسية مع أقسامها الفرعية
  */
 export const getMainCategoriesWithSubcategories = async (): Promise<CategoryWithSubcategories[]> => {
-    // جلب الفئات الرئيسية
-    const { data: mainCategories, error: mainError } = await supabase
+    // استعلام واحد فقط بدلاً من 2 — جلب الكل ثم الفلترة في الذاكرة
+    if (_categoriesCache && Date.now() - _categoriesCache.ts < CATEGORIES_TTL) {
+        const all = _categoriesCache.data;
+        const main = all.filter(c => !c.parent_id);
+        return main.map(c => ({
+            ...c,
+            subcategories: all.filter(s => s.parent_id === c.id)
+        }));
+    }
+
+    const { data: allCategories, error } = await supabase
         .from('categories')
-        .select('*')
-        .is('parent_id', null)
+        .select(CATEGORY_LIST_FIELDS)
         .eq('is_active', true)
         .order('sort_order', { ascending: true });
 
-    if (mainError) throw mainError;
+    if (error) throw error;
 
-    // جلب جميع الأقسام الفرعية
-    const { data: allSubcategories, error: subError } = await supabase
-        .from('categories')
-        .select('*')
-        .not('parent_id', 'is', null)
-        .eq('is_active', true)
-        .order('sort_order', { ascending: true });
+    _categoriesCache = { ts: Date.now(), data: (allCategories || []) as Category[] };
 
-    if (subError) throw subError;
-
-    // دمج الأقسام الفرعية مع الرئيسية
-    return (mainCategories || []).map(category => ({
+    const main = (allCategories || []).filter((c: any) => !c.parent_id);
+    return main.map((category: any) => ({
         ...category,
-        subcategories: (allSubcategories || []).filter(sub => sub.parent_id === category.id)
+        subcategories: (allCategories || []).filter((sub: any) => sub.parent_id === category.id)
     }));
 };
 
@@ -114,7 +129,7 @@ export const getMainCategoriesWithSubcategories = async (): Promise<CategoryWith
 export const getCategoryWithSubcategories = async (id: string): Promise<CategoryWithSubcategories> => {
     const { data: category, error: categoryError } = await supabase
         .from('categories')
-        .select('*')
+        .select(CATEGORY_LIST_FIELDS)
         .eq('id', id)
         .single();
 
@@ -122,7 +137,7 @@ export const getCategoryWithSubcategories = async (id: string): Promise<Category
 
     const { data: subcategories, error: subError } = await supabase
         .from('categories')
-        .select('*')
+        .select(CATEGORY_LIST_FIELDS)
         .eq('parent_id', id)
         .eq('is_active', true)
         .order('sort_order', { ascending: true });
@@ -131,6 +146,6 @@ export const getCategoryWithSubcategories = async (id: string): Promise<Category
 
     return {
         ...category,
-        subcategories: subcategories || []
-    };
+        subcategories: (subcategories || []) as Category[]
+    } as CategoryWithSubcategories;
 };

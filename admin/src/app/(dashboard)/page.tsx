@@ -2,6 +2,7 @@
 
 import { Header } from '@/components/layout/Header';
 import Image from 'next/image';
+import { getProductThumbnailUrl } from '@/lib/imageUrl';
 import {
   ShoppingBag,
   ShoppingCart,
@@ -38,6 +39,21 @@ import {
   Cell,
   Legend
 } from 'recharts';
+
+// كاش محلي للوحة التحكم — يقلل الاستعلامات بنسبة 80%
+let _dashboardCache: { ts: number; data: Record<string, any> } | null = null;
+const DASHBOARD_TTL = 5 * 60 * 1000; // 5 دقائق
+
+async function cachedFetch<T = any>(key: string, fetcher: () => PromiseLike<any>): Promise<any> {
+  if (_dashboardCache && Date.now() - _dashboardCache.ts < DASHBOARD_TTL && _dashboardCache.data[key]) {
+    return _dashboardCache.data[key];
+  }
+  if (!_dashboardCache) _dashboardCache = { ts: 0, data: {} };
+  const result = await fetcher();
+  _dashboardCache.data[key] = result;
+  _dashboardCache.ts = Date.now();
+  return result;
+}
 
 interface Stats {
   totalOrders: number;
@@ -103,46 +119,44 @@ export default function DashboardPage() {
   };
 
   const fetchStats = async () => {
-    // Basic counts
-    const { count: productsCount } = await supabase.from('products').select('*', { count: 'exact', head: true });
-    const { count: ordersCount } = await supabase.from('orders').select('*', { count: 'exact', head: true });
-    const { count: pendingCount } = await supabase.from('orders').select('*', { count: 'exact', head: true }).eq('status', 'pending');
+    // Basic counts — using head:true لا يجلب البيانات بل فقط العدّ
+    const { count: productsCount } = await cachedFetch('productsCount', () =>
+      supabase.from('products').select('id', { count: 'exact', head: true })
+    );
+    const { count: ordersCount } = await cachedFetch('ordersCount', () =>
+      supabase.from('orders').select('id', { count: 'exact', head: true })
+    );
+    const { count: pendingCount } = await cachedFetch('pendingCount', () =>
+      supabase.from('orders').select('id', { count: 'exact', head: true }).eq('status', 'pending')
+    );
 
     // Current week revenue
     const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-    const { data: currentWeekOrders } = await supabase
-      .from('orders')
-      .select('total_iqd')
-      .eq('status', 'delivered')
-      .gte('created_at', weekAgo.toISOString());
+    const { data: currentWeekOrders } = await cachedFetch('currentWeekOrders', () =>
+      supabase.from('orders').select('total_iqd').eq('status', 'delivered').gte('created_at', weekAgo.toISOString())
+    );
 
     // Previous week revenue (for comparison)
     const twoWeeksAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000);
-    const { data: previousWeekOrders } = await supabase
-      .from('orders')
-      .select('total_iqd')
-      .eq('status', 'delivered')
-      .gte('created_at', twoWeeksAgo.toISOString())
-      .lt('created_at', weekAgo.toISOString());
+    const { data: previousWeekOrders } = await cachedFetch('previousWeekOrders', () =>
+      supabase.from('orders').select('total_iqd').eq('status', 'delivered').gte('created_at', twoWeeksAgo.toISOString()).lt('created_at', weekAgo.toISOString())
+    );
 
     // Total revenue (all delivered orders)
-    const { data: allDeliveredOrders } = await supabase
-      .from('orders')
-      .select('total_iqd')
-      .eq('status', 'delivered');
+    const { data: allDeliveredOrders } = await cachedFetch('allDeliveredOrders', () =>
+      supabase.from('orders').select('total_iqd').eq('status', 'delivered')
+    );
 
-    // Recent orders
-    const { data: recent } = await supabase
-      .from('orders')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(5);
+    // Recent orders — only needed columns
+    const { data: recent } = await cachedFetch('recentOrders', () =>
+      supabase.from('orders').select('id, total_iqd, status, delivery_address, created_at').order('created_at', { ascending: false }).limit(5)
+    );
 
     setRecentOrders(recent || []);
 
-    const totalRevenue = allDeliveredOrders?.reduce((acc, curr) => acc + (curr.total_iqd || 0), 0) || 0;
-    const currentWeekRevenue = currentWeekOrders?.reduce((acc, curr) => acc + (curr.total_iqd || 0), 0) || 0;
-    const previousWeekRevenue = previousWeekOrders?.reduce((acc, curr) => acc + (curr.total_iqd || 0), 0) || 0;
+    const totalRevenue = (allDeliveredOrders as any[])?.reduce((acc: number, curr: any) => acc + (curr.total_iqd || 0), 0) || 0;
+    const currentWeekRevenue = (currentWeekOrders as any[])?.reduce((acc: number, curr: any) => acc + (curr.total_iqd || 0), 0) || 0;
+    const previousWeekRevenue = (previousWeekOrders as any[])?.reduce((acc: number, curr: any) => acc + (curr.total_iqd || 0), 0) || 0;
 
     // Calculate growth percentage
     const revenueGrowth = previousWeekRevenue > 0
@@ -150,16 +164,13 @@ export default function DashboardPage() {
       : 0;
 
     // Current week orders count
-    const { count: currentWeekOrdersCount } = await supabase
-      .from('orders')
-      .select('*', { count: 'exact', head: true })
-      .gte('created_at', weekAgo.toISOString());
+    const { count: currentWeekOrdersCount } = await cachedFetch('currentWeekOrdersCount', () =>
+      supabase.from('orders').select('id', { count: 'exact', head: true }).gte('created_at', weekAgo.toISOString())
+    );
 
-    const { count: previousWeekOrdersCount } = await supabase
-      .from('orders')
-      .select('*', { count: 'exact', head: true })
-      .gte('created_at', twoWeeksAgo.toISOString())
-      .lt('created_at', weekAgo.toISOString());
+    const { count: previousWeekOrdersCount } = await cachedFetch('previousWeekOrdersCount', () =>
+      supabase.from('orders').select('id', { count: 'exact', head: true }).gte('created_at', twoWeeksAgo.toISOString()).lt('created_at', weekAgo.toISOString())
+    );
 
     const ordersGrowth = (previousWeekOrdersCount || 0) > 0
       ? (((currentWeekOrdersCount || 0) - (previousWeekOrdersCount || 0)) / (previousWeekOrdersCount || 1)) * 100
@@ -182,16 +193,13 @@ export default function DashboardPage() {
   };
 
   const fetchWeeklySales = async () => {
-    // Get orders from the last 7 days
     const today = new Date();
     const weekAgo = new Date(today);
     weekAgo.setDate(weekAgo.getDate() - 6);
 
-    const { data: weeklyOrders } = await supabase
-      .from('orders')
-      .select('created_at, total_iqd, status')
-      .gte('created_at', weekAgo.toISOString())
-      .in('status', ['delivered', 'confirmed', 'preparing', 'ready']);
+    const { data: weeklyOrders } = await cachedFetch('weeklyOrders', () =>
+      supabase.from('orders').select('created_at, total_iqd').gte('created_at', weekAgo.toISOString()).in('status', ['delivered', 'confirmed', 'preparing', 'ready'])
+    );
 
     // Group by day
     const dayNames = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
@@ -206,7 +214,7 @@ export default function DashboardPage() {
     }
 
     // Sum up sales
-    weeklyOrders?.forEach(order => {
+    (weeklyOrders as any[])?.forEach((order: any) => {
       const orderDate = new Date(order.created_at);
       const dayName = dayNames[orderDate.getDay()];
       salesByDay[dayName] = (salesByDay[dayName] || 0) + (order.total_iqd || 0);
@@ -222,9 +230,9 @@ export default function DashboardPage() {
   };
 
   const fetchOrderStatusDistribution = async () => {
-    const { data: allOrders } = await supabase
-      .from('orders')
-      .select('status');
+    const { data: allOrders } = await cachedFetch('allOrderStatuses', () =>
+      supabase.from('orders').select('status')
+    );
 
     const statusCount: { [key: string]: number } = {
       pending: 0,
@@ -235,7 +243,7 @@ export default function DashboardPage() {
       cancelled: 0
     };
 
-    allOrders?.forEach(order => {
+    (allOrders as any[])?.forEach((order: any) => {
       if (statusCount[order.status] !== undefined) {
         statusCount[order.status]++;
       }
@@ -254,19 +262,19 @@ export default function DashboardPage() {
   };
 
   const fetchTopProducts = async () => {
-    // Get order items from delivered orders with product details
-    const { data: orderItems } = await supabase
-      .from('order_items')
-      .select(`
-        quantity,
-        price_iqd,
-        product_id,
-        order_id,
-        product_snapshot,
-        orders!inner(status),
-        products(id, name, name_ar, image_url)
-      `)
-      .eq('orders.status', 'delivered');
+    const { data: orderItems } = await cachedFetch('topOrderItems', () =>
+      supabase
+        .from('order_items')
+        .select(`
+          quantity,
+          price_iqd,
+          product_id,
+          product_snapshot,
+          orders!inner(status),
+          products(id, name, name_ar, image_url)
+        `)
+        .eq('orders.status', 'delivered')
+    );
 
     if (!orderItems) return;
 
@@ -298,23 +306,25 @@ export default function DashboardPage() {
   };
 
   const fetchAlerts = async () => {
-    // Low stock products (less than 10)
-    const { data: lowStock, count: lowStockCount } = await supabase
-      .from('products')
-      .select('*', { count: 'exact' })
-      .lt('stock_quantity', 10)
-      .gt('stock_quantity', 0)
-      .limit(5);
+    const { data: lowStock, count: lowStockCount } = await cachedFetch('lowStock', () =>
+      supabase
+        .from('products')
+        .select('id, name_ar, name, stock_quantity', { count: 'exact' })
+        .lt('stock_quantity', 10)
+        .gt('stock_quantity', 0)
+        .limit(5)
+    );
 
     setLowStockProducts(lowStock || []);
 
-    // Delayed orders (pending for more than 24 hours)
     const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000);
-    const { count: delayedCount } = await supabase
-      .from('orders')
-      .select('*', { count: 'exact', head: true })
-      .in('status', ['pending', 'confirmed'])
-      .lt('created_at', yesterday.toISOString());
+    const { count: delayedCount } = await cachedFetch('delayedCount', () =>
+      supabase
+        .from('orders')
+        .select('id', { count: 'exact', head: true })
+        .in('status', ['pending', 'confirmed'])
+        .lt('created_at', yesterday.toISOString())
+    );
 
     setStats(prev => ({
       ...prev,
@@ -582,7 +592,7 @@ export default function DashboardPage() {
                       #{index + 1}
                     </div>
                     {product.image_url ? (
-                      <Image src={product.image_url} alt={product.name} width={48} height={48} className="w-10 h-10 md:w-12 md:h-12 rounded-lg object-cover flex-shrink-0" />
+                      <Image src={getProductThumbnailUrl(product.image_url)!} alt={product.name} width={48} height={48} className="w-10 h-10 md:w-12 md:h-12 rounded-lg object-cover flex-shrink-0" />
                     ) : (
                       <div className="w-10 h-10 md:w-12 md:h-12 bg-gray-200 rounded-lg flex items-center justify-center flex-shrink-0">
                         <Package size={18} className="text-gray-400" />

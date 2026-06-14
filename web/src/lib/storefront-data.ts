@@ -32,6 +32,19 @@ type SearchProductsParams = {
   offset?: number;
 };
 
+const CATEGORY_FIELDS =
+  "id, name, name_ar, icon, image_url, parent_id, sort_order, is_active";
+const PRODUCT_LIST_FIELDS =
+  "id, name, name_ar, price_iqd, price_usd, original_price, image_url, category_id, stock_quantity, is_active";
+const PRODUCT_DETAIL_FIELDS =
+  "id, name, name_ar, description, description_ar, price_iqd, price_usd, original_price, image_url, category_id, stock_quantity, is_active";
+const ORDER_FIELDS =
+  "id, user_id, total_iqd, total_usd, delivery_cost_iqd, coupon_id, coupon_code, discount_amount, status, payment_method, payment_status, delivery_type, delivery_address, delivery_phone, customer_name, customer_notes, created_at";
+const ADDRESS_FIELDS =
+  "id, user_id, name, city, area, street, phone, type, is_default";
+const PROFILE_FIELDS =
+  "id, full_name, phone, avatar_url, notifications_enabled, role";
+
 export async function getActiveBanners() {
   const supabase = await createServerSupabaseClient();
   const { data, error } = await supabase
@@ -51,7 +64,7 @@ export async function getFeaturedCategories(limit?: number) {
   const supabase = await createServerSupabaseClient();
   let query = supabase
     .from("categories")
-    .select("*")
+    .select(CATEGORY_FIELDS)
     .is("parent_id", null)
     .eq("is_active", true)
     .order("sort_order", { ascending: true });
@@ -73,7 +86,7 @@ export async function getActiveCategories() {
   const supabase = await createServerSupabaseClient();
   const { data, error } = await supabase
     .from("categories")
-    .select("*")
+    .select(CATEGORY_FIELDS)
     .eq("is_active", true)
     .order("sort_order", { ascending: true });
 
@@ -88,7 +101,7 @@ export async function getOfferProducts(limit = 8) {
   const supabase = await createServerSupabaseClient();
   const { data, error } = await supabase
     .from("products")
-    .select("*")
+    .select(PRODUCT_LIST_FIELDS)
     .eq("is_active", true)
     .not("original_price", "is", null)
     .order("created_at", { ascending: false })
@@ -111,7 +124,10 @@ export async function getNewArrivalProducts(limit = 8) {
 
 export async function searchActiveProducts(params: SearchProductsParams = {}) {
   const supabase = await createServerSupabaseClient();
-  let query = supabase.from("products").select("*").eq("is_active", true);
+  let query = supabase
+    .from("products")
+    .select(PRODUCT_LIST_FIELDS)
+    .eq("is_active", true);
 
   if (params.categoryId) {
     query = query.eq("category_id", params.categoryId);
@@ -172,7 +188,7 @@ export async function getActiveCategoryById(id: string) {
   const supabase = await createServerSupabaseClient();
   const { data, error } = await supabase
     .from("categories")
-    .select("*")
+    .select(CATEGORY_FIELDS)
     .eq("id", id)
     .eq("is_active", true)
     .single();
@@ -195,7 +211,7 @@ export async function getActiveProductById(id: string) {
   const supabase = await createServerSupabaseClient();
   const { data, error } = await supabase
     .from("products")
-    .select("*")
+    .select(PRODUCT_DETAIL_FIELDS)
     .eq("id", id)
     .eq("is_active", true)
     .single();
@@ -211,7 +227,7 @@ export async function getRelatedProducts(categoryId: string, excludeId: string) 
   const supabase = await createServerSupabaseClient();
   const { data, error } = await supabase
     .from("products")
-    .select("*")
+    .select(PRODUCT_LIST_FIELDS)
     .eq("category_id", categoryId)
     .eq("is_active", true)
     .neq("id", excludeId)
@@ -241,16 +257,16 @@ export async function requireAuthenticatedUser() {
 export async function getAccountOverview(userId: string) {
   const supabase = await createServerSupabaseClient();
   const [profileRes, ordersRes, addressesRes] = await Promise.all([
-    supabase.from("profiles").select("*").eq("id", userId).single(),
+    supabase.from("profiles").select(PROFILE_FIELDS).eq("id", userId).single(),
     supabase
       .from("orders")
-      .select("*")
+      .select(ORDER_FIELDS)
       .eq("user_id", userId)
       .order("created_at", { ascending: false })
       .limit(8),
     supabase
       .from("addresses")
-      .select("*")
+      .select(ADDRESS_FIELDS)
       .eq("user_id", userId)
       .order("is_default", { ascending: false }),
   ]);
@@ -266,7 +282,7 @@ export async function getOrdersForUser(userId: string) {
   const supabase = await createServerSupabaseClient();
   const { data, error } = await supabase
     .from("orders")
-    .select("*")
+    .select(ORDER_FIELDS)
     .eq("user_id", userId)
     .order("created_at", { ascending: false });
 
@@ -281,7 +297,7 @@ export async function getOrderWithItemsForUser(userId: string, orderId: string) 
   const supabase = await createServerSupabaseClient();
   const { data, error } = await supabase
     .from("orders")
-    .select("*, order_items(*)")
+    .select(`${ORDER_FIELDS}, order_items(*)`)
     .eq("id", orderId)
     .eq("user_id", userId)
     .single();
@@ -296,10 +312,10 @@ export async function getOrderWithItemsForUser(userId: string, orderId: string) 
 export async function getCheckoutData(userId: string) {
   const supabase = await createServerSupabaseClient();
   const [profileRes, addressesRes] = await Promise.all([
-    supabase.from("profiles").select("*").eq("id", userId).single(),
+    supabase.from("profiles").select(PROFILE_FIELDS).eq("id", userId).single(),
     supabase
       .from("addresses")
-      .select("*")
+      .select(ADDRESS_FIELDS)
       .eq("user_id", userId)
       .order("is_default", { ascending: false }),
   ]);

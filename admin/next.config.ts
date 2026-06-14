@@ -4,7 +4,7 @@ import path from "path";
 const nextConfig: NextConfig = {
   experimental: {},
   turbopack: {
-    // root: path.join(process.cwd(), '..'),
+    root: path.join(process.cwd(), ".."),
   },
   reactCompiler: true,
   images: {

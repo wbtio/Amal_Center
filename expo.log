@@ -1,0 +1,17 @@
+env: load .env
+env: export EXPO_PUBLIC_SUPABASE_URL EXPO_PUBLIC_SUPABASE_ANON_KEY EXPO_PUBLIC_APP_NAME EXPO_PUBLIC_APP_VERSION EXPO_PUBLIC_DEFAULT_CURRENCY EXPO_PUBLIC_ENABLE_USD EXPO_PUBLIC_ENABLE_REVIEWS EXPO_PUBLIC_ENABLE_WISHLIST EXPO_PUBLIC_ENABLE_NOTIFICATIONS EXPO_PUBLIC_API_TIMEOUT EXPO_PUBLIC_DEBUG_MODE
+Starting project at /Users/hasanainalmazrai/Desktop/Amal_Center
+Starting Metro Bundler
+Waiting on http://localhost:8081
+Logs for your project will appear below.
+Web Bundled 867ms node_modules/expo-router/entry.js (2330 modules)
+ LOG  [web] Logs will appear in the browser console
+Web node_modules/expo-router/entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web Bundled 42ms node_modules/expo-router/entry.js (1 module)
+ LOG  [web] Logs will appear in the browser console
+Web node_modules/expo-router/entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web Bundled 40ms node_modules/expo-router/entry.js (1 module)
+ LOG  [web] Logs will appear in the browser console
+Web node_modules/expo-router/entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web Bundled 57ms node_modules/expo-router/entry.js (1 module)
+ LOG  [web] Logs will appear in the browser console

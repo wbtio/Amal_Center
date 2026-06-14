@@ -1,11 +1,11 @@
 import { View, Text, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
-import { Image } from 'expo-image';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useMainCategories } from '../../hooks/useSupabase';
 import { useLanguage } from '../../contexts';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { Category } from '../../shared/types';
+import { getCategoryIcon } from '../../lib/categoryIcons';
 
 export default function CategoriesScreen() {
   const router = useRouter();
@@ -20,7 +20,7 @@ export default function CategoriesScreen() {
   if (isLoading) {
     return (
       <View className="flex-1 justify-center items-center bg-white" style={{ paddingTop: insets.top }}>
-        <ActivityIndicator size="large" color="#3F51B5" />
+        <ActivityIndicator size="large" color="#2E7D32" />
       </View>
     );
   }
@@ -57,21 +57,16 @@ export default function CategoriesScreen() {
         </Text>
       </View>
 
-      {/* الأيقونة/الصورة */}
-      <View 
+      {/* الأيقونة */}
+      <View
         className="items-center justify-center"
         style={{ width: 50, height: 50 }}
       >
-        {item.image_url ? (
-          <Image
-            source={{ uri: item.image_url }}
-            style={{ width: 45, height: 45 }}
-            contentFit="contain"
-            transition={200}
-          />
-        ) : (
-          <Ionicons name={(item.icon as any) || "grid-outline"} size={28} color="#2E7D32" />
-        )}
+        <MaterialCommunityIcons
+          name={getCategoryIcon(item.name || '', item.name_ar || '')}
+          size={28}
+          color="#2E7D32"
+        />
       </View>
     </TouchableOpacity>
   );

@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, Image, ScrollView } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { CachedImage as Image } from '../ui/CachedImage';
 import { AddressData, DeliveryType, PaymentMethod } from '../../types/checkout';
 import { useCartStore } from '../../store/cartStore';
 import { useLanguage, useCurrency } from '../../contexts';
@@ -26,6 +27,7 @@ const getDeliveryLabel = (type: DeliveryType, lang: string) => {
 const getPaymentLabel = (method: PaymentMethod, lang: string) => {
   const labels: Record<PaymentMethod, { ar: string; en: string; icon: string }> = {
     cod: { ar: 'الدفع عند الاستلام', en: 'Cash on Delivery', icon: 'cash' },
+    wayl: { ar: 'الدفع الإلكتروني (بطاقة/محفظة)', en: 'Online Payment (Card/Wallet)', icon: 'card' },
     wallet: { ar: 'زين كاش', en: 'Zain Cash', icon: 'phone-portrait' },
     card: { ar: 'بطاقة بنكية', en: 'Credit Card', icon: 'card' },
   };
@@ -113,7 +115,7 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
             <View key={item.id} className={`items-center ${isRTL ? 'ml-3' : 'mr-3'}`}>
               <View className="w-16 h-16 rounded-xl bg-gray-50 border border-gray-100 overflow-hidden relative">
                 {item.image_url ? (
-                  <Image source={{ uri: item.image_url }} className="w-full h-full" resizeMode="cover" />
+                  <Image source={{ uri: item.image_url }} className="w-full h-full" contentFit="cover" />
                 ) : (
                   <View className="w-full h-full items-center justify-center bg-gray-100">
                     <Ionicons name="image-outline" size={20} color="#9CA3AF" />

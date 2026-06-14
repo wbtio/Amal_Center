@@ -217,6 +217,28 @@
         "login": "Login",
         "forgotPassword": "Forgot Password?",
         "back": "Back",
+        "loginSubtitle": "Sign in to your account to track your orders, saved addresses, and enjoy your shopping at Amal Center.",
+        "loginAction": "Sign In",
+        "noAccount": "Don't have an account?",
+        "createAccountNow": "Create one now",
+        "emailLabel": "Email Address",
+        "passwordLabel": "Password",
+        "passwordPlaceholder": "Enter your password",
+        "showPassword": "Show password",
+        "hidePassword": "Hide password",
+        "emailConfirmTitle": "Account Confirmation",
+        "emailConfirmMessage": "Your email is not confirmed. Would you like to enter the verification code now?",
+        "emailConfirmAction": "Yes, Activate Account",
+        "loginErrorTitle": "Login Error",
+        "loginErrors": {
+            "invalidCredentials": "Invalid email or password",
+            "emailNotConfirmed": "Please confirm your email address first",
+            "fallback": "An error occurred. Please try again."
+        },
+        "loginValidation": {
+            "invalidEmail": "Invalid email address",
+            "passwordMin": "Password must be at least 6 characters"
+        },
         "register": {
             "eyebrow": "Get Started In A Minute",
             "title": "Create A New Account",
@@ -276,7 +298,14 @@
                 "invalidData": "The entered data is invalid. Please review your information.",
                 "network": "Network error. Please check your connection.",
                 "fallbackPrefix": "Error"
-            }
+            },
+            "step1Title": "What's your full name?",
+            "step1Subtitle": "We'll use it to address you when confirming your orders.",
+            "step2Title": "Your phone number?",
+            "step2Subtitle": "So we can reach you about your orders and delivery.",
+            "step3Title": "Account Details",
+            "step3Subtitle": "Your email and password to secure your account.",
+            "stepOf": "Step {current} of {total}"
         }
     },
     "checkout": {

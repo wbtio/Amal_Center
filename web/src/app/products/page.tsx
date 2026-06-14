@@ -5,7 +5,7 @@ import {
   type ProductSortOption,
 } from "@/lib/storefront-data";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300; // Cache 5 min — re-filter only happens via client interactions
 
 type ProductsPageProps = {
   searchParams: Promise<{

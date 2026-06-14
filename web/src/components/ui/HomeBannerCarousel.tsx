@@ -1,12 +1,13 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { useStorefront } from "@/components/providers/StorefrontProvider";
 import { resolveBannerHref, type Banner } from "@/lib/storefront";
+import { getProductFullUrl } from "@/lib/imageUrl";
 
 type HomeBannerCarouselProps = {
   banners: Banner[];
@@ -66,11 +67,14 @@ export function HomeBannerCarousel({
           href={activeBannerHref}
           className="group block"
         >
-          <img
-            src={activeBanner.image_url}
+          <Image
+            src={getProductFullUrl(activeBanner.image_url) ?? activeBanner.image_url}
             alt={activeBanner.title || fallbackAlt}
+            width={1600}
+            height={500}
+            sizes="100vw"
+            priority={currentIndex === 0}
             className="h-auto w-full transition duration-700 group-hover:scale-[1.02]"
-            loading={currentIndex === 0 ? "eager" : "lazy"}
           />
         </Link>
 

@@ -176,7 +176,9 @@ export function CheckoutFlow({ profile, addresses }: CheckoutFlowProps) {
     const productIds = items.map((item) => item.product.id);
     const { data: liveProducts, error: productsError } = await db
       .from("products")
-      .select("*")
+      // Only the fields needed for stock validation + order snapshot — avoid pulling
+      // description columns (egress) for every cart item at checkout.
+      .select("id, name, name_ar, price_iqd, image_url, stock_quantity, is_active")
       .in("id", productIds)
       .eq("is_active", true);
 

@@ -35,26 +35,37 @@ export type PromoBanner = {
     active: boolean;
 };
 
+// كاش المحتوى الثابت — لا يتغير في الجلسات القصيرة
+let _bannersCache: { ts: number; data: Banner[] } | null = null;
+let _sectionsCache: { ts: number; data: HomeSection[] } | null = null;
+let _promoCache: { ts: number; data: Record<string, PromoBanner[]> } | null = null;
+const CONTENT_TTL = 5 * 60 * 1000; // 5 دقائق
+
 /**
  * Get active banners
  */
 export const getActiveBanners = async (): Promise<Banner[]> => {
     try {
+        if (_bannersCache && Date.now() - _bannersCache.ts < CONTENT_TTL) {
+            return _bannersCache.data;
+        }
         const { data, error } = await supabase
             .from('banners')
-            .select('*')
+            .select('id, image_url, title, subtitle, discount, active, link')
             .eq('active', true)
             .order('created_at', { ascending: false });
 
         if (error) {
             console.error('Error fetching banners:', error);
-            return [];
+            return _bannersCache?.data || [];
         }
 
-        return data || [];
+        const arr = (data || []) as Banner[];
+        _bannersCache = { ts: Date.now(), data: arr };
+        return arr;
     } catch (e) {
         console.error('Exception fetching banners:', e);
-        return [];
+        return _bannersCache?.data || [];
     }
 };
 
@@ -63,22 +74,26 @@ export const getActiveBanners = async (): Promise<Banner[]> => {
  */
 export const getHomeSections = async (): Promise<HomeSection[]> => {
     try {
+        if (_sectionsCache && Date.now() - _sectionsCache.ts < CONTENT_TTL) {
+            return _sectionsCache.data;
+        }
         const { data, error } = await supabase
             .from('home_sections')
-            .select('*')
-            .eq('active', true) // Only get active sections for the app
+            .select('id, type, title, active, order_index, category_id, icon, description')
+            .eq('active', true)
             .order('order_index', { ascending: true });
 
         if (error) {
             console.error('Error fetching home sections:', error);
-            // Return empty array instead of throwing - let UI handle fallback
-            return [];
+            return _sectionsCache?.data || [];
         }
 
-        return data || [];
+        const arr = (data || []) as HomeSection[];
+        _sectionsCache = { ts: Date.now(), data: arr };
+        return arr;
     } catch (e) {
         console.error('Exception fetching home sections:', e);
-        return [];
+        return _sectionsCache?.data || [];
     }
 };
 
@@ -86,29 +101,9 @@ export const getHomeSections = async (): Promise<HomeSection[]> => {
  * Get promo banners by slot
  */
 export const getPromoBanners = async (slot?: string): Promise<PromoBanner[]> => {
-    try {
-        let query = supabase
-            .from('promo_banners')
-            .select('*')
-            .eq('active', true)
-            .order('position', { ascending: true });
-
-        if (slot) {
-            query = query.eq('slot', slot);
-        }
-
-        const { data, error } = await query;
-
-        if (error) {
-            console.error('Error fetching promo banners:', error);
-            return [];
-        }
-
-        return data || [];
-    } catch (e) {
-        console.error('Exception fetching promo banners:', e);
-        return [];
-    }
+    const all = await getAllPromoBanners();
+    if (!slot) return Object.values(all).flat();
+    return all[slot] || [];
 };
 
 /**
@@ -116,31 +111,32 @@ export const getPromoBanners = async (slot?: string): Promise<PromoBanner[]> => 
  */
 export const getAllPromoBanners = async (): Promise<Record<string, PromoBanner[]>> => {
     try {
+        if (_promoCache && Date.now() - _promoCache.ts < CONTENT_TTL) {
+            return _promoCache.data;
+        }
         const { data, error } = await supabase
             .from('promo_banners')
-            .select('*')
+            .select('id, slot, position, size, image_url, link, title, active')
             .eq('active', true)
             .order('slot', { ascending: true })
             .order('position', { ascending: true });
 
         if (error) {
             console.error('Error fetching all promo banners:', error);
-            return {};
+            return _promoCache?.data || {};
         }
 
-        // Group by slot
         const grouped: Record<string, PromoBanner[]> = {};
         (data || []).forEach((banner: PromoBanner) => {
-            if (!grouped[banner.slot]) {
-                grouped[banner.slot] = [];
-            }
+            if (!grouped[banner.slot]) grouped[banner.slot] = [];
             grouped[banner.slot].push(banner);
         });
 
+        _promoCache = { ts: Date.now(), data: grouped };
         return grouped;
     } catch (e) {
         console.error('Exception fetching all promo banners:', e);
-        return {};
+        return _promoCache?.data || {};
     }
 };
 

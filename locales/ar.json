@@ -217,6 +217,28 @@
         "login": "تسجيل الدخول",
         "forgotPassword": "نسيت كلمة المرور؟",
         "back": "الرجوع",
+        "loginSubtitle": "ادخل إلى حسابك لمتابعة طلباتك، عناوينك المفضلة، وكل ما يخص تجربة التسوق في الأمل سنتر.",
+        "loginAction": "دخول إلى الحساب",
+        "noAccount": "ليس لديك حساب؟",
+        "createAccountNow": "أنشئ حساباً الآن",
+        "emailLabel": "البريد الإلكتروني",
+        "passwordLabel": "كلمة المرور",
+        "passwordPlaceholder": "أدخل كلمة المرور",
+        "showPassword": "إظهار كلمة المرور",
+        "hidePassword": "إخفاء كلمة المرور",
+        "emailConfirmTitle": "تأكيد الحساب",
+        "emailConfirmMessage": "البريد الإلكتروني غير مؤكد. هل تريد إدخال رمز التحقق الآن؟",
+        "emailConfirmAction": "نعم، تفعيل الحساب",
+        "loginErrorTitle": "خطأ في تسجيل الدخول",
+        "loginErrors": {
+            "invalidCredentials": "البريد الإلكتروني أو كلمة المرور غير صحيحة",
+            "emailNotConfirmed": "يرجى تأكيد بريدك الإلكتروني أولاً",
+            "fallback": "حدث خطأ، يرجى المحاولة مرة أخرى"
+        },
+        "loginValidation": {
+            "invalidEmail": "البريد الإلكتروني غير صحيح",
+            "passwordMin": "كلمة المرور يجب أن تكون 6 أحرف على الأقل"
+        },
         "register": {
             "eyebrow": "ابدأ خلال دقيقة",
             "title": "إنشاء حساب جديد",
@@ -276,7 +298,14 @@
                 "invalidData": "البيانات المدخلة غير صحيحة، يرجى التحقق منها",
                 "network": "خطأ في الاتصال بالإنترنت، يرجى التحقق من الاتصال",
                 "fallbackPrefix": "خطأ"
-            }
+            },
+            "step1Title": "ما اسمك الكامل؟",
+            "step1Subtitle": "سنستخدمه لمخاطبتك عند تأكيد طلباتك.",
+            "step2Title": "رقم هاتفك؟",
+            "step2Subtitle": "للتواصل معك بخصوص طلباتك والتوصيل.",
+            "step3Title": "بيانات حسابك",
+            "step3Subtitle": "البريد الإلكتروني وكلمة المرور لتأمين حسابك.",
+            "stepOf": "الخطوة {current} من {total}"
         }
     },
     "checkout": {

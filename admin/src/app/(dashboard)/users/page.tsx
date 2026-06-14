@@ -8,7 +8,8 @@ import { format } from 'date-fns';
 import { Header } from '@/components/layout/Header';
 
 export default function UsersPage() {
-  const [users, setUsers] = useState<Profile[]>([]);
+  type UserRow = Pick<Profile, 'id' | 'full_name' | 'phone' | 'avatar_url' | 'role' | 'created_at'>;
+  const [users, setUsers] = useState<UserRow[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Since we can't easily list auth users without service role key on client, 
@@ -25,7 +26,7 @@ export default function UsersPage() {
   const fetchUsers = async () => {
     const { data, error } = await supabase
       .from('profiles')
-      .select('*')
+      .select('id, full_name, phone, avatar_url, role, created_at')
       .order('created_at', { ascending: false });
 
     if (error) {

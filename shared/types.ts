@@ -251,7 +251,7 @@ export type NotificationInsert = Database['public']['Tables']['notifications']['
 // =============================================================================
 
 export type OrderStatus = 'pending' | 'confirmed' | 'preparing' | 'ready' | 'delivered' | 'cancelled';
-export type PaymentMethod = 'cash' | 'card' | 'cod';
+export type PaymentMethod = 'cash' | 'card' | 'cod' | 'wayl';
 export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'awaiting_payment';
 export type DeliveryType = 'scheduled' | 'express' | 'electronics';
 

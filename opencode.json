@@ -9,6 +9,11 @@
         "Authorization": "Bearer {file:~/.config/opencode/supabase_access_token}"
       },
       "enabled": true
+    },
+    "browsermcp": {
+      "type": "local",
+      "command": ["npx", "@browsermcp/mcp@latest"],
+      "enabled": true
     }
   }
 }

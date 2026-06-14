@@ -3,6 +3,13 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import {
+  createStorageImageName,
+  optimizeImageForStorage,
+  PRODUCT_IMAGE_OPTIONS,
+  STORAGE_IMAGE_CACHE_CONTROL,
+} from '@/lib/image-optimizer';
+import { uploadProductThumbnail } from '@/lib/product-image-upload';
 import { ArrowRight, Loader2, Save, Trash2, ImageIcon, X } from 'lucide-react';
 import Link from 'next/link';
 import { Header } from '@/components/layout/Header';
@@ -39,7 +46,7 @@ export default function EditProductPage() {
     
     const { data, error } = await supabase
       .from('products')
-      .select('*')
+      .select('id, name, name_ar, description, description_ar, price_iqd, price_usd, image_url, category_id, stock_quantity, is_active, sales_count, created_at, updated_at')
       .eq('id', id)
       .single();
 
@@ -70,7 +77,7 @@ export default function EditProductPage() {
   };
 
   const fetchCategories = async () => {
-    const { data } = await supabase.from('categories').select('*').eq('is_active', true);
+    const { data } = await supabase.from('categories').select('id, name_ar, name, is_active').eq('is_active', true);
     setCategories(data || []);
   };
 
@@ -86,23 +93,28 @@ export default function EditProductPage() {
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) {
-      alert('حجم الصورة يجب أن يكون أقل من 5 ميجابايت');
+    if (file.size > 12 * 1024 * 1024) {
+      alert('حجم الصورة يجب أن يكون أقل من 12 ميجابايت');
       return;
     }
 
     setUploading(true);
 
     try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const optimizedImage = await optimizeImageForStorage(file, PRODUCT_IMAGE_OPTIONS);
+      const fileName = createStorageImageName(optimizedImage.extension);
       const filePath = `products/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('products')
-        .upload(filePath, file, { cacheControl: '31536000' });
+        .upload(filePath, optimizedImage.file, {
+          cacheControl: STORAGE_IMAGE_CACHE_CONTROL,
+          contentType: optimizedImage.contentType,
+        });
 
       if (uploadError) throw uploadError;
+
+      await uploadProductThumbnail(filePath, optimizedImage.file);
 
       const { data: { publicUrl } } = supabase.storage
         .from('products')
@@ -345,7 +357,7 @@ export default function EditProductPage() {
                     <>
                       <ImageIcon className="text-gray-400 mb-2" size={40} />
                       <span className="text-sm font-medium text-gray-600">اختر صورة</span>
-                      <span className="text-xs text-gray-400 mt-1">PNG, JPG حتى 5MB</span>
+                      <span className="text-xs text-gray-400 mt-1">PNG, JPG حتى 12MB</span>
                     </>
                   )}
                 </label>

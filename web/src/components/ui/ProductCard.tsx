@@ -1,10 +1,11 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { ShoppingCart } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 
 import { useStorefront } from "@/components/providers/StorefrontProvider";
+import { getProductThumbnailUrl } from "@/lib/imageUrl";
 import { formatIQD, getProductName } from "@/lib/storefront";
 import type { Product } from "@/lib/types";
 import { useCartStore } from "@/store/cart";
@@ -15,7 +16,7 @@ type ProductCardProps = {
 
 export function ProductCard({ product }: ProductCardProps) {
   const addItem = useCartStore((state) => state.addItem);
-  const { language, isRTL } = useStorefront();
+  const { language } = useStorefront();
   const hasDiscount =
     typeof product.original_price === "number" &&
     product.original_price > product.price_iqd;
@@ -29,12 +30,13 @@ export function ProductCard({ product }: ProductCardProps) {
 
   return (
     <article className="group flex flex-col overflow-hidden rounded-[10px] bg-white shadow-soft transition duration-300 hover:-translate-y-1 hover:shadow-premium">
-      <Link href={`/product/${product.id}`} className="relative block flex-[7_7_0%] overflow-hidden bg-slate-50">
-        <img
-          src={product.image_url}
+      <Link href={`/product/${product.id}`} className="relative block aspect-square overflow-hidden bg-slate-50">
+        <Image
+          src={getProductThumbnailUrl(product.image_url)!}
           alt={getProductName(product, language)}
-          className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-          loading="lazy"
+          fill
+          sizes="(min-width: 1280px) 25vw, (min-width: 768px) 50vw, 100vw"
+          className="object-cover transition duration-500 group-hover:scale-105"
         />
 
         {hasDiscount ? (

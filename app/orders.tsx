@@ -55,7 +55,6 @@ export default function OrdersScreen() {
             filter: `user_id=eq.${session.user.id}`
           },
           (payload) => {
-            console.log('Order changed:', payload);
 
             if (payload.eventType === 'UPDATE') {
               setOrders(prevOrders =>
@@ -94,7 +93,7 @@ export default function OrdersScreen() {
 
       const { data, error } = await supabase
         .from('orders')
-        .select('*')
+        .select('id, status, total_iqd, created_at, customer_name, delivery_address, payment_method, payment_status, updated_at')
         .eq('user_id', session.user.id)
         .order('created_at', { ascending: false });
 
@@ -453,7 +452,7 @@ export default function OrdersScreen() {
         <FlatList
           data={activeTab === 'active' ? activeOrders : historyOrders}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={{ padding: 16, paddingTop: 12 }}
+          contentContainerStyle={{ padding: 16, paddingTop: 12, paddingBottom: insets.bottom + 24 }}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}

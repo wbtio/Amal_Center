@@ -1,11 +1,12 @@
 import { View, Text, TouchableOpacity, TextInput, Alert, ScrollView, ActivityIndicator, Platform, FlatList } from 'react-native';
-import { ShoppingCartIcon, CheckCircleIcon, ArrowRightIcon, ArrowLeftIcon, BuildingStorefrontIcon } from 'react-native-heroicons/outline';
+import { ShoppingCartIcon, CheckCircleIcon, ArrowRightIcon, ArrowLeftIcon, BuildingStorefrontIcon, TagIcon, TruckIcon, ReceiptPercentIcon } from 'react-native-heroicons/outline';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCartStore } from '../../store/cartStore';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useLanguage, useCurrency } from '../../contexts';
 import { supabase } from '../../lib/supabase';
+import { DEFAULT_DELIVERY_FEE_IQD } from '../../constants/delivery';
 import CartItem from '../../components/cart/CartItem';
 
 interface CouponData {
@@ -43,7 +44,8 @@ export default function CartScreen() {
         }
     }, [totalIQD, appliedCoupon, couponData]);
 
-    const DELIVERY_FEE_IQD = 2000;
+    // الرسوم الافتراضية (توصيل عادي) — تُحدّد نهائياً حسب نوع التوصيل في صفحة الدفع
+    const DELIVERY_FEE_IQD = DEFAULT_DELIVERY_FEE_IQD;
 
     const handleApplyCoupon = useCallback(async () => {
         if (!couponCode.trim()) {
@@ -152,37 +154,51 @@ export default function CartScreen() {
     ), [handleRemoveItem, handleUpdateQuantity, isRTL, language, formatPrice, t]);
 
     const renderListHeader = useCallback(() => (
-        <Text
-            className={`font-ibm-bold text-text-primary mb-3 ${isRTL ? 'text-right' : 'text-left'}`}
-            style={{ fontSize: 16 }}
+        <View
+            className={`flex-row items-center mb-4 ${isRTL ? 'flex-row-reverse' : ''}`}
+            style={{ gap: 8 }}
         >
-            {language === 'ar' ? `سلة التسوق (${items.length})` : `Shopping Cart (${items.length})`}
-        </Text>
+            <View style={{ backgroundColor: 'rgba(46,125,50,0.1)', borderRadius: 10, padding: 6 }}>
+                <ShoppingCartIcon size={18} color="#2E7D32" />
+            </View>
+            <Text className="font-ibm-bold text-text-primary" style={{ fontSize: 17 }}>
+                {language === 'ar' ? `سلة التسوق` : `My Cart`}
+            </Text>
+            <View style={{ backgroundColor: '#2E7D32', borderRadius: 20, paddingHorizontal: 8, paddingVertical: 2 }}>
+                <Text className="font-ibm-bold text-white" style={{ fontSize: 12 }}>{items.length}</Text>
+            </View>
+        </View>
     ), [isRTL, language, items.length]);
 
     const renderListFooter = useCallback(() => (
-        <View>
+        <View style={{ marginTop: 4 }}>
+
             {/* Coupon Section */}
             <View
-                className="bg-white rounded-xl border border-gray-100 mb-3"
+                className="bg-white rounded-xl mb-3"
                 style={{
-                    padding: 12,
                     shadowColor: '#000',
                     shadowOffset: { width: 0, height: 1 },
-                    shadowOpacity: 0.03,
-                    shadowRadius: 3,
-                    elevation: 1,
+                    shadowOpacity: 0.05,
+                    shadowRadius: 6,
+                    elevation: 2,
+                    paddingHorizontal: 10,
+                    paddingVertical: 10,
                 }}
             >
-                <View className={`flex-row ${isRTL ? 'flex-row-reverse' : ''}`}>
+                <View className={`flex-row items-center ${isRTL ? 'flex-row-reverse' : ''}`} style={{ gap: 8 }}>
+                    <TagIcon size={15} color="#2E7D32" />
                     <TextInput
-                        className={`flex-1 bg-gray-50 border border-gray-200 rounded-lg font-ibm ${isRTL ? 'text-right' : 'text-left'}`}
+                        className={`flex-1 font-ibm ${isRTL ? 'text-right' : 'text-left'}`}
                         style={{
-                            paddingHorizontal: 12,
-                            paddingVertical: 10,
+                            paddingHorizontal: 11,
+                            paddingVertical: 8,
                             fontSize: 13,
-                            marginRight: isRTL ? 0 : 8,
-                            marginLeft: isRTL ? 8 : 0
+                            backgroundColor: '#F9FAFB',
+                            borderRadius: 10,
+                            borderWidth: appliedCoupon ? 1.5 : 1,
+                            borderColor: appliedCoupon ? '#2E7D32' : '#E5E7EB',
+                            color: appliedCoupon ? '#2E7D32' : '#111827',
                         }}
                         placeholder={t('cart.enterCoupon')}
                         placeholderTextColor="#9CA3AF"
@@ -192,23 +208,25 @@ export default function CartScreen() {
                         autoCapitalize="characters"
                     />
                     <TouchableOpacity
-                        className="rounded-lg justify-center items-center"
                         style={{
-                            paddingHorizontal: 16,
-                            paddingVertical: 10,
-                            minWidth: 70,
-                            backgroundColor: appliedCoupon ? 'rgba(211, 47, 47, 0.1)' : '#2E7D32'
+                            paddingHorizontal: 14,
+                            paddingVertical: 8,
+                            borderRadius: 10,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            backgroundColor: appliedCoupon ? 'rgba(211,47,47,0.1)' : '#2E7D32',
+                            minWidth: 66,
                         }}
                         onPress={appliedCoupon ? handleRemoveCoupon : handleApplyCoupon}
                         activeOpacity={0.8}
                         disabled={isApplying}
                     >
                         {isApplying ? (
-                            <ActivityIndicator size="small" color={appliedCoupon ? "#D32F2F" : "#FFFFFF"} />
+                            <ActivityIndicator size="small" color={appliedCoupon ? '#D32F2F' : '#FFFFFF'} />
                         ) : (
                             <Text
-                                className={`font-ibm-bold ${appliedCoupon ? 'text-danger' : 'text-white'}`}
-                                style={{ fontSize: 13 }}
+                                className="font-ibm-bold"
+                                style={{ fontSize: 12, color: appliedCoupon ? '#D32F2F' : '#FFFFFF' }}
                             >
                                 {appliedCoupon ? t('cart.remove') : t('cart.apply')}
                             </Text>
@@ -219,19 +237,11 @@ export default function CartScreen() {
                 {appliedCoupon && (
                     <View
                         className={`flex-row items-center rounded-lg ${isRTL ? 'flex-row-reverse' : ''}`}
-                        style={{
-                            marginTop: 10,
-                            padding: 8,
-                            backgroundColor: 'rgba(46, 125, 50, 0.08)'
-                        }}
+                        style={{ marginTop: 8, paddingHorizontal: 10, paddingVertical: 6, backgroundColor: 'rgba(46,125,50,0.08)', gap: 6 }}
                     >
-                        <CheckCircleIcon
-                            size={16}
-                            color="#2E7D32"
-                            style={{ marginRight: isRTL ? 0 : 6, marginLeft: isRTL ? 6 : 0 }}
-                        />
-                        <Text className="text-primary font-ibm-semibold" style={{ fontSize: 12 }}>
-                            {t('cart.couponApplied')} ({appliedCoupon})
+                        <CheckCircleIcon size={14} color="#2E7D32" />
+                        <Text className="font-ibm-semibold text-primary" style={{ fontSize: 11 }}>
+                            {t('cart.couponApplied')} · {appliedCoupon}
                         </Text>
                     </View>
                 )}
@@ -239,66 +249,90 @@ export default function CartScreen() {
 
             {/* Summary Section */}
             <View
-                className="bg-white rounded-xl border border-gray-100 mb-3"
+                className="bg-white rounded-2xl mb-3"
                 style={{
-                    padding: 14,
                     shadowColor: '#000',
-                    shadowOffset: { width: 0, height: 1 },
-                    shadowOpacity: 0.03,
-                    shadowRadius: 3,
-                    elevation: 1,
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowOpacity: 0.06,
+                    shadowRadius: 8,
+                    elevation: 3,
+                    overflow: 'hidden',
                 }}
             >
-                <Text
-                    className={`font-ibm-bold text-text-primary border-b border-gray-100 ${isRTL ? 'text-right' : 'text-left'}`}
-                    style={{ fontSize: 15, paddingBottom: 10, marginBottom: 12 }}
+                {/* Section header */}
+                <View
+                    className={`flex-row items-center ${isRTL ? 'flex-row-reverse' : ''}`}
+                    style={{ backgroundColor: 'rgba(46,125,50,0.06)', paddingHorizontal: 14, paddingVertical: 10 }}
                 >
-                    {t('cart.orderSummary')}
-                </Text>
-
-                <View className={`flex-row justify-between ${isRTL ? 'flex-row-reverse' : ''}`} style={{ marginBottom: 10 }}>
-                    <Text className="font-ibm text-text-secondary" style={{ fontSize: 13 }}>
-                        {t('cart.subtotal')}
-                    </Text>
-                    <Text className="font-ibm-semibold text-text-primary" style={{ fontSize: 13 }}>
-                        {formatPrice(totals.subtotal)}
+                    <ReceiptPercentIcon size={15} color="#2E7D32" style={{ marginRight: isRTL ? 0 : 6, marginLeft: isRTL ? 6 : 0 }} />
+                    <Text className="font-ibm-semibold text-primary" style={{ fontSize: 13 }}>
+                        {t('cart.orderSummary')}
                     </Text>
                 </View>
 
-                <View className={`flex-row justify-between ${isRTL ? 'flex-row-reverse' : ''}`} style={{ marginBottom: 10 }}>
-                    <Text className="font-ibm text-text-secondary" style={{ fontSize: 13 }}>
-                        {t('cart.deliveryFee')}
-                    </Text>
-                    <Text className="font-ibm-semibold text-text-primary" style={{ fontSize: 13 }}>
-                        {formatPrice(totals.delivery)}
-                    </Text>
-                </View>
-
-                {discount > 0 && (
-                    <View className={`flex-row justify-between ${isRTL ? 'flex-row-reverse' : ''}`} style={{ marginBottom: 10 }}>
-                        <Text className="font-ibm text-danger" style={{ fontSize: 13 }}>
-                            {t('cart.discount')}
+                <View style={{ padding: 14 }}>
+                    {/* Subtotal */}
+                    <View className={`flex-row justify-between items-center ${isRTL ? 'flex-row-reverse' : ''}`} style={{ marginBottom: 12 }}>
+                        <Text className="font-ibm text-text-secondary" style={{ fontSize: 13 }}>
+                            {t('cart.subtotal')}
                         </Text>
-                        <Text className="font-ibm-semibold text-danger" style={{ fontSize: 13 }}>
-                            -{formatPrice(totals.discount)}
+                        <Text className="font-ibm-semibold text-text-primary" style={{ fontSize: 13 }}>
+                            {formatPrice(totals.subtotal)}
                         </Text>
                     </View>
-                )}
 
+                    {/* Delivery Fee */}
+                    <View className={`flex-row justify-between items-center ${isRTL ? 'flex-row-reverse' : ''}`} style={{ marginBottom: discount > 0 ? 12 : 0 }}>
+                        <View className={`flex-row items-center ${isRTL ? 'flex-row-reverse' : ''}`} style={{ gap: 6 }}>
+                            <TruckIcon size={14} color="#6B7280" />
+                            <View className={isRTL ? 'items-end' : 'items-start'}>
+                                <Text className="font-ibm text-text-secondary" style={{ fontSize: 13 }}>
+                                    {t('cart.deliveryFee')}
+                                </Text>
+                                <Text className="font-ibm text-text-secondary" style={{ fontSize: 10, opacity: 0.7 }}>
+                                    {language === 'ar' ? 'تُحدّد حسب نوع التوصيل عند الدفع' : 'Varies by delivery type at checkout'}
+                                </Text>
+                            </View>
+                        </View>
+                        <Text className="font-ibm-semibold text-text-primary" style={{ fontSize: 13 }}>
+                            {formatPrice(totals.delivery)}
+                        </Text>
+                    </View>
+
+                    {/* Discount */}
+                    {discount > 0 && (
+                        <View className={`flex-row justify-between items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
+                            <Text className="font-ibm text-danger" style={{ fontSize: 13 }}>
+                                {t('cart.discount')}
+                            </Text>
+                            <Text className="font-ibm-semibold text-danger" style={{ fontSize: 13 }}>
+                                −{formatPrice(totals.discount)}
+                            </Text>
+                        </View>
+                    )}
+                </View>
+
+                {/* Total row — highlighted */}
                 <View
-                    className={`flex-row justify-between border-t border-dashed border-gray-300 ${isRTL ? 'flex-row-reverse' : ''}`}
-                    style={{ paddingTop: 12, marginTop: 4 }}
+                    className={`flex-row justify-between items-center ${isRTL ? 'flex-row-reverse' : ''}`}
+                    style={{
+                        backgroundColor: 'rgba(46,125,50,0.07)',
+                        paddingHorizontal: 14,
+                        paddingVertical: 14,
+                        borderTopWidth: 1,
+                        borderTopColor: 'rgba(46,125,50,0.12)',
+                    }}
                 >
                     <Text className="font-ibm-bold text-text-primary" style={{ fontSize: 15 }}>
                         {t('cart.total')}
                     </Text>
-                    <Text className="font-ibm-bold text-primary" style={{ fontSize: 18 }}>
+                    <Text className="font-ibm-bold text-primary" style={{ fontSize: 20 }}>
                         {formatPrice(totals.final)}
                     </Text>
                 </View>
             </View>
         </View>
-    ), [isRTL, t, couponCode, appliedCoupon, isApplying, handleRemoveCoupon, handleApplyCoupon, discount, totals, formatPrice]);
+    ), [isRTL, language, t, couponCode, appliedCoupon, isApplying, handleRemoveCoupon, handleApplyCoupon, discount, totals, formatPrice]);
 
     return (
         <View className="flex-1 bg-background">
@@ -353,7 +387,7 @@ export default function CartScreen() {
                             contentContainerStyle={{
                                 paddingHorizontal: 16,
                                 paddingTop: 14,
-                                paddingBottom: insets.bottom + 80
+                                paddingBottom: 16,
                             }}
                             showsVerticalScrollIndicator={false}
                             keyboardShouldPersistTaps="handled"
@@ -362,16 +396,10 @@ export default function CartScreen() {
 
                         {/* Checkout Footer */}
                         <View
-                            className="bg-white border-t border-gray-100"
                             style={{
                                 paddingHorizontal: 16,
-                                paddingVertical: 12,
-                                paddingBottom: insets.bottom + 12,
-                                shadowColor: '#000',
-                                shadowOpacity: 0.06,
-                                shadowRadius: 5,
-                                shadowOffset: { width: 0, height: -2 },
-                                elevation: 5,
+                                paddingTop: 12,
+                                paddingBottom: 12,
                             }}
                         >
                             <TouchableOpacity
@@ -380,20 +408,26 @@ export default function CartScreen() {
                                     paddingVertical: 14,
                                     gap: 8,
                                     backgroundColor: '#2E7D32',
-                                    shadowColor: '#2E7D32',
-                                    shadowOpacity: 0.25,
+                                    shadowColor: '#1B5E20',
+                                    shadowOpacity: 0.55,
                                     shadowRadius: 8,
                                     shadowOffset: { width: 0, height: 3 },
-                                    elevation: 4,
+                                    elevation: 14,
                                 }}
-                                onPress={() => router.push({
-                                    pathname: '/checkout',
-                                    params: couponData && appliedCoupon ? {
-                                        couponId: couponData.couponId || '',
-                                        couponCode: appliedCoupon,
-                                        discountAmount: discount.toString(),
-                                    } : undefined,
-                                })}
+                                onPress={() => {
+                                    if (couponData && appliedCoupon) {
+                                        router.push({
+                                            pathname: '/checkout',
+                                            params: {
+                                                couponId: couponData.couponId || '',
+                                                couponCode: appliedCoupon,
+                                                discountAmount: discount.toString(),
+                                            },
+                                        });
+                                    } else {
+                                        router.push('/checkout');
+                                    }
+                                }}
                                 activeOpacity={0.8}
                                 accessibilityLabel={t('cart.checkout')}
                                 accessibilityRole="button"

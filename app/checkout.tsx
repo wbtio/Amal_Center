@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, Alert, ActivityIndicator, BackHandler, Modal, Keyboard, Animated } from 'react-native';
+import { View, Text, TouchableOpacity, Alert, ActivityIndicator, BackHandler, Modal, Keyboard, Animated, Platform } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -14,7 +14,9 @@ import { DeliveryStep } from '../components/checkout/DeliveryStep';
 import { PaymentStep } from '../components/checkout/PaymentStep';
 import { ReviewStep } from '../components/checkout/ReviewStep';
 import { addressSchema, AddressData, DeliveryType, PaymentMethod } from '../types/checkout';
+import { getDeliveryCost } from '../constants/delivery';
 import { useLanguage, useCurrency } from '../contexts';
+import { useAppSettings } from '../hooks/useSupabase';
 
 interface CouponInfo {
   couponId: string | null;
@@ -33,6 +35,8 @@ export default function CheckoutScreen() {
   const { t, language, isRTL } = useLanguage();
   const { formatPrice, exchangeRate } = useCurrency();
   const insets = useSafeAreaInsets();
+  const { data: appSettings } = useAppSettings();
+  const waylEnabled = appSettings?.payment?.waylEnabled ?? false;
 
   const [currentStep, setCurrentStep] = useState(0);
   const [deliveryType, setDeliveryType] = useState<DeliveryType>('scheduled');
@@ -98,7 +102,7 @@ export default function CheckoutScreen() {
         const { data: { session } } = await supabase.auth.getSession();
         if (!session?.user?.id) return;
 
-        const { data: addresses } = await supabase.from('addresses').select('*').eq('user_id', session.user.id).order('is_default', { ascending: false });
+        const { data: addresses } = await supabase.from('addresses').select('id, name, city, area, street, phone, type, is_default').eq('user_id', session.user.id).order('is_default', { ascending: false });
         if (addresses?.length) {
           setSavedAddresses(addresses);
           const defaultAddr = addresses.find(a => a.is_default) || addresses[0];
@@ -129,14 +133,6 @@ export default function CheckoutScreen() {
       });
     }
   }, [params.couponCode, params.couponId, params.discountAmount]);
-
-  const getDeliveryCost = (type: DeliveryType): number => {
-    switch (type) {
-      case 'express': return 5000;
-      case 'electronics': return 10000;
-      default: return 2000;
-    }
-  };
 
   const handleNext = async () => {
     if (currentStep === 0) {
@@ -241,6 +237,30 @@ export default function CheckoutScreen() {
         await supabase.rpc('decrease_product_stock', { product_id: item.product_id, quantity: item.quantity });
       }
 
+      // الدفع الإلكتروني (Wayl): أنشئ رابط الدفع وافتح صفحة الدفع داخل التطبيق.
+      // لا نُفرّغ السلة إلا بعد تأكيد الدفع داخل شاشة WebView.
+      if (paymentMethod === 'wayl') {
+        setOrderCompleted(true); // لمنع تنبيه «السلة فارغة» عند مغادرة الشاشة
+        const { data: linkData, error: linkError } = await supabase.functions.invoke('wayl-payment', {
+          body: { action: 'create', orderId: order.id },
+        });
+
+        if (linkError || !linkData?.url) {
+          Alert.alert(
+            t('common.error'),
+            language === 'ar' ? 'تعذّر إنشاء رابط الدفع. طلبك محفوظ بانتظار الدفع.' : 'Could not create the payment link. Your order is saved as awaiting payment.'
+          );
+          router.replace({ pathname: '/order/[id]', params: { id: order.id, isNewOrder: 'true' } });
+          return;
+        }
+
+        router.replace({
+          pathname: '/payment/wayl' as any,
+          params: { orderId: order.id, url: linkData.url },
+        });
+        return;
+      }
+
       setOrderCompleted(true);
       clearCart();
       router.replace({ pathname: '/order/[id]', params: { id: order.id, isNewOrder: 'true' } });
@@ -266,7 +286,7 @@ export default function CheckoutScreen() {
           <Text className={`font-ibm-bold text-sm text-gray-800 mb-2 mt-2 ${isRTL ? 'text-right' : 'text-left'}`}>
             {language === 'ar' ? 'طريقة الدفع' : 'Payment Method'}
           </Text>
-          <PaymentStep selectedMethod={paymentMethod} onSelect={setPaymentMethod} />
+          <PaymentStep selectedMethod={paymentMethod} onSelect={setPaymentMethod} waylEnabled={waylEnabled} />
         </>
       );
       case 2: return (
@@ -285,14 +305,21 @@ export default function CheckoutScreen() {
 
   if (items.length === 0 && !isSubmitting && !orderCompleted) return null;
 
-  const footerPaddingBottom = Math.max(insets.bottom, 12) + 12;
-  const footerHeight = 98 + footerPaddingBottom;
+  const bottomSafeInset = Platform.OS === 'android' ? Math.max(insets.bottom, 24) : Math.max(insets.bottom, 34);
+  const footerPaddingBottom = bottomSafeInset + 8;
 
   const getStepButtonText = () => {
     if (currentStep === 0) return language === 'ar' ? 'اختر طريقة الدفع' : 'Continue to Payment';
     if (currentStep === 1) return language === 'ar' ? 'مراجعة الطلب' : 'Review Order';
-    return language === 'ar' ? 'تأكيد الطلب ✓' : 'Place Order ✓';
+    return language === 'ar' ? 'تأكيد الطلب' : 'Place Order';
   };
+
+  const getStepButtonIcon = () => {
+    if (currentStep < 2) return isRTL ? ('chevron-back' as const) : ('chevron-forward' as const);
+    return 'checkmark-circle' as const;
+  };
+
+  const stepButtonBg = currentStep === 2 ? '#1B5E20' : '#2E7D32';
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50" edges={['top']}>
@@ -381,64 +408,81 @@ export default function CheckoutScreen() {
         bottomOffset={24}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="interactive"
-        contentContainerStyle={{ padding: 16, paddingBottom: isKeyboardVisible ? 24 : footerHeight + 16 }}
+        contentContainerStyle={{ padding: 16, paddingBottom: 16 }}
         showsVerticalScrollIndicator={false}
       >
         {renderStepContent()}
       </KeyboardAwareScrollView>
 
-      {/* Enhanced Footer */}
+      {/* Footer */}
       {!isKeyboardVisible && (
-        <View className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-5 pt-3" style={{ paddingBottom: footerPaddingBottom, elevation: 15, shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 12, shadowOffset: { height: -4, width: 0 } }}>
+        <View
+          className="bg-white border-t border-gray-100 px-4 pt-3"
+          style={{
+            paddingBottom: footerPaddingBottom,
+            elevation: 15,
+            shadowColor: '#000',
+            shadowOpacity: 0.08,
+            shadowRadius: 12,
+            shadowOffset: { height: -4, width: 0 },
+          }}
+        >
           {/* Price summary row */}
-          <View className={`flex-row items-center justify-between mb-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
+          <View className={`flex-row items-center justify-between mb-2.5 ${isRTL ? 'flex-row-reverse' : ''}`}>
             <View className={`${isRTL ? 'items-end' : 'items-start'}`}>
               <Text className="font-ibm text-[10px] text-gray-400 uppercase tracking-wider">
                 {language === 'ar' ? 'المجموع الكلي' : 'Total'}
               </Text>
               <Text className="font-ibm-bold text-xl text-gray-900">
-                {formatPrice(totalIQD + getDeliveryCost(deliveryType))}
+                {formatPrice(Math.max(0, totalIQD + getDeliveryCost(deliveryType) - couponInfo.discountAmount))}
               </Text>
+              {couponInfo.discountAmount > 0 && (
+                <Text className="font-ibm text-[11px] text-red-500" style={{ marginTop: 1 }}>
+                  {language === 'ar' ? `خصم: -${formatPrice(couponInfo.discountAmount)}` : `-${formatPrice(couponInfo.discountAmount)} off`}
+                </Text>
+              )}
             </View>
             {currentStep === 2 && (
               <View className={`flex-row items-center bg-green-50 px-3 py-1.5 rounded-full ${isRTL ? 'flex-row-reverse' : ''}`}>
                 <Ionicons name="shield-checkmark" size={14} color="#2E7D32" />
-                <Text className="font-ibm text-[11px] text-primary mx-1">
+                <Text className="font-ibm text-[11px] text-primary" style={{ marginLeft: isRTL ? 0 : 4, marginRight: isRTL ? 4 : 0 }}>
                   {language === 'ar' ? 'دفع آمن' : 'Secure'}
                 </Text>
               </View>
             )}
           </View>
 
-          {/* Action Button - Full Width */}
+          {/* Action Button */}
           <TouchableOpacity
             onPress={currentStep < 2 ? handleNext : submitOrder}
             disabled={isSubmitting}
             activeOpacity={0.8}
-            className={`flex-row items-center justify-center rounded-2xl h-14 ${isSubmitting ? 'bg-gray-400' : currentStep === 2 ? 'bg-primary' : 'bg-primary'}`}
-            style={!isSubmitting ? {
-              shadowColor: '#2E7D32',
-              shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.25,
-              shadowRadius: 8,
-              elevation: 6,
-            } : {}}
+            className="flex-row items-center justify-center rounded-xl h-[52px]"
+            style={isSubmitting
+              ? { backgroundColor: '#9CA3AF' }
+              : {
+                  backgroundColor: stepButtonBg,
+                  shadowColor: stepButtonBg,
+                  shadowOffset: { width: 0, height: 4 },
+                  shadowOpacity: 0.35,
+                  shadowRadius: 8,
+                  elevation: 6,
+                }
+            }
           >
             {isSubmitting ? (
-              <View className="flex-row items-center gap-3">
+              <View className={`flex-row items-center ${isRTL ? 'flex-row-reverse' : ''}`} style={{ gap: 10 }}>
                 <ActivityIndicator color="white" />
                 <Text className="text-white font-ibm-bold text-sm">
                   {language === 'ar' ? 'جاري المعالجة...' : 'Processing...'}
                 </Text>
               </View>
             ) : (
-              <View className={`flex-row items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+              <View className={`flex-row items-center ${isRTL ? 'flex-row-reverse' : ''}`} style={{ gap: 8 }}>
                 <Text className="text-white font-ibm-bold text-base">
                   {getStepButtonText()}
                 </Text>
-                {currentStep < 2 && (
-                  <Ionicons name={isRTL ? "chevron-back" : "chevron-forward"} size={20} color="white" />
-                )}
+                <Ionicons name={getStepButtonIcon()} size={currentStep === 2 ? 22 : 20} color="white" />
               </View>
             )}
           </TouchableOpacity>

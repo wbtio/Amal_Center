@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useState } from 'react';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { useFaq } from '../../hooks/useSupabase';
 
 // Enable LayoutAnimation on Android
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -18,7 +19,7 @@ interface FAQItem {
     answer_en: string;
 }
 
-const faqData: FAQItem[] = [
+const DEFAULT_FAQ: FAQItem[] = [
     {
         id: '1',
         question_ar: 'كيف يمكنني تتبع طلبي؟',
@@ -81,6 +82,8 @@ export default function FAQScreen() {
     const router = useRouter();
     const insets = useSafeAreaInsets();
     const { language, isRTL } = useLanguage();
+    const { data: remoteFaq } = useFaq();
+    const faqData = remoteFaq && remoteFaq.length > 0 ? remoteFaq : DEFAULT_FAQ;
     const [expandedId, setExpandedId] = useState<string | null>(null);
 
     const toggleExpand = (id: string) => {
@@ -117,7 +120,7 @@ export default function FAQScreen() {
 
             <ScrollView 
                 style={{ flex: 1 }} 
-                contentContainerStyle={{ padding: 16 }}
+                contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 24 }}
                 showsVerticalScrollIndicator={false}
             >
                 {/* Header Info */}
@@ -157,7 +160,7 @@ export default function FAQScreen() {
                 </View>
 
                 {/* FAQ Items */}
-                {faqData.map((item) => (
+                {faqData.map((item, index) => (
                     <TouchableOpacity
                         key={item.id}
                         style={{
@@ -191,7 +194,7 @@ export default function FAQScreen() {
                                     fontSize: 14,
                                     color: expandedId === item.id ? '#FFFFFF' : '#757575'
                                 }}>
-                                    {item.id}
+                                    {index + 1}
                                 </Text>
                             </View>
                             <Text style={{

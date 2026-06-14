@@ -3,6 +3,13 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import {
+  createStorageImageName,
+  optimizeImageForStorage,
+  PRODUCT_IMAGE_OPTIONS,
+  STORAGE_IMAGE_CACHE_CONTROL,
+} from '@/lib/image-optimizer';
+import { uploadProductThumbnail } from '@/lib/product-image-upload';
 import { ArrowRight, Upload, Loader2, Save, Sparkles, Camera, CheckCircle2, Edit2, AlertTriangle, ImageIcon } from 'lucide-react';
 
 interface AIProductFormProps {
@@ -41,7 +48,7 @@ export default function AIProductForm({ onBack }: AIProductFormProps) {
   }, []);
 
   const fetchCategories = async () => {
-    const { data } = await supabase.from('categories').select('*').eq('is_active', true).order('name_ar');
+    const { data } = await supabase.from('categories').select('id, name_ar, name, is_active').eq('is_active', true).order('name_ar');
     setCategories(data || []);
   };
 
@@ -154,18 +161,23 @@ export default function AIProductForm({ onBack }: AIProductFormProps) {
         console.log('Uploading original image as fallback...');
         try {
           const imageBuffer = Uint8Array.from(atob(frontBase64), c => c.charCodeAt(0));
-          const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.jpg`;
-          const filePath = fileName;
+          const sourceFile = new File([imageBuffer], 'product.jpg', {
+            type: 'image/jpeg',
+          });
+          const optimizedImage = await optimizeImageForStorage(sourceFile, PRODUCT_IMAGE_OPTIONS);
+          const filePath = createStorageImageName(optimizedImage.extension);
 
           const { error: uploadError } = await supabase.storage
             .from('products')
-            .upload(filePath, imageBuffer, {
-              contentType: 'image/jpeg',
+            .upload(filePath, optimizedImage.file, {
+              contentType: optimizedImage.contentType,
               upsert: true,
-              cacheControl: '31536000'
+              cacheControl: STORAGE_IMAGE_CACHE_CONTROL
             });
 
           if (uploadError) throw uploadError;
+
+          await uploadProductThumbnail(filePath, optimizedImage.file);
 
           const { data: urlData } = supabase.storage
             .from('products')

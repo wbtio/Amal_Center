@@ -3,7 +3,8 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLanguage } from '../../contexts/LanguageContext';
-import { APP_CONFIG } from '../../constants/app';
+import { useAppSettings } from '../../hooks/useSupabase';
+import { DEFAULT_SETTINGS } from '../../services/settings.service';
 
 interface ContactOption {
     id: string;
@@ -21,6 +22,8 @@ export default function ContactScreen() {
     const router = useRouter();
     const insets = useSafeAreaInsets();
     const { language, isRTL } = useLanguage();
+    const { data: settings } = useAppSettings();
+    const s = settings ?? DEFAULT_SETTINGS;
 
     const contactOptions: ContactOption[] = [
         {
@@ -32,29 +35,29 @@ export default function ContactScreen() {
             subtitle_en: 'Chat with us on WhatsApp',
             color: '#25D366',
             bgColor: '#E8F8ED',
-            action: () => Linking.openURL(APP_CONFIG.WHATSAPP_URL)
+            action: () => Linking.openURL(s.contact.whatsappUrl)
         },
         {
             id: 'phone',
             icon: 'call-outline',
             title_ar: 'اتصل بنا',
             title_en: 'Call Us',
-            subtitle_ar: APP_CONFIG.WHATSAPP_NUMBER,
-            subtitle_en: APP_CONFIG.WHATSAPP_NUMBER,
+            subtitle_ar: s.contact.whatsappNumber,
+            subtitle_en: s.contact.whatsappNumber,
             color: '#2196F3',
             bgColor: '#E3F2FD',
-            action: () => Linking.openURL(`tel:${APP_CONFIG.WHATSAPP_NUMBER}`)
+            action: () => Linking.openURL(`tel:${s.contact.whatsappNumber}`)
         },
         {
             id: 'email',
             icon: 'mail-outline',
             title_ar: 'البريد الإلكتروني',
             title_en: 'Email',
-            subtitle_ar: APP_CONFIG.SUPPORT_EMAIL,
-            subtitle_en: APP_CONFIG.SUPPORT_EMAIL,
+            subtitle_ar: s.contact.supportEmail,
+            subtitle_en: s.contact.supportEmail,
             color: '#FF5722',
             bgColor: '#FBE9E7',
-            action: () => Linking.openURL(`mailto:${APP_CONFIG.SUPPORT_EMAIL}`)
+            action: () => Linking.openURL(`mailto:${s.contact.supportEmail}`)
         },
         {
             id: 'facebook',
@@ -65,7 +68,7 @@ export default function ContactScreen() {
             subtitle_en: 'Follow us on Facebook',
             color: '#1877F2',
             bgColor: '#E7F0FF',
-            action: () => Linking.openURL(APP_CONFIG.FACEBOOK_URL)
+            action: () => Linking.openURL(s.contact.facebookUrl)
         },
         {
             id: 'instagram',
@@ -76,7 +79,7 @@ export default function ContactScreen() {
             subtitle_en: 'Follow us on Instagram',
             color: '#E4405F',
             bgColor: '#FCE4EC',
-            action: () => Linking.openURL(APP_CONFIG.INSTAGRAM_URL)
+            action: () => Linking.openURL(s.contact.instagramUrl)
         }
     ];
 
@@ -109,7 +112,7 @@ export default function ContactScreen() {
 
             <ScrollView 
                 style={{ flex: 1 }} 
-                contentContainerStyle={{ padding: 16 }}
+                contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 24 }}
                 showsVerticalScrollIndicator={false}
             >
                 {/* Header Card */}
@@ -245,33 +248,22 @@ export default function ContactScreen() {
                         </Text>
                     </View>
                     
-                    <View style={{
-                        flexDirection: isRTL ? 'row-reverse' : 'row',
-                        justifyContent: 'space-between',
-                        paddingVertical: 8,
-                        borderBottomWidth: 1,
-                        borderBottomColor: '#F3F4F6'
-                    }}>
-                        <Text style={{ fontFamily: 'IBMPlexSansArabic_400Regular', fontSize: 14, color: '#616161' }}>
-                            {language === 'ar' ? 'السبت - الخميس' : 'Saturday - Thursday'}
-                        </Text>
-                        <Text style={{ fontFamily: 'IBMPlexSansArabic_600SemiBold', fontSize: 14, color: '#212121' }}>
-                            {language === 'ar' ? '٨ ص - ١٠ م' : '8 AM - 10 PM'}
-                        </Text>
-                    </View>
-                    
-                    <View style={{
-                        flexDirection: isRTL ? 'row-reverse' : 'row',
-                        justifyContent: 'space-between',
-                        paddingVertical: 8
-                    }}>
-                        <Text style={{ fontFamily: 'IBMPlexSansArabic_400Regular', fontSize: 14, color: '#616161' }}>
-                            {language === 'ar' ? 'الجمعة' : 'Friday'}
-                        </Text>
-                        <Text style={{ fontFamily: 'IBMPlexSansArabic_600SemiBold', fontSize: 14, color: '#212121' }}>
-                            {language === 'ar' ? '٢ م - ١٠ م' : '2 PM - 10 PM'}
-                        </Text>
-                    </View>
+                    {s.workingHours.map((wh, idx) => (
+                        <View key={idx} style={{
+                            flexDirection: isRTL ? 'row-reverse' : 'row',
+                            justifyContent: 'space-between',
+                            paddingVertical: 8,
+                            borderBottomWidth: idx < s.workingHours.length - 1 ? 1 : 0,
+                            borderBottomColor: '#F3F4F6'
+                        }}>
+                            <Text style={{ fontFamily: 'IBMPlexSansArabic_400Regular', fontSize: 14, color: '#616161' }}>
+                                {language === 'ar' ? wh.days_ar : wh.days_en}
+                            </Text>
+                            <Text style={{ fontFamily: 'IBMPlexSansArabic_600SemiBold', fontSize: 14, color: '#212121' }}>
+                                {language === 'ar' ? wh.time_ar : wh.time_en}
+                            </Text>
+                        </View>
+                    ))}
                 </View>
 
                 {/* Location */}
@@ -310,9 +302,7 @@ export default function ContactScreen() {
                         textAlign: isRTL ? 'right' : 'left',
                         lineHeight: 22
                     }}>
-                        {language === 'ar' 
-                            ? 'بغداد، العراق\nشارع الرشيد، مقابل سوق الشورجة'
-                            : 'Baghdad, Iraq\nAl-Rasheed Street, opposite Shorja Market'}
+                        {language === 'ar' ? s.storeAddressAr : s.storeAddressEn}
                     </Text>
                 </View>
             </ScrollView>

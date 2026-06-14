@@ -30,7 +30,7 @@ export default function AddressesScreen() {
 
             const { data, error } = await supabase
                 .from('addresses')
-                .select('*')
+                .select('id, name, city, area, street, phone, type, is_default, created_at')
                 .eq('user_id', session.user.id)
                 .order('is_default', { ascending: false });
 
@@ -295,7 +295,7 @@ export default function AddressesScreen() {
                 <FlatList
                     data={addresses}
                     keyExtractor={(item) => item.id}
-                    contentContainerStyle={{ padding: 16 }}
+                    contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 24 }}
                     ListEmptyComponent={
                         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 60 }}>
                             <View style={{
