@@ -15,6 +15,14 @@
       "cwd": "./web",
       "port": 3000,
       "autoPort": false
+    },
+    {
+      "name": "admin-web",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["next", "dev", "--port", "3000"],
+      "cwd": "./admin",
+      "port": 3000,
+      "autoPort": false
     }
   ]
 }

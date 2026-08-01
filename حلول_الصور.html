@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>حلول مشكلة صور المنتجات — دراسة الحالة</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body{
+    font-family:"Segoe UI","Tahoma","Cairo",sans-serif;
+    background:#f4f6f9; color:#1f2733; line-height:1.95;
+    padding:32px 16px; direction:rtl;
+  }
+  .wrap{ max-width:820px; margin:0 auto; }
+  .card{ background:#fff; border-radius:18px; box-shadow:0 8px 30px rgba(0,0,0,.06); overflow:hidden; margin-bottom:22px; }
+
+  /* رأس */
+  .head{ background:linear-gradient(135deg,#1f4e79,#2e86c1); color:#fff; padding:26px 28px; }
+  .head h1{ font-size:22px; font-weight:800; }
+  .head p{ font-size:14px; opacity:.9; margin-top:6px; }
+
+  .body{ padding:24px 28px 28px; }
+  h2{ font-size:18px; color:#1f4e79; margin:4px 0 14px; display:flex; align-items:center; gap:8px; }
+
+  /* تحذير عاجل */
+  .alert{
+    background:#fff4e5; border:1px solid #ffd9a8; border-right:5px solid #e67e22;
+    border-radius:12px; padding:16px 18px; display:flex; gap:12px; align-items:flex-start;
+  }
+  .alert .ic{ font-size:24px; }
+  .alert b{ color:#b9591a; }
+
+  /* الوضع باختصار */
+  .facts{ list-style:none; }
+  .facts li{ padding:8px 0; border-bottom:1px dashed #e3e8ef; font-size:15px; }
+  .facts li:last-child{ border-bottom:none; }
+  .facts .tag{ display:inline-block; min-width:78px; font-weight:700; color:#1f4e79; }
+
+  code{ background:#eef1f5; padding:1px 7px; border-radius:6px; font-size:12.5px; direction:ltr; display:inline-block; color:#c0392b; }
+
+  /* جدول المقارنة */
+  table{ width:100%; border-collapse:collapse; font-size:13.5px; }
+  th,td{ padding:11px 10px; text-align:center; border-bottom:1px solid #eef1f5; }
+  th{ background:#1f4e79; color:#fff; font-weight:700; }
+  td:first-child{ text-align:right; font-weight:700; color:#1f2733; }
+  .rec{ background:#eafaf1; }
+  .yes{ color:#27ae60; font-weight:800; }
+  .no{ color:#c0392b; font-weight:800; }
+  .mid{ color:#e67e22; font-weight:800; }
+  .badge{ display:inline-block; background:#27ae60; color:#fff; font-size:11px; padding:2px 8px; border-radius:20px; margin-right:6px; }
+
+  /* خطوات */
+  .steps{ list-style:none; counter-reset:s; }
+  .steps li{ position:relative; padding:12px 46px 12px 0; border-bottom:1px dashed #e3e8ef; }
+  .steps li:last-child{ border-bottom:none; }
+  .steps li::before{
+    counter-increment:s; content:counter(s);
+    position:absolute; right:0; top:12px;
+    width:30px; height:30px; border-radius:50%;
+    background:#2e86c1; color:#fff; font-weight:800;
+    display:grid; place-items:center; font-size:14px;
+  }
+  .steps b{ color:#1f4e79; }
+  .steps span{ display:block; font-size:13px; color:#5b6675; }
+
+  /* بطاقات الدفع */
+  .pays{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; }
+  .pay{ background:#f7f9fc; border:1px solid #e6ebf2; border-radius:12px; padding:14px; }
+  .pay b{ color:#1f4e79; display:block; margin-bottom:3px; }
+  .pay span{ font-size:12.5px; color:#5b6675; }
+
+  /* توصية */
+  .reco{ background:#0e3a5f; color:#fff; border-radius:14px; padding:18px 20px; font-size:15px; }
+  .reco b{ color:#ffd166; }
+
+  .foot{ text-align:center; font-size:12px; color:#9aa4b1; padding:6px 0 0; }
+  .src{ font-size:11.5px; color:#9aa4b1; }
+  .src a{ color:#2e86c1; text-decoration:none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- رأس -->
+  <div class="card">
+    <div class="head">
+      <h1>🧩 حلول مشكلة صور المنتجات — دراسة الحالة</h1>
+      <p>مركز أمل · المشروع القديم موقوف (Paused) والصور بداخله</p>
+    </div>
+    <div class="body">
+      <div class="alert">
+        <div class="ic">⏳</div>
+        <div>
+          <b>الأهم أولًا — عندك سباق مع الوقت:</b> المشاريع الموقوفة في Supabase
+          تُحذف نهائيًا (هي ونسخها الاحتياطية) بعد <b>٩٠ يومًا</b> من الإيقاف.
+          المطلوب: استعادة المشروع وسحب الصور <b>قبل</b> انتهاء هذه المدة.
+          أي حل ناجح يبدأ بإنقاذ الصور أولًا.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- الوضع باختصار -->
+  <div class="card"><div class="body">
+    <h2>📌 الوضع باختصار</h2>
+    <ul class="facts">
+      <li><span class="tag">الصور:</span> موجودة فعليًا داخل المشروع القديم الموقوف (لم تُحذف بعد).</li>
+      <li><span class="tag">الروابط:</span> الـ ٥٬٦١٨ رابط في قاعدة البيانات الجديدة تشير كلها للمشروع القديم.</li>
+      <li><span class="tag">التطبيق:</span> يعرض الصور عبر <code>ImageKit</code> الذي يسحبها من المشروع القديم → الآن يفشل ويعطي صور مكسورة.</li>
+      <li><span class="tag">هدفك:</span> سحب الصور لمكان دائم، وعدم البقاء مرتبطًا (أو دافعًا) للمشروع القديم.</li>
+    </ul>
+  </div></div>
+
+  <!-- الحلول -->
+  <div class="card"><div class="body">
+    <h2>🛠️ الحلول — مقارنة</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>الحل</th><th>الكلفة</th><th>ينفع بالعراق؟</th><th>كلفة مستمرة؟</th><th>الجهد</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="rec">
+          <td>① استعادة قصيرة → نقل الصور إلى <b>ImageKit</b> <span class="badge">موصى به</span></td>
+          <td>شهر واحد فقط على الأكثر</td>
+          <td class="yes">نعم ✓</td>
+          <td class="yes">لا ✓</td>
+          <td class="mid">متوسط</td>
+        </tr>
+        <tr>
+          <td>② استعادة قصيرة → نقل الصور إلى <b>Cloudflare R2</b></td>
+          <td>شهر واحد + بطاقة لتفعيل R2</td>
+          <td class="mid">نعم (يلزم بطاقة)</td>
+          <td class="yes">لا ✓</td>
+          <td class="mid">متوسط</td>
+        </tr>
+        <tr>
+          <td>③ نقل الصور إلى تخزين <b>المشروع الجديد</b></td>
+          <td>شهر واحد للاستعادة</td>
+          <td class="yes">نعم ✓</td>
+          <td class="no">قد ترجع مشكلة الـegress</td>
+          <td class="mid">متوسط</td>
+        </tr>
+        <tr>
+          <td>④ تجاهل القديم → <b>رفع صور جديدة</b> للمنتجات</td>
+          <td>مجاني (لكن وقت كبير)</td>
+          <td class="yes">نعم ✓</td>
+          <td class="yes">لا ✓</td>
+          <td class="no">عالٍ جدًا</td>
+        </tr>
+      </tbody>
+    </table>
+    <p style="font-size:12.5px;color:#5b6675;margin-top:12px">
+      ملاحظة: تخزين المشروع الجديد المجاني = <b>١ غيغا فقط</b> وقد لا يكفي ٥٬٦١٨ صورة، ويعيد مشكلة الـ egress التي أُنشئ ImageKit أساسًا لحلّها.
+      أما ImageKit المجاني فيوفّر ~٣ غيغا، و Cloudflare R2 يوفّر ١٠ غيغا مجانًا بدون رسوم تحميل.
+    </p>
+  </div></div>
+
+  <!-- الخطة الموصى بها -->
+  <div class="card"><div class="body">
+    <h2>✅ الخطة الموصى بها (الحل ①)</h2>
+    <ol class="steps">
+      <li><b>استعد المشروع القديم مؤقتًا</b>
+        <span>جرّب زر الاستعادة بنقرة واحدة أولًا. إن طلب ترقية للخطة، فعّل خطة Pro لشهر واحد فقط (بطاقة بالأسفل).</span></li>
+      <li><b>نزّل كل الصور فورًا كنسخة احتياطية</b>
+        <span>من Storage في لوحة المشروع — هكذا تصبح الصور بأمان على جهازك مهما حصل.</span></li>
+      <li><b>ارفع الصور إلى ImageKit Media Library</b>
+        <span>الخدمة مستخدمة أصلًا في التطبيق، مجانية (~٣ غيغا)، لا تحتاج بطاقة، وتعمل في العراق.</span></li>
+      <li><b>عدّل مصدر الصور في الكود</b>
+        <span>تغيير الرابط الأساسي في <code>lib/imageUrl.ts</code> ليشير لمخزن ImageKit بدل المشروع القديم.</span></li>
+      <li><b>أوقف المشروع القديم وألغِ الترقية</b>
+        <span>بعد التأكد أن الصور تظهر — لا تبقى أي كلفة مستمرة.</span></li>
+    </ol>
+    <div class="reco" style="margin-top:14px">
+      💡 <b>الفكرة الأساسية:</b> أنت لا تحتاج اشتراكًا دائمًا على المشروع القديم — في أسوأ حالة تدفع <b>شهرًا واحدًا</b> فقط لسحب الصور، ثم تتخلّص منه نهائيًا.
+    </div>
+  </div></div>
+
+  <!-- الدفع من العراق -->
+  <div class="card"><div class="body">
+    <h2>💳 الدفع من العراق (لو احتجت ترقية شهر واحد)</h2>
+    <p style="font-size:13.5px;color:#5b6675;margin-bottom:14px">
+      Supabase و Cloudflare يقبلان بطاقات Visa/Mastercard الدولية. خيارات متاحة داخل العراق تصدر بطاقة دولية للدفع الإلكتروني:
+    </p>
+    <div class="pays">
+      <div class="pay"><b>NassPay</b><span>بطاقة Visa افتراضية فورية عبر التطبيق، بدون حساب بنكي.</span></div>
+      <div class="pay"><b>Neo (INC Iraq)</b><span>بطاقة Visa رقمية خلال ثوانٍ، تحقّق رقمي كامل.</span></div>
+      <div class="pay"><b>FIB</b><span>حساب وبطاقة افتراضية فورية أونلاين للدفع الدولي.</span></div>
+      <div class="pay"><b>Cashcom / TBI</b><span>بطاقات Mastercard دولية (تأخذ بضعة أيام للإصدار).</span></div>
+    </div>
+    <p style="font-size:12px;color:#9aa4b1;margin-top:12px">تأكد من تفعيل «الشراء الدولي» وتوفّر رصيد بالدولار قبل الدفع.</p>
+  </div></div>
+
+  <!-- المصادر -->
+  <div class="card"><div class="body">
+    <p class="src">
+      <b>المصادر:</b>
+      <a href="https://supabase.com/docs/guides/troubleshooting/restore-project-after-90-days-pause">استعادة المشروع بعد ٩٠ يومًا — Supabase</a> ·
+      <a href="https://supabase.com/docs/guides/storage/management/copy-move-objects">نقل ملفات التخزين — Supabase</a> ·
+      <a href="https://imagekit.io/plans/">خطط ImageKit</a> ·
+      <a href="https://www.cloudflare.com/products/r2/">Cloudflare R2</a> ·
+      <a href="https://nasspay.com/">NassPay</a> ·
+      <a href="https://fib.iq/card-services/">FIB</a>
+    </p>
+    <p class="foot">دراسة الحالة · ١٦ / ٦ / ٢٠٢٦</p>
+  </div></div>
+
+</div>
+</body>
+</html>

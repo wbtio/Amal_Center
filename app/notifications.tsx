@@ -58,18 +58,8 @@ export default function NotificationsScreen() {
     const toggleNotifications = async (value: boolean) => {
         try {
             setNotificationsEnabled(value);
+            // يُحفظ محلياً على الجهاز. (لا يوجد عمود notifications_enabled في القاعدة حالياً.)
             await AsyncStorage.setItem('notifications_enabled', value.toString());
-            
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session) {
-                await supabase
-                    .from('profiles')
-                    .upsert({
-                        id: session.user.id,
-                        notifications_enabled: value,
-                        updated_at: new Date().toISOString()
-                    });
-            }
 
             Alert.alert(
                 language === 'ar' ? 'تم' : 'Done',

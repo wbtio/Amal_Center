@@ -44,3 +44,12 @@ yarn-error.*
 
 # secrets / project notes (never commit)
 PROJECT_INFO.md
+README.md
+AlAmal_Center_Owner_Guide.pdf
+scripts/generate_owner_pdf.py
+
+# نسخ احتياطية من ملفات المفاتيح — لا تُرفع أبداً
+*.bak
+*.bak.*
+.env.bak*
+**/.env*.bak*

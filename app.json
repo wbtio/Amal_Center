@@ -2,7 +2,7 @@
   "expo": {
     "name": "الأمل سنتر",
     "slug": "al-amal-hypermarket",
-    "version": "1.5",
+    "version": "1.6",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -38,14 +38,14 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.alamal.center",
-      "buildNumber": "13",
+      "buildNumber": "17",
       "config": {
         "usesNonExemptEncryption": false
       }
     },
     "android": {
       "package": "com.alamal.center",
-      "versionCode": 11,
+      "versionCode": 13,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#2E7D32"

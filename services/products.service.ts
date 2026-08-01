@@ -34,7 +34,8 @@ export const getProducts = async (limit: number = 20, offset: number = 0): Promi
 export const getProductById = async (id: string): Promise<Product> => {
     const { data, error } = await supabase
         .from('products')
-        .select('id, name, name_ar, description, description_ar, price_iqd, price_usd, original_price, image_url, category_id, stock_quantity, is_active, sales_count, created_at, updated_at')
+        // ملاحظة: original_price ليس عموداً في القاعدة — يُحسب في getSpecialOffers من جدول العروض.
+        .select('id, name, name_ar, description, description_ar, price_iqd, price_usd, image_url, category_id, stock_quantity, is_active, sales_count, created_at, updated_at')
         .eq('id', id)
         .single();
 

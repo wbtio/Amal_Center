@@ -2,12 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { Tabs, router } from 'expo-router';
 import {
   HomeIcon, Squares2X2Icon, ShoppingCartIcon, UserIcon,
+  ClipboardDocumentListIcon,
 } from 'react-native-heroicons/outline';
 import {
   HomeIcon as HomeSolid,
   Squares2X2Icon as Squares2X2Solid,
   ShoppingCartIcon as ShoppingCartSolid,
   UserIcon as UserSolid,
+  ClipboardDocumentListIcon as ClipboardSolid,
 } from 'react-native-heroicons/solid';
 import {
   View, Text, TouchableOpacity, Platform, StyleSheet, Keyboard,
@@ -31,13 +33,14 @@ const FADE_H      = 74;   // height of the gradient fade above the pill
 // ─── Per-screen background colours ────────────────────────────────────────
 // Opaque colour must match each screen's root View background.
 // Transparent colour must be the same RGB with alpha 0 (avoids iOS grey tinge).
-const TAB_KEYS = ['index', 'categories', 'cart', 'profile'] as const;
+const TAB_KEYS = ['index', 'categories', 'cart', 'orders', 'profile'] as const;
 type TabKey = typeof TAB_KEYS[number];
 
 const SCENE_BG: Record<TabKey, string> = {
   index:      '#FFFFFF',  // bg-white
   categories: '#FFFFFF',  // bg-white
   cart:       '#F5F5F5',  // bg-background  (tailwind.config)
+  orders:     '#F8F9FA',  // يطابق خلفية شاشة الطلبات
   profile:    '#F9FAFB',  // bg-gray-50
 };
 
@@ -46,6 +49,7 @@ const SCENE_BG_ZERO: Record<TabKey, string> = {
   index:      'rgba(255,255,255,0)',
   categories: 'rgba(255,255,255,0)',
   cart:       'rgba(245,245,245,0)',
+  orders:     'rgba(248,249,250,0)',
   profile:    'rgba(249,250,251,0)',
 };
 
@@ -54,6 +58,7 @@ const ROUTE_PATHS = {
   index:      '/',
   categories: '/categories',
   cart:       '/cart',
+  orders:     '/orders',
   profile:    '/profile',
 } as const;
 
@@ -62,6 +67,7 @@ const ICONS: Record<TabKey, { Outline: typeof HomeIcon; Solid: typeof HomeSolid 
   index:      { Outline: HomeIcon,         Solid: HomeSolid },
   categories: { Outline: Squares2X2Icon,   Solid: Squares2X2Solid },
   cart:       { Outline: ShoppingCartIcon, Solid: ShoppingCartSolid },
+  orders:     { Outline: ClipboardDocumentListIcon, Solid: ClipboardSolid },
   profile:    { Outline: UserIcon,         Solid: UserSolid },
 };
 
@@ -70,6 +76,7 @@ const TAB_LABEL_KEYS: Record<TabKey, string> = {
   index:      'common.home',
   categories: 'common.categories',
   cart:       'common.cart',
+  orders:     'common.orders',
   profile:    'common.profile',
 };
 
@@ -277,6 +284,11 @@ export default function TabLayout() {
       <Tabs.Screen name="index"      options={{ title: t('common.home') }} />
       <Tabs.Screen name="categories" options={{ title: t('common.categories') }} />
       <Tabs.Screen name="cart"       options={{ title: t('common.cart') }} />
+      {/* شاشة الطلبات تملك رأسها الخاص، فنُخفي رأس التبويبات لها */}
+      <Tabs.Screen
+        name="orders"
+        options={{ title: t('common.orders'), headerShown: false }}
+      />
       <Tabs.Screen name="profile"    options={{ title: t('common.profile') }} />
       <Tabs.Screen
         name="category/[id]"

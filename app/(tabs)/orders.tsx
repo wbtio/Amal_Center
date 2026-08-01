@@ -3,8 +3,8 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { supabase } from '../lib/supabase';
-import { useLanguage, useCurrency } from '../contexts';
+import { supabase } from '../../lib/supabase';
+import { useLanguage, useCurrency } from '../../contexts';
 
 type TabType = 'active' | 'history';
 

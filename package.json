@@ -1,6 +1,6 @@
 {
   "name": "al-amal-center",
-  "version": "1.5",
+  "version": "1.6",
   "main": "expo-router/entry",
   "private": true,
   "scripts": {
@@ -33,6 +33,7 @@
     "expo-secure-store": "~15.0.0",
     "expo-splash-screen": "~31.0.0",
     "expo-status-bar": "~3.0.0",
+    "expo-updates": "~29.0.19",
     "i18n-js": "^4.0.0",
     "lodash": "^4.17.21",
     "nativewind": "^4.2.2",

@@ -9,16 +9,16 @@
                 "buildType": "apk"
             },
             "env": {
-                "EXPO_PUBLIC_SUPABASE_URL": "https://ulngcxjaxfpyadwqmukz.supabase.co",
-                "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVsbmdjeGpheGZweWFkd3FtdWt6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4NTY0OTEsImV4cCI6MjA5NjQzMjQ5MX0.enb9GQe1BpigaqUdSoLS9Cnj8lo9NQMupu9XzZJeQgk",
+                "EXPO_PUBLIC_SUPABASE_URL": "https://asxynodsnmrymmdspprn.supabase.co",
+                "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFzeHlub2Rzbm1yeW1tZHNwcHJuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxNDEyNDAsImV4cCI6MjA4MTcxNzI0MH0.glHB2rP9CaqD5uQqt_P3Ky3c4ApyLPLvIQ3-OUZQHK4",
                 "EXPO_PUBLIC_APP_NAME": "الأمل سنتر",
-                "EXPO_PUBLIC_APP_VERSION": "1.5",
                 "EXPO_PUBLIC_DEFAULT_CURRENCY": "IQD",
                 "EXPO_PUBLIC_ENABLE_REVIEWS": "false",
                 "EXPO_PUBLIC_ENABLE_WISHLIST": "true",
                 "EXPO_PUBLIC_ENABLE_NOTIFICATIONS": "true",
                 "EXPO_PUBLIC_DEBUG_MODE": "false"
-            }
+            },
+            "channel": "preview"
         },
         "development": {
             "developmentClient": true,
@@ -27,16 +27,16 @@
                 "simulator": true
             },
             "env": {
-                "EXPO_PUBLIC_SUPABASE_URL": "https://ulngcxjaxfpyadwqmukz.supabase.co",
-                "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVsbmdjeGpheGZweWFkd3FtdWt6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4NTY0OTEsImV4cCI6MjA5NjQzMjQ5MX0.enb9GQe1BpigaqUdSoLS9Cnj8lo9NQMupu9XzZJeQgk",
+                "EXPO_PUBLIC_SUPABASE_URL": "https://asxynodsnmrymmdspprn.supabase.co",
+                "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFzeHlub2Rzbm1yeW1tZHNwcHJuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxNDEyNDAsImV4cCI6MjA4MTcxNzI0MH0.glHB2rP9CaqD5uQqt_P3Ky3c4ApyLPLvIQ3-OUZQHK4",
                 "EXPO_PUBLIC_APP_NAME": "الأمل سنتر",
-                "EXPO_PUBLIC_APP_VERSION": "1.5",
                 "EXPO_PUBLIC_DEFAULT_CURRENCY": "IQD",
                 "EXPO_PUBLIC_ENABLE_REVIEWS": "false",
                 "EXPO_PUBLIC_ENABLE_WISHLIST": "true",
                 "EXPO_PUBLIC_ENABLE_NOTIFICATIONS": "true",
                 "EXPO_PUBLIC_DEBUG_MODE": "false"
-            }
+            },
+            "channel": "development"
         },
         "production": {
             "autoIncrement": true,
@@ -44,22 +44,19 @@
                 "simulator": false
             },
             "android": {
-                "buildType": "app-bundle",
-                "env": {
-                    "ANDROID_VERSION_CODE": "11"
-                }
+                "buildType": "app-bundle"
             },
             "env": {
-                "EXPO_PUBLIC_SUPABASE_URL": "https://ulngcxjaxfpyadwqmukz.supabase.co",
-                "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVsbmdjeGpheGZweWFkd3FtdWt6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4NTY0OTEsImV4cCI6MjA5NjQzMjQ5MX0.enb9GQe1BpigaqUdSoLS9Cnj8lo9NQMupu9XzZJeQgk",
+                "EXPO_PUBLIC_SUPABASE_URL": "https://asxynodsnmrymmdspprn.supabase.co",
+                "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFzeHlub2Rzbm1yeW1tZHNwcHJuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxNDEyNDAsImV4cCI6MjA4MTcxNzI0MH0.glHB2rP9CaqD5uQqt_P3Ky3c4ApyLPLvIQ3-OUZQHK4",
                 "EXPO_PUBLIC_APP_NAME": "الأمل سنتر",
-                "EXPO_PUBLIC_APP_VERSION": "1.5",
                 "EXPO_PUBLIC_DEFAULT_CURRENCY": "IQD",
                 "EXPO_PUBLIC_ENABLE_REVIEWS": "false",
                 "EXPO_PUBLIC_ENABLE_WISHLIST": "true",
                 "EXPO_PUBLIC_ENABLE_NOTIFICATIONS": "true",
                 "EXPO_PUBLIC_DEBUG_MODE": "false"
-            }
+            },
+            "channel": "production"
         }
     },
     "submit": {

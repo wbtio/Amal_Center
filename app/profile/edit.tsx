@@ -72,7 +72,7 @@ export default function EditProfileScreen() {
             // Try to get profile from profiles table
             const { data: profile, error } = await supabase
                 .from('profiles')
-                .select('id, full_name, phone, avatar_url, notifications_enabled, role')
+                .select('id, full_name, phone, avatar_url, role')
                 .eq('id', session.user.id)
                 .single();
 

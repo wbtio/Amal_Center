@@ -64,24 +64,21 @@ export default function DeleteAccountScreen() {
                 // Avatar removal is not critical
             }
 
-            // Delete the auth user via admin API (requires service role)
-            // Since we can't call admin from client, we sign out and rely on a database trigger
-            // or a Supabase Edge Function to complete the deletion
-            const { error: deleteError } = await supabase.auth.signOut();
-
-            if (deleteError) {
-                throw deleteError;
-            }
-
-            // Call Edge Function or API to delete the auth user
-            // For now, we mark the user for deletion and sign them out
+            // حذف حساب المصادقة نفسه — يتم عبر دالة Edge بمفتاح service_role.
+            // مهم: يُستدعى قبل signOut، لأن الدالة تتحقق من هوية المستخدم من جلسته.
             try {
                 await supabase.functions.invoke('delete-user', {
                     body: { userId },
                 });
             } catch (e) {
-                // Edge function might not exist yet; user is already signed out
-                // and their data is deleted from public tables
+                // لو لم تكن الدالة منشورة: بيانات المستخدم حُذفت من الجداول أعلاه،
+                // ويبقى سجل المصادقة فقط ليُحذف يدوياً من لوحة Supabase.
+            }
+
+            const { error: deleteError } = await supabase.auth.signOut();
+
+            if (deleteError) {
+                throw deleteError;
             }
 
             clearCart();

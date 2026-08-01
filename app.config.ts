@@ -11,6 +11,15 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     icon: "./assets/icon.png",
     userInterfaceStyle: "light",
     newArchEnabled: true,
+    // التحديث الفوري (EAS Update): يسمح بإصلاح كود JS دون المرور بمراجعة المتاجر.
+    updates: {
+        url: "https://u.expo.dev/5fc7c19f-3577-4e1c-9e50-ae7c4b7a8d47",
+        fallbackToCacheTimeout: 0,
+    },
+    // التحديث يصل فقط للنسخ التي تحمل نفس رقم الإصدار (version أعلاه).
+    runtimeVersion: {
+        policy: "appVersion",
+    },
     splash: {
         image: "./assets/splash-icon.png",
         resizeMode: "contain",

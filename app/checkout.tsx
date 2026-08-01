@@ -158,9 +158,98 @@ export default function CheckoutScreen() {
         return;
       }
 
+      // ── التحقق من توفّر المخزون قبل إنشاء الطلب ───────────────────────────
+      // مخزون السلة مخزَّن وقت الإضافة وقد يكون قديماً، فنقرأ الحالي من القاعدة.
+      // بدون هذا الفحص يُنشأ الطلب حتى لو نفدت الكمية (بيع ما ليس في المخزن).
+      const { data: stockRows, error: stockError } = await supabase
+        .from('products')
+        .select('id, name_ar, name, price_iqd, stock_quantity, is_active')
+        .in('id', items.map(i => i.product_id));
+
+      if (stockError) throw stockError;
+
+      const stockMap = new Map(
+        (stockRows || []).map((p: any) => [p.id, p]),
+      );
+      const unavailable = items
+        .map(item => {
+          const p = stockMap.get(item.product_id);
+          const label = item.name_ar || item.name;
+          if (!p || p.is_active === false) return { label, left: 0 };
+          if ((p.stock_quantity ?? 0) < item.quantity) {
+            return { label: p.name_ar || p.name || label, left: p.stock_quantity ?? 0 };
+          }
+          return null;
+        })
+        .filter(Boolean) as { label: string; left: number }[];
+
+      if (unavailable.length > 0) {
+        const lines = unavailable
+          .map(u =>
+            u.left > 0
+              ? language === 'ar'
+                ? `• ${u.label} — المتوفر ${u.left} فقط`
+                : `• ${u.label} — only ${u.left} left`
+              : language === 'ar'
+                ? `• ${u.label} — غير متوفر`
+                : `• ${u.label} — out of stock`,
+          )
+          .join('\n');
+
+        Alert.alert(
+          language === 'ar' ? 'الكمية غير متوفرة' : 'Not enough stock',
+          (language === 'ar'
+            ? 'تغيّرت الكمية المتاحة لهذه المنتجات:\n\n'
+            : 'Availability changed for these items:\n\n') +
+            lines +
+            (language === 'ar'
+              ? '\n\nعدّل سلتك ثم أعد المحاولة.'
+              : '\n\nPlease update your cart and try again.'),
+          [{ text: t('common.ok') }],
+        );
+        setIsSubmitting(false);
+        return;
+      }
+
+      // ── تسعير من القاعدة، لا من السلة ────────────────────────────────────
+      // سعر السلة مخزَّن وقت الإضافة. نعيد حسابه من أسعار القاعدة الحالية
+      // حتى لا يُنشأ طلب بسعر قديم أو معدَّل.
+      const pricedItems = items.map(item => {
+        const p = stockMap.get(item.product_id);
+        const unitPrice = Number(p?.price_iqd ?? item.price_iqd);
+        return { ...item, serverPriceIQD: unitPrice, lineTotal: unitPrice * item.quantity };
+      });
+      const subtotalIQD = pricedItems.reduce((s, i) => s + i.lineTotal, 0);
+
+      // إن اختلف السعر عمّا رآه الزبون، نُعلمه ولا نُكمل بصمت.
+      if (Math.round(subtotalIQD) !== Math.round(totalIQD)) {
+        const changed = pricedItems
+          .filter(i => Math.round(i.serverPriceIQD) !== Math.round(i.price_iqd))
+          .map(i =>
+            language === 'ar'
+              ? `• ${i.name_ar || i.name}: ${formatPrice(i.price_iqd)} ← ${formatPrice(i.serverPriceIQD)}`
+              : `• ${i.name_ar || i.name}: ${formatPrice(i.price_iqd)} → ${formatPrice(i.serverPriceIQD)}`,
+          )
+          .join('\n');
+
+        Alert.alert(
+          language === 'ar' ? 'تغيّرت الأسعار' : 'Prices changed',
+          (language === 'ar'
+            ? 'تغيّر سعر بعض المنتجات منذ إضافتها للسلة:\n\n'
+            : 'Some prices changed since you added them:\n\n') +
+            (changed || '') +
+            (language === 'ar'
+              ? `\n\nالمجموع الجديد: ${formatPrice(subtotalIQD)}`
+              : `\n\nNew subtotal: ${formatPrice(subtotalIQD)}`),
+          [{ text: t('common.ok') }],
+        );
+        setIsSubmitting(false);
+        return;
+      }
+
       const deliveryCostIQD = getDeliveryCost(deliveryType);
       const discountAmount = couponInfo.discountAmount || 0;
-      const finalTotalIQD = totalIQD + deliveryCostIQD - discountAmount;
+      const finalTotalIQD = subtotalIQD + deliveryCostIQD - discountAmount;
       const finalTotalUSD = finalTotalIQD / (exchangeRate || 1500);
 
       const addressTypeLabel = addressData.type === 'home' ? (language === 'ar' ? 'المنزل' : 'Home') : (language === 'ar' ? 'العمل' : 'Work');
@@ -196,8 +285,11 @@ export default function CheckoutScreen() {
         });
       }
 
-      const orderItems = items.map(item => ({
-        order_id: order.id, product_id: item.product_id, quantity: item.quantity, price_iqd: item.price_iqd, price_usd: item.price_iqd / (exchangeRate || 1500),
+      // نستخدم سعر القاعدة (serverPriceIQD) لا سعر السلة
+      const orderItems = pricedItems.map(item => ({
+        order_id: order.id, product_id: item.product_id, quantity: item.quantity,
+        price_iqd: item.serverPriceIQD,
+        price_usd: item.serverPriceIQD / (exchangeRate || 1500),
         product_snapshot: { name: item.name, name_ar: item.name_ar, image_url: item.image_url }
       }));
 
