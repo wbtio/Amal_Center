@@ -1,15 +1,16 @@
 'use client';
 
 import { useState } from 'react';
-import { ArrowRight, Wand2, PenLine, Camera, Type, Layers, Eraser, Zap, Settings2, Keyboard, Grid3X3, Upload, TriangleAlert, CircleCheck, ScanBarcode, Database, ImageIcon as ImageIconLucide } from 'lucide-react';
+import { ArrowRight, Wand2, PenLine, Camera, Type, Layers, Eraser, Zap, Settings2, Keyboard, Grid3X3, Upload, TriangleAlert, CircleCheck, ScanBarcode, Database, ImageIcon as ImageIconLucide, PackagePlus, Search } from 'lucide-react';
 import Link from 'next/link';
 import ManualProductForm from '@/components/products/ManualProductForm';
 import AIProductForm from '@/components/products/AIProductForm';
 import BarcodeProductForm from '@/components/products/BarcodeProductForm';
+import BulkImportForm from '@/components/products/BulkImportForm';
 import { Header } from '@/components/layout/Header';
 
 export default function NewProductPage() {
-  const [selectedMode, setSelectedMode] = useState<'manual' | 'ai' | 'barcode' | null>(null);
+  const [selectedMode, setSelectedMode] = useState<'manual' | 'ai' | 'barcode' | 'bulk' | null>(null);
 
   if (selectedMode === 'manual') {
     return (
@@ -38,6 +39,15 @@ export default function NewProductPage() {
     );
   }
 
+  if (selectedMode === 'bulk') {
+    return (
+      <>
+        <Header title="إضافة منتج جديد" />
+        <BulkImportForm onBack={() => setSelectedMode(null)} />
+      </>
+    );
+  }
+
   return (
     <>
       <Header title="إضافة منتج جديد" />
@@ -55,7 +65,7 @@ export default function NewProductPage() {
             <p className="text-xs md:text-base text-gray-600">يمكنك إضافة المنتج يدوياً، بالذكاء الاصطناعي، أو عبر الباركود</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6">
             {/* AI Mode */}
             <button
               onClick={() => setSelectedMode('ai')}
@@ -198,6 +208,44 @@ export default function NewProductPage() {
                 </div>
 
                 <div className="mt-4 bg-white text-sky-600 px-6 py-3 rounded-xl font-bold group-hover:bg-sky-50 transition-colors shadow-lg">
+                  ابدأ الآن
+                </div>
+              </div>
+            </button>
+
+            {/* Bulk Import Mode */}
+            <button
+              onClick={() => setSelectedMode('bulk')}
+              className="group relative bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-600 rounded-2xl p-5 md:p-8 text-white hover:shadow-2xl hover:shadow-emerald-200 transition-all duration-300 hover:scale-[1.02]"
+            >
+              <div className="flex flex-col items-center text-center space-y-4">
+                <div className="bg-white/20 p-4 rounded-2xl group-hover:bg-white/30 transition-colors backdrop-blur-sm">
+                  <PackagePlus size={48} />
+                </div>
+
+                <div>
+                  <h3 className="text-2xl font-bold mb-2">استيراد بالجملة</h3>
+                  <p className="text-white/90 text-sm leading-relaxed">
+                    ابحث في قاعدة بيانات عالمية وأضف عشرات المنتجات دفعة واحدة
+                  </p>
+                </div>
+
+                <div className="bg-white/10 rounded-xl p-4 w-full text-right text-sm space-y-2 backdrop-blur-sm">
+                  <div className="flex items-center gap-2">
+                    <Search size={14} className="text-teal-200 flex-shrink-0" />
+                    <span>ابحث بالاسم واختر عدة منتجات معاً</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <ImageIconLucide size={14} className="text-teal-200 flex-shrink-0" />
+                    <span>الصور تُجلب وتُرفع تلقائياً</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Settings2 size={14} className="text-teal-200 flex-shrink-0" />
+                    <span>حدد القسم والسعر ثم استورد الكل</span>
+                  </div>
+                </div>
+
+                <div className="mt-4 bg-white text-teal-600 px-6 py-3 rounded-xl font-bold group-hover:bg-teal-50 transition-colors shadow-lg">
                   ابدأ الآن
                 </div>
               </div>
