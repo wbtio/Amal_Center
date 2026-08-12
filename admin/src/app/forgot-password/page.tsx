@@ -72,7 +72,7 @@ export default function ForgotPasswordPage() {
             <div className="bg-green-50 text-green-700 p-4 rounded-lg flex flex-col items-center gap-2 text-center">
               <MailCheck size={32} />
               <p className="text-sm">
-                وصلك بريد فيه رمز مكوّن من 6 أرقام ورابط. الرمز أضمن — أدخله هنا مباشرة:
+                وصلك بريد فيه رمز تحقق ورابط. الرمز أضمن — أدخله هنا مباشرة:
               </p>
             </div>
 
@@ -84,21 +84,21 @@ export default function ForgotPasswordPage() {
               )}
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">الرمز المكوّن من 6 أرقام</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">رمز التحقق من البريد</label>
                 <input
                   type="text"
                   inputMode="numeric"
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-center text-lg tracking-[0.5em]"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-center text-lg tracking-[0.3em]"
                   value={code}
-                  onChange={(e) => setCode(e.target.value.replace(/[^\d]/g, '').slice(0, 6))}
-                  placeholder="000000"
+                  onChange={(e) => setCode(e.target.value.replace(/[^\d]/g, '').slice(0, 10))}
+                  placeholder="00000000"
                 />
               </div>
 
               <button
                 type="submit"
-                disabled={verifying || code.length < 6}
+                disabled={verifying || code.length < 4}
                 className="w-full bg-primary text-white py-2 rounded-lg font-bold hover:bg-green-800 transition-colors disabled:opacity-50 flex items-center justify-center"
               >
                 {verifying ? <Loader2 className="animate-spin h-5 w-5" /> : 'تأكيد الرمز'}
