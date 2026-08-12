@@ -20,21 +20,25 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const offRes = await fetch(
-      `https://world.openfoodfacts.org/api/v2/product/${barcode}.json?fields=product_name,product_name_ar,product_name_en,brands,image_front_url,image_url,quantity,code`,
-      { headers: { 'User-Agent': 'AmalCenterAdmin/1.0 (info@jaz.iq)' } }
-    );
+    const fields = 'product_name,product_name_ar,product_name_en,brands,image_front_url,image_url,quantity,code';
+    const headers = { 'User-Agent': 'AmalCenterAdmin/1.0 (info@jaz.iq)' };
 
-    if (!offRes.ok) {
-      return NextResponse.json(
-        { error: 'تعذر الاتصال بقاعدة بيانات الباركود' },
-        { status: 502 }
+    // نجرب أولاً قاعدة المنتجات الغذائية، وإن لم نجد الباركود نجرب قاعدة العطور ومستحضرات التجميل
+    let offData: any = null;
+    for (const domain of ['world.openfoodfacts.org', 'world.openbeautyfacts.org']) {
+      const offRes = await fetch(
+        `https://${domain}/api/v2/product/${barcode}.json?fields=${fields}`,
+        { headers }
       );
+      if (!offRes.ok) continue;
+      const data = await offRes.json();
+      if (data.status === 1 && data.product) {
+        offData = data;
+        break;
+      }
     }
 
-    const offData = await offRes.json();
-
-    if (offData.status !== 1 || !offData.product) {
+    if (!offData) {
       return NextResponse.json({ found: false });
     }
 

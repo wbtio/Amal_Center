@@ -8,11 +8,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
-    const { query, page } = await req.json();
+    const { query, page, source } = await req.json();
 
     if (!query || typeof query !== 'string' || !query.trim()) {
       return NextResponse.json({ error: 'الرجاء إدخال كلمة بحث' }, { status: 400 });
     }
+
+    const domain = source === 'beauty' ? 'world.openbeautyfacts.org' : 'world.openfoodfacts.org';
 
     const params = new URLSearchParams({
       search_terms: query.trim(),
@@ -24,7 +26,7 @@ export async function POST(req: NextRequest) {
       fields: 'code,product_name,product_name_ar,product_name_en,image_front_url,image_url,brands,quantity',
     });
 
-    const offRes = await fetch(`https://world.openfoodfacts.org/cgi/search.pl?${params.toString()}`, {
+    const offRes = await fetch(`https://${domain}/cgi/search.pl?${params.toString()}`, {
       headers: { 'User-Agent': 'AmalCenterAdmin/1.0 (info@jaz.iq)' },
     });
 
