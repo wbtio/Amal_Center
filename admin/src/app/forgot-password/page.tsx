@@ -1,15 +1,21 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { Loader2, ArrowRight, MailCheck } from 'lucide-react';
 
 export default function ForgotPasswordPage() {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
+
+  const [code, setCode] = useState('');
+  const [verifying, setVerifying] = useState(false);
+  const [codeError, setCodeError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,6 +37,28 @@ export default function ForgotPasswordPage() {
     }
   };
 
+  const handleVerifyCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setVerifying(true);
+    setCodeError(null);
+
+    try {
+      const { error } = await supabase.auth.verifyOtp({
+        email,
+        token: code.trim(),
+        type: 'recovery',
+      });
+
+      if (error) throw error;
+      router.push('/update-password');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'الرمز غير صحيح أو منتهي الصلاحية';
+      setCodeError(message);
+    } finally {
+      setVerifying(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
       <div className="max-w-md w-full bg-white rounded-xl shadow-md p-8">
@@ -40,17 +68,45 @@ export default function ForgotPasswordPage() {
         </div>
 
         {sent ? (
-          <div className="text-center space-y-4">
-            <div className="bg-green-50 text-green-700 p-4 rounded-lg flex flex-col items-center gap-2">
+          <div className="space-y-4">
+            <div className="bg-green-50 text-green-700 p-4 rounded-lg flex flex-col items-center gap-2 text-center">
               <MailCheck size={32} />
               <p className="text-sm">
-                إذا كان هذا البريد مسجلاً لدينا، فسيصلك رابط استعادة كلمة المرور خلال دقائق.
-                افتح بريدك واضغط على الرابط لتعيين كلمة مرور جديدة.
+                وصلك بريد فيه رمز مكوّن من 6 أرقام ورابط. الرمز أضمن — أدخله هنا مباشرة:
               </p>
             </div>
-            <Link href="/login" className="text-primary text-sm font-medium hover:underline inline-flex items-center gap-1">
-              <ArrowRight size={16} />
-              العودة لتسجيل الدخول
+
+            <form onSubmit={handleVerifyCode} className="space-y-3">
+              {codeError && (
+                <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm text-center">
+                  {codeError}
+                </div>
+              )}
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">الرمز المكوّن من 6 أرقام</label>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  required
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-center text-lg tracking-[0.5em]"
+                  value={code}
+                  onChange={(e) => setCode(e.target.value.replace(/[^\d]/g, '').slice(0, 6))}
+                  placeholder="000000"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={verifying || code.length < 6}
+                className="w-full bg-primary text-white py-2 rounded-lg font-bold hover:bg-green-800 transition-colors disabled:opacity-50 flex items-center justify-center"
+              >
+                {verifying ? <Loader2 className="animate-spin h-5 w-5" /> : 'تأكيد الرمز'}
+              </button>
+            </form>
+
+            <Link href="/login" className="block text-center text-sm text-primary hover:underline">
+              <ArrowRight size={16} className="inline" /> العودة لتسجيل الدخول
             </Link>
           </div>
         ) : (
