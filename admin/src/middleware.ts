@@ -56,8 +56,11 @@ export async function middleware(request: NextRequest) {
 
   const { data: { session } } = await supabase.auth.getSession()
 
+  const PUBLIC_PATHS = ['/login', '/forgot-password', '/update-password']
+  const isPublicPath = PUBLIC_PATHS.some((path) => request.nextUrl.pathname.startsWith(path))
+
   // Protect routes that require auth
-  if (!session && !request.nextUrl.pathname.startsWith('/login')) {
+  if (!session && !isPublicPath) {
     const redirectUrl = request.nextUrl.clone()
     redirectUrl.pathname = '/login'
     return NextResponse.redirect(redirectUrl)

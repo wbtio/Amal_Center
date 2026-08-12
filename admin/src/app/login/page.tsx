@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { Loader2 } from 'lucide-react';
 
@@ -62,7 +63,12 @@ export default function LoginPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">كلمة المرور</label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-sm font-medium text-gray-700">كلمة المرور</label>
+              <Link href="/forgot-password" className="text-xs text-primary hover:underline">
+                نسيت كلمة المرور؟
+              </Link>
+            </div>
             <input
               type="password"
               required
