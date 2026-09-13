@@ -14,6 +14,13 @@ import { getProductThumbnailUrl } from '@/lib/imageUrl';
 import { format } from 'date-fns';
 import { Header } from '@/components/layout/Header';
 
+// تاريخ ناقص أو غير صالح كان يُسقط الصفحة كلها (RangeError: Invalid time value)
+const formatDate = (value: unknown) => {
+  if (!value) return '—';
+  const date = new Date(value as string);
+  return isNaN(date.getTime()) ? '—' : format(date, 'yyyy/MM/dd');
+};
+
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -51,7 +58,7 @@ export default function CategoriesPage() {
   const fetchCategories = async () => {
     const { data, error } = await supabase
       .from('categories')
-      .select('id, name, name_ar, image_url, parent_id, sort_order, is_active')
+      .select('id, name, name_ar, image_url, parent_id, sort_order, is_active, created_at')
       .order('sort_order', { ascending: true });
 
     if (!error) {
@@ -384,7 +391,7 @@ export default function CategoriesPage() {
                       )}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-500">
-                      {format(new Date(category.created_at), 'yyyy/MM/dd')}
+                      {formatDate(category.created_at)}
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
@@ -464,7 +471,7 @@ export default function CategoriesPage() {
                         <span className="px-1.5 py-0.5 bg-green-100 text-green-700 rounded-full text-[10px]">رئيسي</span>
                       )}
                       <span className="text-[10px] text-gray-400">
-                        {format(new Date(category.created_at), 'yyyy/MM/dd')}
+                        {formatDate(category.created_at)}
                       </span>
                     </div>
                   </div>
