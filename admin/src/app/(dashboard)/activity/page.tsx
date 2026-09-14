@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Header } from '@/components/layout/Header';
 import { roleDef } from '@/lib/roles';
+import { SkeletonRows } from '@/components/ui/Skeleton';
 import {
   History, Search, Loader2, Plus, Pencil, Trash2, ArrowLeft,
   ShoppingBag, ShoppingCart, FolderTree, Ticket, Tags, Settings,
@@ -232,9 +233,7 @@ export default function ActivityPage() {
         )}
 
         {loading && (
-          <div className="flex items-center justify-center gap-2 py-12 text-gray-500 text-sm">
-            <Loader2 size={16} className="animate-spin" /> جاري التحميل...
-          </div>
+          <SkeletonRows rows={6} />
         )}
 
         {!loading && !error && rows.length === 0 && (

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Header } from '@/components/layout/Header';
+import { SkeletonCards } from '@/components/ui/Skeleton';
 import {
   Store, Plus, Pencil, Trash2, MapPin, Phone, X, Loader2,
   TriangleAlert, Check, Power
@@ -172,9 +173,7 @@ export default function BranchesPage() {
         )}
 
         {loading && (
-          <div className="flex items-center justify-center gap-2 py-12 text-gray-500 text-sm">
-            <Loader2 size={16} className="animate-spin" /> جاري التحميل...
-          </div>
+          <SkeletonCards count={4} />
         )}
 
         {!loading && !error && branches.length === 0 && (

@@ -8,6 +8,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { getProductThumbnailUrl } from '@/lib/imageUrl';
 import { Header } from '@/components/layout/Header';
+import { SkeletonForm } from '@/components/ui/Skeleton';
 import { formatIQD } from '@/lib/utils';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
@@ -393,7 +394,7 @@ export default function OrderDetailsPage() {
   if (loading) return (
     <>
       <Header title="تفاصيل الطلب" />
-      <div className="p-4 md:p-8 text-center">جاري التحميل...</div>
+      <div className="p-3 sm:p-4 md:p-6"><SkeletonForm fields={6} /></div>
     </>
   );
 

@@ -6,6 +6,7 @@ import { Search, User, ShieldCheck, Users as UsersIcon, Loader2, Check, Triangle
 import Image from 'next/image';
 import { format } from 'date-fns';
 import { Header } from '@/components/layout/Header';
+import { SkeletonRows } from '@/components/ui/Skeleton';
 import { ASSIGNABLE_ROLES, roleDef, isAdminRole, type Role } from '@/lib/roles';
 
 type UserRow = Pick<Profile, 'id' | 'full_name' | 'phone' | 'avatar_url' | 'role' | 'created_at'> & {
@@ -343,9 +344,7 @@ export default function UsersPage() {
         </section>
 
         {loading && (
-          <div className="flex items-center justify-center gap-2 py-10 text-gray-500 text-sm">
-            <Loader2 size={16} className="animate-spin" /> جاري التحميل...
-          </div>
+          <SkeletonRows rows={4} />
         )}
       </div>
     </>

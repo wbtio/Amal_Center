@@ -6,6 +6,7 @@ import { Plus, Edit2, Trash2, Check, X, Tag, Percent, DollarSign } from 'lucide-
 import { formatIQD } from '@/lib/utils';
 import { format } from 'date-fns';
 import { Header } from '@/components/layout/Header';
+import { SkeletonRows } from '@/components/ui/Skeleton';
 
 interface Coupon {
   id: string;
@@ -147,7 +148,7 @@ export default function CouponsPage() {
   if (loading) return (
     <>
       <Header title="إدارة الكوبونات" />
-      <div className="p-8 text-center">جاري التحميل...</div>
+      <div className="p-3 sm:p-4 md:p-6"><SkeletonRows rows={5} /></div>
     </>
   );
 
