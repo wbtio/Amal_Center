@@ -21,6 +21,8 @@ export default function OrderDetailsPage() {
   const [updating, setUpdating] = useState(false);
   const [updateError, setUpdateError] = useState<string | null>(null);
   const [updateSuccess, setUpdateSuccess] = useState<string | null>(null);
+  const [branches, setBranches] = useState<{ id: string; name_ar: string }[]>([]);
+  const [branchSaving, setBranchSaving] = useState(false);
   const printRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -31,17 +33,23 @@ export default function OrderDetailsPage() {
     if (!id) return;
 
     // Fetch Order — الأعمدة المطلوبة فقط
-    const { data: orderData, error: orderError } = await supabase
-      .from('orders')
-      .select('id, status, total_iqd, total_usd, payment_method, payment_status, delivery_type, delivery_address, delivery_phone, customer_name, customer_notes, coupon_code, discount_amount, created_at, updated_at')
-      .eq('id', id)
-      .single();
+    const columns = 'id, status, total_iqd, total_usd, payment_method, payment_status, delivery_type, delivery_address, delivery_phone, customer_name, customer_notes, coupon_code, discount_amount, created_at, updated_at';
 
-    if (orderError) {
-      console.error('Error fetching order:', orderError);
+    // branch_id قد لا يكون موجوداً قبل تشغيل ملف الفروع
+    const withBranch = await supabase
+      .from('orders').select(`${columns}, branch_id`).eq('id', id).single();
+
+    if (withBranch.error) {
+      const fallback = await supabase.from('orders').select(columns).eq('id', id).single();
+      if (fallback.error) console.error('Error fetching order:', fallback.error);
+      setOrder(fallback.data);
+    } else {
+      setOrder(withBranch.data);
+
+      const { data: branchData } = await supabase
+        .from('branches').select('id, name_ar').eq('is_active', true).order('sort_order');
+      setBranches(branchData ?? []);
     }
-
-    setOrder(orderData);
 
     // Fetch Items
     const { data: itemsData, error: itemsError } = await supabase
@@ -70,8 +78,10 @@ export default function OrderDetailsPage() {
       .eq('id', session.user.id)
       .single();
 
-    if (profile?.role !== 'admin') {
-      alert(`تنبيه: أنت لست أدمن! دورك هو: ${profile?.role}`);
+    // الأدوار التشغيلية تدير الطلبات — لا المدير العام وحده
+    const allowed = ['admin', 'super_admin', 'branch_manager', 'orders_staff'];
+    if (!allowed.includes(profile?.role ?? '')) {
+      alert(`ما عندك صلاحية تعديل الطلبات. دورك: ${profile?.role}`);
       return false;
     }
     return true;
@@ -117,6 +127,35 @@ export default function OrderDetailsPage() {
       // Clear success message after 3 seconds
       setTimeout(() => setUpdateSuccess(null), 3000);
     }
+  };
+
+  const updateBranch = async (branchId: string) => {
+    const allowed = await checkAdminStatus();
+    if (!allowed) return;
+
+    const previous = order.branch_id ?? null;
+    const next = branchId || null;
+
+    setBranchSaving(true);
+    setUpdateError(null);
+    setOrder({ ...order, branch_id: next });
+
+    const { error } = await supabase
+      .from('orders')
+      .update({ branch_id: next, updated_at: new Date().toISOString() })
+      .eq('id', id);
+
+    setBranchSaving(false);
+
+    if (error) {
+      setOrder({ ...order, branch_id: previous });
+      setUpdateError(`فشل تحديد الفرع: ${error.message}`);
+      setTimeout(() => setUpdateError(null), 5000);
+      return;
+    }
+
+    setUpdateSuccess('تم تحديد فرع الطلب');
+    setTimeout(() => setUpdateSuccess(null), 3000);
   };
 
   const handlePrint = () => {
@@ -402,6 +441,21 @@ export default function OrderDetailsPage() {
             <span className="hidden sm:inline">طباعة الفاتورة</span>
             <span className="sm:hidden">طباعة</span>
           </button>
+
+          {branches.length > 0 && (
+            <select
+              className={`px-2.5 py-1.5 md:px-4 md:py-2 border border-gray-200 bg-white text-gray-700 rounded-lg outline-none cursor-pointer text-xs md:text-sm ${branchSaving ? 'opacity-50' : ''}`}
+              value={order.branch_id ?? ''}
+              onChange={(e) => updateBranch(e.target.value)}
+              disabled={branchSaving}
+              title="الفرع الذي ينفّذ الطلب"
+            >
+              <option value="">بلا فرع</option>
+              {branches.map((b) => (
+                <option key={b.id} value={b.id}>{b.name_ar}</option>
+              ))}
+            </select>
+          )}
 
           <select
             className={`px-2.5 py-1.5 md:px-4 md:py-2 bg-primary text-white rounded-lg outline-none cursor-pointer font-bold text-xs md:text-sm flex-1 sm:flex-initial ${updating ? 'opacity-50 cursor-not-allowed' : ''}`}

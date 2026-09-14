@@ -10,8 +10,10 @@ import { Header } from '@/components/layout/Header';
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState<any[]>([]);
+  const [branches, setBranches] = useState<{ id: string; name_ar: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState('all');
+  const [filterBranch, setFilterBranch] = useState('all');
 
   useEffect(() => {
     fetchOrders();
@@ -19,15 +21,33 @@ export default function OrdersPage() {
 
   const fetchOrders = async () => {
     // جلب الأعمدة المطلوبة فقط مع pagination — الطلبات القديمة لا نحتاجها فوراً
-    const { data, error } = await supabase
+    // branch_id قد لا يكون موجوداً قبل تشغيل ملف الفروع، فنتراجع بلا كسر الصفحة
+    const columns = 'id, status, total_iqd, customer_name, delivery_phone, created_at, payment_method, payment_status';
+
+    const withBranch = await supabase
       .from('orders')
-      .select('id, status, total_iqd, customer_name, delivery_phone, created_at, payment_method, payment_status')
+      .select(`${columns}, branch_id, branches(name_ar)`)
       .order('created_at', { ascending: false })
       .limit(200);
 
-    if (!error) {
-      setOrders(data || []);
+    if (withBranch.error) {
+      const fallback = await supabase
+        .from('orders')
+        .select(columns)
+        .order('created_at', { ascending: false })
+        .limit(200);
+      setOrders(fallback.data || []);
+    } else {
+      setOrders(withBranch.data || []);
+
+      const { data: branchData } = await supabase
+        .from('branches')
+        .select('id, name_ar')
+        .eq('is_active', true)
+        .order('sort_order');
+      setBranches(branchData ?? []);
     }
+
     setLoading(false);
   };
 
@@ -43,9 +63,12 @@ export default function OrdersPage() {
     }
   };
 
-  const filteredOrders = filterStatus === 'all'
-    ? orders
-    : orders.filter(order => order.status === filterStatus);
+  const filteredOrders = orders.filter(order => {
+    if (filterStatus !== 'all' && order.status !== filterStatus) return false;
+    if (filterBranch === 'all') return true;
+    if (filterBranch === 'none') return !order.branch_id;
+    return order.branch_id === filterBranch;
+  });
 
   if (loading) return (
     <>
@@ -81,6 +104,20 @@ export default function OrdersPage() {
               <option value="delivered">تم التوصيل</option>
               <option value="cancelled">ملغي</option>
             </select>
+
+            {branches.length > 0 && (
+              <select
+                className="bg-transparent text-xs md:text-sm outline-none cursor-pointer border-r border-gray-200 pr-2 mr-1"
+                value={filterBranch}
+                onChange={(e) => setFilterBranch(e.target.value)}
+              >
+                <option value="all">كل الفروع</option>
+                {branches.map((b) => (
+                  <option key={b.id} value={b.id}>{b.name_ar}</option>
+                ))}
+                <option value="none">بلا فرع</option>
+              </select>
+            )}
           </div>
         </div>
 
@@ -94,6 +131,7 @@ export default function OrdersPage() {
                   <th className="px-6 py-4">العميل</th>
                   <th className="px-6 py-4">التاريخ</th>
                   <th className="px-6 py-4">المبلغ</th>
+                  {branches.length > 0 && <th className="px-6 py-4">الفرع</th>}
                   <th className="px-6 py-4">الحالة</th>
                   <th className="px-6 py-4">إجراءات</th>
                 </tr>
@@ -110,6 +148,17 @@ export default function OrdersPage() {
                       {format(new Date(order.created_at), 'yyyy/MM/dd HH:mm')}
                     </td>
                     <td className="px-6 py-4 font-bold text-primary">{formatIQD(order.total_iqd)}</td>
+                    {branches.length > 0 && (
+                      <td className="px-6 py-4 text-sm">
+                        {order.branches?.name_ar ? (
+                          <span className="px-2 py-1 rounded-lg bg-lime-50 text-lime-700 text-xs font-medium border border-lime-100">
+                            {order.branches.name_ar}
+                          </span>
+                        ) : (
+                          <span className="text-xs text-gray-400">غير محدد</span>
+                        )}
+                      </td>
+                    )}
                     <td className="px-6 py-4">
                       {getStatusBadge(order.status)}
                     </td>

@@ -190,11 +190,12 @@ export default function DashboardPage() {
       ? (((currentWeekOrdersCount || 0) - (previousWeekOrdersCount || 0)) / (previousWeekOrdersCount || 1)) * 100
       : 0;
 
-    // Average order value
-    const deliveredCount = allDeliveredOrders?.length || 0;
-    const averageOrderValue = deliveredCount > 0 ? totalRevenue / deliveredCount : 0;
-
+    // متوسط قيمة الطلب — على كل الطلبات المقبولة، لا المسلَّمة وحدها،
+    // وإلا ظهر صفراً ما دام لم يُعلَّم أي طلب "تم التوصيل".
     const pipelineRevenue = (pipelineOrders as any[])?.reduce((acc: number, curr: any) => acc + (curr.total_iqd || 0), 0) || 0;
+    const deliveredCount = allDeliveredOrders?.length || 0;
+    const countedOrders = deliveredCount + ((pipelineOrders as any[])?.length || 0);
+    const averageOrderValue = countedOrders > 0 ? (totalRevenue + pipelineRevenue) / countedOrders : 0;
 
     setStats(prev => ({
       ...prev,
