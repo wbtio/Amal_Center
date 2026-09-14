@@ -5,6 +5,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { useSidebar } from '@/contexts/SidebarContext';
+import { roleDef } from '@/lib/roles';
 
 type SearchResult = {
   id: string;
@@ -22,6 +23,7 @@ export function Header({ title }: { title: string }) {
   const [showResults, setShowResults] = useState(false);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
+  const [profile, setProfile] = useState<{ name: string; role: string | null } | null>(null);
   const searchRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -45,6 +47,25 @@ export function Header({ title }: { title: string }) {
     };
 
     fetchUnreadNotifications();
+  }, []);
+
+  // المستخدم الحقيقي — كان الاسم والصلاحية مكتوبين بالكود لكل من يدخل
+  useEffect(() => {
+    void (async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const { data } = await supabase
+        .from('profiles')
+        .select('full_name, role')
+        .eq('id', session.user.id)
+        .single();
+
+      setProfile({
+        name: data?.full_name || session.user.email?.split('@')[0] || 'مستخدم',
+        role: data?.role ?? null,
+      });
+    })();
   }, []);
 
   useEffect(() => {
@@ -256,12 +277,16 @@ export function Header({ title }: { title: string }) {
           </button>
 
           <div className="hidden sm:flex items-center gap-3 border-r border-gray-100 pr-4 mr-2">
-            <div className="w-9 h-9 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-sm">
-              A
+            <div className="w-9 h-9 bg-primary rounded-xl flex items-center justify-center text-white font-bold text-sm">
+              {(profile?.name ?? '؟').trim().charAt(0).toUpperCase()}
             </div>
-            <div className="hidden md:block">
-              <p className="text-sm font-bold text-gray-800">Admin</p>
-              <p className="text-[10px] text-gray-400 font-medium">مدير النظام</p>
+            <div className="hidden md:block leading-tight">
+              <p className="text-sm font-bold text-gray-800 max-w-[140px] truncate">
+                {profile?.name ?? '...'}
+              </p>
+              <p className="text-[10px] text-gray-400 font-medium">
+                {profile ? roleDef(profile.role).label : ''}
+              </p>
             </div>
           </div>
         </div>

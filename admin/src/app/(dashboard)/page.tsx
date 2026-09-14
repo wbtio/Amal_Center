@@ -381,7 +381,7 @@ export default function DashboardPage() {
 
   // Skeleton Loading Component
   const SkeletonCard = () => (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 animate-pulse">
+    <div className="bg-white p-6 rounded-xl border border-gray-200 animate-pulse">
       <div className="flex items-center justify-between">
         <div>
           <div className="h-4 bg-gray-200 rounded w-24 mb-2"></div>
@@ -393,7 +393,7 @@ export default function DashboardPage() {
   );
 
   const SkeletonChart = () => (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 animate-pulse">
+    <div className="bg-white p-6 rounded-xl border border-gray-200 animate-pulse">
       <div className="h-6 bg-gray-200 rounded w-40 mb-6"></div>
       <div className="h-80 bg-gray-100 rounded"></div>
     </div>
@@ -422,8 +422,8 @@ export default function DashboardPage() {
       value: formatIQD(stats.totalRevenue),
       icon: Wallet,
       color: 'text-emerald-600',
-      bg: 'bg-gradient-to-br from-emerald-50 to-green-50',
-      iconBg: 'bg-gradient-to-br from-emerald-500 to-green-600',
+      bg: 'bg-white',
+      iconBg: 'bg-emerald-50 text-emerald-600',
       growth: stats.revenueGrowth,
       note: stats.pipelineCount > 0
         ? `+ ${formatIQD(stats.pipelineRevenue)} قيد التنفيذ (${stats.pipelineCount} طلب)`
@@ -435,8 +435,8 @@ export default function DashboardPage() {
       value: stats.totalOrders,
       icon: ClipboardList,
       color: 'text-blue-600',
-      bg: 'bg-gradient-to-br from-blue-50 to-indigo-50',
-      iconBg: 'bg-gradient-to-br from-blue-500 to-indigo-600',
+      bg: 'bg-white',
+      iconBg: 'bg-blue-50 text-blue-600',
       growth: stats.ordersGrowth,
       link: '/orders'
     },
@@ -445,8 +445,8 @@ export default function DashboardPage() {
       value: formatIQD(stats.averageOrderValue),
       icon: BarChart3,
       color: 'text-amber-600',
-      bg: 'bg-gradient-to-br from-amber-50 to-orange-50',
-      iconBg: 'bg-gradient-to-br from-amber-500 to-orange-600',
+      bg: 'bg-white',
+      iconBg: 'bg-amber-50 text-amber-600',
       link: null
     },
     {
@@ -454,8 +454,8 @@ export default function DashboardPage() {
       value: stats.pendingOrders,
       icon: Hourglass,
       color: 'text-violet-600',
-      bg: 'bg-gradient-to-br from-violet-50 to-purple-50',
-      iconBg: 'bg-gradient-to-br from-violet-500 to-purple-600',
+      bg: 'bg-white',
+      iconBg: 'bg-violet-50 text-violet-600',
       link: '/orders?status=pending'
     }
   ];
@@ -469,9 +469,9 @@ export default function DashboardPage() {
         {(stats.lowStockCount > 0 || stats.delayedOrdersCount > 0) && (
           <div className="mb-4 md:mb-6 space-y-3">
             {stats.lowStockCount > 0 && (
-              <div className="bg-gradient-to-l from-amber-50 to-orange-50 border border-amber-200/60 rounded-2xl p-3 md:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 md:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 md:w-11 md:h-11 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-amber-200">
+                  <div className="w-9 h-9 md:w-11 md:h-11 bg-amber-100 text-amber-700 rounded-xl flex items-center justify-center flex-shrink-0">
                     <TriangleAlert className="text-white" size={18} />
                   </div>
                   <div>
@@ -479,15 +479,15 @@ export default function DashboardPage() {
                     <p className="text-xs md:text-sm text-amber-600">لديك {stats.lowStockCount} منتجات بمخزون منخفض</p>
                   </div>
                 </div>
-                <Link href="/products?filter=low-stock" className="px-3 py-1.5 md:px-4 md:py-2 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-xl text-xs md:text-sm font-medium hover:shadow-lg transition-all text-center flex-shrink-0 shadow-sm">
+                <Link href="/products?filter=low-stock" className="px-3 py-1.5 md:px-4 md:py-2 bg-amber-600 text-white rounded-xl text-xs md:text-sm font-medium hover:opacity-90 transition-opacity text-center flex-shrink-0">
                   عرض المنتجات
                 </Link>
               </div>
             )}
             {stats.delayedOrdersCount > 0 && (
-              <div className="bg-gradient-to-l from-red-50 to-rose-50 border border-red-200/60 rounded-2xl p-3 md:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="bg-red-50 border border-red-200 rounded-xl p-3 md:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 md:w-11 md:h-11 bg-gradient-to-br from-red-500 to-rose-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-red-200">
+                  <div className="w-9 h-9 md:w-11 md:h-11 bg-red-100 text-red-700 rounded-xl flex items-center justify-center flex-shrink-0">
                     <Timer className="text-white" size={18} />
                   </div>
                   <div>
@@ -495,7 +495,7 @@ export default function DashboardPage() {
                     <p className="text-xs md:text-sm text-red-600">لديك {stats.delayedOrdersCount} طلبات تحتاج متابعة (أكثر من 24 ساعة)</p>
                   </div>
                 </div>
-                <Link href="/orders?filter=delayed" className="px-3 py-1.5 md:px-4 md:py-2 bg-gradient-to-r from-red-500 to-rose-600 text-white rounded-xl text-xs md:text-sm font-medium hover:shadow-lg transition-all text-center flex-shrink-0 shadow-sm">
+                <Link href="/orders?filter=delayed" className="px-3 py-1.5 md:px-4 md:py-2 bg-red-600 text-white rounded-xl text-xs md:text-sm font-medium hover:opacity-90 transition-opacity text-center flex-shrink-0">
                   عرض الطلبات
                 </Link>
               </div>
@@ -508,7 +508,7 @@ export default function DashboardPage() {
           {statCards.map((stat, index) => {
             const Icon = stat.icon;
             const CardContent = (
-              <div className={`${stat.bg} p-3 md:p-6 rounded-2xl shadow-sm border border-white/60 hover:shadow-lg transition-all duration-300 cursor-pointer group`}>
+              <div className={`${stat.bg} p-3 md:p-5 rounded-xl border border-gray-200 hover:border-gray-300 transition-colors cursor-pointer group h-full`}>
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
                     <p className="text-gray-500 text-xs md:text-sm mb-1 truncate font-medium">{stat.title}</p>
@@ -524,8 +524,8 @@ export default function DashboardPage() {
                       <p className="mt-1 text-[10px] md:text-xs text-gray-500 truncate">{stat.note}</p>
                     )}
                   </div>
-                  <div className={`w-9 h-9 md:w-12 md:h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${stat.iconBg} shadow-lg group-hover:scale-110 transition-transform duration-300`}>
-                    <Icon className="text-white" size={18} />
+                  <div className={`w-9 h-9 md:w-11 md:h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${stat.iconBg}`}>
+                    <Icon size={18} />
                   </div>
                 </div>
               </div>
@@ -541,7 +541,7 @@ export default function DashboardPage() {
 
         {/* Charts Section */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mb-4 md:mb-8">
-          <div className="lg:col-span-2 bg-white p-3 md:p-6 rounded-xl shadow-sm border border-gray-100">
+          <div className="lg:col-span-2 bg-white p-3 md:p-6 rounded-xl border border-gray-200">
             <h3 className="text-sm md:text-lg font-bold text-gray-800 mb-3 md:mb-6">المبيعات الأسبوعية</h3>
             <div className="h-52 md:h-80 w-full">
               {chartData.length === 0 ? (
@@ -569,7 +569,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Order Status Pie Chart */}
-          <div className="bg-white p-3 md:p-6 rounded-xl shadow-sm border border-gray-100">
+          <div className="bg-white p-3 md:p-6 rounded-xl border border-gray-200">
             <h3 className="text-sm md:text-lg font-bold text-gray-800 mb-3 md:mb-4">توزيع حالات الطلبات</h3>
             <div className="h-52 md:h-64">
               {orderStatusData.length === 0 ? (
@@ -609,7 +609,7 @@ export default function DashboardPage() {
         {/* Second Row: Top Products & Recent Orders */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-4 md:mb-8">
           {/* Top Products */}
-          <div className="bg-white p-3 md:p-6 rounded-xl shadow-sm border border-gray-100">
+          <div className="bg-white p-3 md:p-6 rounded-xl border border-gray-200">
             <div className="flex items-center justify-between mb-3 md:mb-4">
               <h3 className="text-sm md:text-lg font-bold text-gray-800">أكثر المنتجات مبيعاً</h3>
               <Link href="/products" className="text-sm text-primary hover:underline">عرض الكل</Link>
@@ -647,7 +647,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Recent Orders */}
-          <div className="bg-white p-3 md:p-6 rounded-xl shadow-sm border border-gray-100">
+          <div className="bg-white p-3 md:p-6 rounded-xl border border-gray-200">
             <div className="flex items-center justify-between mb-3 md:mb-4">
               <h3 className="text-sm md:text-lg font-bold text-gray-800">أحدث الطلبات</h3>
               <Link href="/orders" className="text-sm text-primary hover:underline">عرض الكل</Link>
@@ -685,7 +685,7 @@ export default function DashboardPage() {
 
         {/* Low Stock Products Alert Section */}
         {lowStockProducts.length > 0 && (
-          <div className="bg-white p-3 md:p-6 rounded-xl shadow-sm border border-gray-100">
+          <div className="bg-white p-3 md:p-6 rounded-xl border border-gray-200">
             <div className="flex items-center justify-between mb-3 md:mb-4">
               <div className="flex items-center gap-2">
                 <TriangleAlert className="text-amber-500" size={18} />
@@ -745,14 +745,14 @@ export default function DashboardPage() {
         )}
 
         {/* Quick Actions */}
-        <div className="mt-4 md:mt-6 bg-white p-3 md:p-6 rounded-2xl shadow-sm border border-gray-100">
+        <div className="mt-4 md:mt-6 bg-white p-3 md:p-6 rounded-xl border border-gray-200">
           <h3 className="text-sm md:text-lg font-bold text-gray-800 mb-3 md:mb-4">إجراءات سريعة</h3>
           <div className="flex flex-wrap gap-2 md:gap-3">
-            <Link href="/products/new" className="px-3 py-1.5 md:px-4 md:py-2.5 bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-xl text-xs md:text-sm font-medium hover:shadow-lg transition-all flex items-center gap-1.5 md:gap-2 shadow-sm">
+            <Link href="/products/new" className="px-3 py-1.5 md:px-4 md:py-2.5 bg-primary text-white rounded-xl text-xs md:text-sm font-medium hover:opacity-90 transition-opacity flex items-center gap-1.5 md:gap-2 shadow-sm">
               <PackagePlus size={16} />
               إضافة منتج جديد
             </Link>
-            <Link href="/orders?status=pending" className="px-3 py-1.5 md:px-4 md:py-2.5 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl text-xs md:text-sm font-medium hover:shadow-lg transition-all flex items-center gap-1.5 md:gap-2 shadow-sm">
+            <Link href="/orders?status=pending" className="px-3 py-1.5 md:px-4 md:py-2.5 bg-blue-600 text-white rounded-xl text-xs md:text-sm font-medium hover:opacity-90 transition-opacity flex items-center gap-1.5 md:gap-2 shadow-sm">
               <ClipboardList size={16} />
               الطلبات الجديدة
             </Link>

@@ -102,7 +102,7 @@ export function Sidebar() {
                 {/* Logo & Close button */}
                 <div className="h-[72px] flex items-center justify-between px-5 border-b border-gray-100">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-200">
+                        <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
                             <Store className="text-white" size={20} />
                         </div>
                         <div>
