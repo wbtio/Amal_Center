@@ -21,7 +21,8 @@ import {
   PackagePlus,
   ClipboardList,
   FolderKanban,
-  MessageCircle
+  MessageCircle,
+  Download
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useEffect, useState } from 'react';
@@ -128,6 +129,7 @@ export default function DashboardPage() {
   const [topProducts, setTopProducts] = useState<TopProduct[]>([]);
   const [lowStockProducts, setLowStockProducts] = useState<any[]>([]);
   const [whatsappNumber, setWhatsappNumber] = useState<string | null>(null);
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     fetchAllData();
@@ -438,6 +440,51 @@ export default function DashboardPage() {
 
   // مسار مبيعات الأسبوع — يُغذّي خطوط الاتجاه في البطاقات
   const salesTrend = chartData.map((d) => Number(d.sales) || 0);
+
+  // تقرير تُصدّره المديرة بضغطة — ملخص + طلبات + نواقص في ملف واحد
+  const exportReport = async () => {
+    setExporting(true);
+    try {
+      const XLSX = await import('xlsx');
+      const book = XLSX.utils.book_new();
+
+      const summary = [
+        { 'المؤشر': 'المبيعات المحصّلة', 'القيمة': stats.totalRevenue },
+        { 'المؤشر': 'قيمة الطلبات قيد التنفيذ', 'القيمة': stats.pipelineRevenue },
+        { 'المؤشر': 'إجمالي الطلبات', 'القيمة': stats.totalOrders },
+        { 'المؤشر': 'طلبات قيد الانتظار', 'القيمة': stats.pendingOrders },
+        { 'المؤشر': 'طلبات متأخرة (أكثر من ٢٤ ساعة)', 'القيمة': stats.delayedOrdersCount },
+        { 'المؤشر': 'متوسط قيمة الطلب', 'القيمة': Math.round(stats.averageOrderValue) },
+        { 'المؤشر': 'إجمالي المنتجات', 'القيمة': stats.totalProducts },
+        { 'المؤشر': 'أصناف تحت الحد', 'القيمة': stats.lowStockCount },
+      ];
+      XLSX.utils.book_append_sheet(book, XLSX.utils.json_to_sheet(summary), 'الملخص');
+
+      const week = chartData.map((d) => ({ 'اليوم': d.name, 'المبيعات (د.ع)': d.sales }));
+      XLSX.utils.book_append_sheet(book, XLSX.utils.json_to_sheet(week), 'مبيعات الأسبوع');
+
+      if (topProducts.length > 0) {
+        const top = topProducts.map((p) => ({
+          'المنتج': p.name, 'الكمية المباعة': p.quantity, 'الإيراد (د.ع)': p.revenue,
+        }));
+        XLSX.utils.book_append_sheet(book, XLSX.utils.json_to_sheet(top), 'الأكثر مبيعاً');
+      }
+
+      if (lowStockProducts.length > 0) {
+        const low = lowStockProducts.map((p) => ({
+          'المنتج': p.name_ar || p.name,
+          'المتبقي': p.stock_quantity,
+          'الحالة': (p.stock_quantity ?? 0) === 0 ? 'نفد تماماً' : 'منخفض',
+        }));
+        XLSX.utils.book_append_sheet(book, XLSX.utils.json_to_sheet(low), 'نواقص المخزون');
+      }
+
+      const stamp = new Date().toISOString().slice(0, 10);
+      XLSX.writeFile(book, `تقرير-الأمل-سنتر-${stamp}.xlsx`);
+    } finally {
+      setExporting(false);
+    }
+  };
 
   const statCards = [
     {
@@ -779,7 +826,17 @@ export default function DashboardPage() {
 
         {/* Quick Actions */}
         <div className="mt-4 md:mt-6 bg-white p-3 md:p-6 rounded-xl border border-gray-200">
-          <h3 className="text-sm md:text-lg font-bold text-gray-800 mb-3 md:mb-4">إجراءات سريعة</h3>
+          <div className="flex items-center justify-between gap-2 mb-3 md:mb-4">
+            <h3 className="text-sm md:text-lg font-bold text-gray-800">إجراءات سريعة</h3>
+            <button
+              onClick={exportReport}
+              disabled={exporting}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-gray-200 bg-white text-gray-700 text-xs md:text-sm hover:bg-gray-50 transition-colors disabled:opacity-50"
+            >
+              {exporting ? <Loader2 size={15} className="animate-spin" /> : <Download size={15} />}
+              تصدير تقرير كامل
+            </button>
+          </div>
           <div className="flex flex-wrap gap-2 md:gap-3">
             <Link href="/products/new" className="px-3 py-1.5 md:px-4 md:py-2.5 bg-primary text-white rounded-xl text-xs md:text-sm font-medium hover:opacity-90 transition-opacity flex items-center gap-1.5 md:gap-2 shadow-sm">
               <PackagePlus size={16} />
