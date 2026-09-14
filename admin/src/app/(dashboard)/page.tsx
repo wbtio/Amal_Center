@@ -59,6 +59,9 @@ interface Stats {
   totalOrders: number;
   totalProducts: number;
   totalRevenue: number;
+  /** قيمة الطلبات المقبولة التي لم تُسلَّم بعد — مبيعات في الطريق، لا تُحتسب محصّلة */
+  pipelineRevenue: number;
+  pipelineCount: number;
   pendingOrders: number;
   averageOrderValue: number;
   revenueGrowth: number;
@@ -88,6 +91,8 @@ export default function DashboardPage() {
     totalOrders: 0,
     totalProducts: 0,
     totalRevenue: 0,
+    pipelineRevenue: 0,
+    pipelineCount: 0,
     pendingOrders: 0,
     averageOrderValue: 0,
     revenueGrowth: 0,
@@ -147,6 +152,13 @@ export default function DashboardPage() {
       supabase.from('orders').select('total_iqd').eq('status', 'delivered')
     );
 
+    // الطلبات المقبولة التي لم تُسلَّم بعد — تظهر كـ "قيد التنفيذ" بجانب المحصّل،
+    // وإلا بدت اللوحة صفراً ما دام لم يُعلَّم أي طلب "تم التوصيل".
+    const { data: pipelineOrders } = await cachedFetch('pipelineOrders', () =>
+      supabase.from('orders').select('total_iqd')
+        .in('status', ['pending', 'confirmed', 'preparing', 'ready'])
+    );
+
     // Recent orders — only needed columns
     const { data: recent } = await cachedFetch('recentOrders', () =>
       supabase.from('orders').select('id, total_iqd, status, delivery_address, created_at').order('created_at', { ascending: false }).limit(5)
@@ -180,11 +192,15 @@ export default function DashboardPage() {
     const deliveredCount = allDeliveredOrders?.length || 0;
     const averageOrderValue = deliveredCount > 0 ? totalRevenue / deliveredCount : 0;
 
+    const pipelineRevenue = (pipelineOrders as any[])?.reduce((acc: number, curr: any) => acc + (curr.total_iqd || 0), 0) || 0;
+
     setStats(prev => ({
       ...prev,
       totalOrders: ordersCount || 0,
       totalProducts: productsCount || 0,
       totalRevenue,
+      pipelineRevenue,
+      pipelineCount: (pipelineOrders as any[])?.length || 0,
       pendingOrders: pendingCount || 0,
       averageOrderValue,
       revenueGrowth,
@@ -198,7 +214,8 @@ export default function DashboardPage() {
     weekAgo.setDate(weekAgo.getDate() - 6);
 
     const { data: weeklyOrders } = await cachedFetch('weeklyOrders', () =>
-      supabase.from('orders').select('created_at, total_iqd').gte('created_at', weekAgo.toISOString()).in('status', ['delivered', 'confirmed', 'preparing', 'ready'])
+      // كل الطلبات ما عدا الملغاة — استثناء "قيد الانتظار" كان يُفرغ الرسم البياني تماماً
+      supabase.from('orders').select('created_at, total_iqd').gte('created_at', weekAgo.toISOString()).neq('status', 'cancelled')
     );
 
     // Group by day
@@ -389,13 +406,16 @@ export default function DashboardPage() {
 
   const statCards = [
     {
-      title: 'إجمالي المبيعات',
+      title: 'المبيعات المحصّلة',
       value: formatIQD(stats.totalRevenue),
       icon: Wallet,
       color: 'text-emerald-600',
       bg: 'bg-gradient-to-br from-emerald-50 to-green-50',
       iconBg: 'bg-gradient-to-br from-emerald-500 to-green-600',
       growth: stats.revenueGrowth,
+      note: stats.pipelineCount > 0
+        ? `+ ${formatIQD(stats.pipelineRevenue)} قيد التنفيذ (${stats.pipelineCount} طلب)`
+        : 'من الطلبات المسلّمة فقط',
       link: '/orders?status=delivered'
     },
     {
@@ -487,6 +507,9 @@ export default function DashboardPage() {
                         <span className="font-semibold">{Math.abs(stat.growth).toFixed(1)}%</span>
                         <span className="text-gray-400 text-[10px] md:text-xs hidden sm:inline">من الأسبوع الماضي</span>
                       </div>
+                    )}
+                    {stat.note && (
+                      <p className="mt-1 text-[10px] md:text-xs text-gray-500 truncate">{stat.note}</p>
                     )}
                   </div>
                   <div className={`w-9 h-9 md:w-12 md:h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${stat.iconBg} shadow-lg group-hover:scale-110 transition-transform duration-300`}>
