@@ -20,7 +20,8 @@ import {
   Hourglass,
   PackagePlus,
   ClipboardList,
-  FolderKanban
+  FolderKanban,
+  MessageCircle
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useEffect, useState } from 'react';
@@ -106,6 +107,7 @@ export default function DashboardPage() {
   const [orderStatusData, setOrderStatusData] = useState<OrderStatusData[]>([]);
   const [topProducts, setTopProducts] = useState<TopProduct[]>([]);
   const [lowStockProducts, setLowStockProducts] = useState<any[]>([]);
+  const [whatsappNumber, setWhatsappNumber] = useState<string | null>(null);
 
   useEffect(() => {
     fetchAllData();
@@ -323,16 +325,25 @@ export default function DashboardPage() {
   };
 
   const fetchAlerts = async () => {
+    // المنتجات التي نفدت (صفر) كانت مستثناة — وهي الأهم. الترتيب تصاعدي فتظهر أولاً.
     const { data: lowStock, count: lowStockCount } = await cachedFetch('lowStock', () =>
       supabase
         .from('products')
         .select('id, name_ar, name, stock_quantity', { count: 'exact' })
-        .lt('stock_quantity', 10)
-        .gt('stock_quantity', 0)
-        .limit(5)
+        .lte('stock_quantity', 10)
+        .eq('is_active', true)
+        .order('stock_quantity', { ascending: true })
+        .limit(8)
     );
 
     setLowStockProducts(lowStock || []);
+
+    // رقم واتساب التجهيز من إعدادات المتجر — يُعدَّل من صفحة المحتوى والإعدادات
+    const { data: waSetting } = await cachedFetch('waNumber', () =>
+      supabase.from('app_settings').select('value').eq('key', 'contact_whatsapp_number').maybeSingle()
+    );
+    const raw = (waSetting as any)?.value;
+    if (raw) setWhatsappNumber(String(raw).replace(/[^\d]/g, ''));
 
     const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000);
     const { count: delayedCount } = await cachedFetch('delayedCount', () =>
@@ -677,22 +688,57 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between mb-3 md:mb-4">
               <div className="flex items-center gap-2">
                 <TriangleAlert className="text-amber-500" size={18} />
-                <h3 className="text-sm md:text-lg font-bold text-gray-800">منتجات بمخزون منخفض</h3>
+                <h3 className="text-sm md:text-lg font-bold text-gray-800">نواقص المخزون</h3>
+                {stats.lowStockCount > 0 && (
+                  <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 text-[11px] font-medium">
+                    {stats.lowStockCount} صنف
+                  </span>
+                )}
               </div>
               <Link href="/products?filter=low-stock" className="text-xs md:text-sm text-primary hover:underline">عرض الكل</Link>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 md:gap-4">
-              {lowStockProducts.map((product) => (
-                <Link key={product.id} href={`/products/${product.id}`}>
-                  <div className="p-2 md:p-4 border border-orange-200 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors cursor-pointer">
-                    <p className="font-medium text-gray-800 line-clamp-1 mb-1 md:mb-2 text-xs md:text-sm">{product.name_ar || product.name}</p>
-                    <div className="flex items-center justify-between">
-                      <span className="text-[10px] md:text-sm text-gray-500">المخزون:</span>
-                      <span className="font-bold text-orange-600 text-xs md:text-sm">{product.stock_quantity} وحدة</span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-3">
+              {lowStockProducts.map((product) => {
+                const out = (product.stock_quantity ?? 0) === 0;
+                const name = product.name_ar || product.name;
+                const message = `الأمل سنتر — نقص مخزون\nالمنتج: ${name}\n${out ? 'نفد تماماً' : `المتبقي: ${product.stock_quantity} وحدة`}\nالرجاء التجهيز.`;
+
+                return (
+                  <div
+                    key={product.id}
+                    className={`p-3 rounded-xl border transition-colors ${out ? 'border-red-200 bg-red-50' : 'border-orange-200 bg-orange-50'}`}
+                  >
+                    <Link href={`/products/${product.id}`} className="block group">
+                      <p className="font-medium text-gray-800 line-clamp-2 text-xs md:text-sm min-h-[2.2em] group-hover:text-primary transition-colors">
+                        {name}
+                      </p>
+                    </Link>
+
+                    <div className="flex items-center justify-between mt-2">
+                      <span className={`text-[11px] md:text-xs font-bold ${out ? 'text-red-600' : 'text-orange-600'}`}>
+                        {out ? 'نفد تماماً' : `باقي ${product.stock_quantity}`}
+                      </span>
+
+                      {whatsappNumber ? (
+                        <a
+                          href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title="تنبيه المجهز عبر واتساب"
+                          className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-white border border-gray-200 text-[11px] font-medium text-gray-700 hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-700 transition-colors"
+                        >
+                          <MessageCircle size={13} />
+                          بلّغ
+                        </a>
+                      ) : (
+                        <Link href="/content" className="text-[10px] text-gray-400 hover:underline">
+                          أضف رقم واتساب
+                        </Link>
+                      )}
                     </div>
                   </div>
-                </Link>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
