@@ -78,6 +78,26 @@ interface OrderStatusData {
   [key: string]: string | number;
 }
 
+/** خط اتجاه مصغّر — يعطي الرقم سياقاً بدل أن يقف وحده */
+function Sparkline({ points, color }: { points: number[]; color: string }) {
+  if (points.length < 2) return null;
+
+  const max = Math.max(...points, 1);
+  const min = Math.min(...points);
+  const range = max - min || 1;
+  const step = 60 / (points.length - 1);
+
+  const path = points
+    .map((v, i) => `${(i * step).toFixed(1)},${(20 - ((v - min) / range) * 18).toFixed(1)}`)
+    .join(' ');
+
+  return (
+    <svg width="60" height="22" viewBox="0 0 60 22" aria-hidden="true" className="flex-shrink-0">
+      <polyline points={path} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 interface TopProduct {
   id: string;
   name: string;
@@ -416,9 +436,14 @@ export default function DashboardPage() {
     );
   }
 
+  // مسار مبيعات الأسبوع — يُغذّي خطوط الاتجاه في البطاقات
+  const salesTrend = chartData.map((d) => Number(d.sales) || 0);
+
   const statCards = [
     {
       title: 'المبيعات المحصّلة',
+      trend: salesTrend,
+      trendColor: '#16A34A',
       value: formatIQD(stats.totalRevenue),
       icon: Wallet,
       color: 'text-emerald-600',
@@ -432,6 +457,8 @@ export default function DashboardPage() {
     },
     {
       title: 'إجمالي الطلبات',
+      trend: salesTrend,
+      trendColor: '#2563EB',
       value: stats.totalOrders,
       icon: ClipboardList,
       color: 'text-blue-600',
@@ -508,25 +535,31 @@ export default function DashboardPage() {
           {statCards.map((stat, index) => {
             const Icon = stat.icon;
             const CardContent = (
-              <div className={`${stat.bg} p-3 md:p-5 rounded-xl border border-gray-200 hover:border-gray-300 transition-colors cursor-pointer group h-full`}>
-                <div className="flex items-start justify-between gap-2">
+              <div className={`${stat.bg} p-3 md:p-4 rounded-xl border border-gray-200 hover:border-gray-300 transition-colors cursor-pointer h-full`}>
+                <div className="flex items-start justify-between gap-2 mb-2">
+                  <p className="text-gray-500 text-[11px] md:text-xs truncate">{stat.title}</p>
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${stat.iconBg}`}>
+                    <Icon size={16} />
+                  </div>
+                </div>
+
+                <h3 className="text-lg md:text-2xl font-bold text-gray-900 truncate leading-tight">{stat.value}</h3>
+
+                <div className="flex items-end justify-between gap-2 mt-2 min-h-[22px]">
                   <div className="min-w-0">
-                    <p className="text-gray-500 text-xs md:text-sm mb-1 truncate font-medium">{stat.title}</p>
-                    <h3 className="text-base md:text-2xl font-bold text-gray-800 truncate">{stat.value}</h3>
                     {stat.growth !== undefined && (
-                      <div className={`flex items-center gap-1 mt-1 md:mt-2 text-xs md:text-sm ${stat.growth >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
-                        {stat.growth >= 0 ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
-                        <span className="font-semibold">{Math.abs(stat.growth).toFixed(1)}%</span>
-                        <span className="text-gray-400 text-[10px] md:text-xs hidden sm:inline">من الأسبوع الماضي</span>
+                      <div className={`flex items-center gap-0.5 text-[11px] md:text-xs ${stat.growth >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+                        {stat.growth >= 0 ? <ArrowUpRight size={13} /> : <ArrowDownRight size={13} />}
+                        <span className="font-medium">{Math.abs(stat.growth).toFixed(1)}%</span>
                       </div>
                     )}
                     {stat.note && (
-                      <p className="mt-1 text-[10px] md:text-xs text-gray-500 truncate">{stat.note}</p>
+                      <p className="text-[10px] md:text-[11px] text-gray-500 truncate">{stat.note}</p>
                     )}
                   </div>
-                  <div className={`w-9 h-9 md:w-11 md:h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${stat.iconBg}`}>
-                    <Icon size={18} />
-                  </div>
+                  {stat.trend && stat.trend.length > 1 && (
+                    <Sparkline points={stat.trend} color={stat.trendColor ?? '#16A34A'} />
+                  )}
                 </div>
               </div>
             );

@@ -36,6 +36,24 @@ export function Header({ title }: { title: string }) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // ⌘K / Ctrl+K يفتح البحث من أي صفحة، و Esc يغلقه
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        const input = searchRef.current?.querySelector('input');
+        if (input) input.focus();
+        else setShowMobileSearch(true);
+      }
+      if (e.key === 'Escape') {
+        setShowResults(false);
+        (document.activeElement as HTMLElement | null)?.blur();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
   useEffect(() => {
     const fetchUnreadNotifications = async () => {
       const { count } = await supabase
@@ -237,20 +255,25 @@ export function Header({ title }: { title: string }) {
           <div className="relative hidden md:block" ref={searchRef}>
             <input
               type="text"
-              placeholder="بحث في المنتجات، الطلبات..."
-              className="pr-10 pl-10 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 w-72 transition-all text-sm"
+              placeholder="ابحث عن منتج أو طلب"
+              className="pr-9 pl-14 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/15 focus:border-primary/40 focus:bg-white w-72 transition-colors text-sm placeholder:text-gray-400"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onFocus={() => searchResults.length > 0 && setShowResults(true)}
             />
-            <Search className="absolute right-3 top-3 text-gray-400" size={18} />
-            {searchQuery && (
+            <Search className="absolute right-2.5 top-2.5 text-gray-400" size={17} />
+            {searchQuery ? (
               <button
                 onClick={() => { setSearchQuery(''); setSearchResults([]); }}
-                className="absolute left-3 top-3 text-gray-400 hover:text-gray-600 transition-colors"
+                className="absolute left-2.5 top-2.5 text-gray-400 hover:text-gray-600 transition-colors"
+                aria-label="مسح البحث"
               >
-                <X size={18} />
+                <X size={17} />
               </button>
+            ) : (
+              <kbd className="absolute left-2.5 top-2 text-[10px] text-gray-500 bg-white border border-gray-200 rounded px-1.5 py-0.5 font-sans pointer-events-none">
+                ⌘K
+              </kbd>
             )}
             <SearchDropdown />
           </div>
