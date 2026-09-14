@@ -8,7 +8,11 @@ import { format } from 'date-fns';
 import { Header } from '@/components/layout/Header';
 import { ASSIGNABLE_ROLES, roleDef, isAdminRole, type Role } from '@/lib/roles';
 
-type UserRow = Pick<Profile, 'id' | 'full_name' | 'phone' | 'avatar_url' | 'role' | 'created_at'>;
+type UserRow = Pick<Profile, 'id' | 'full_name' | 'phone' | 'avatar_url' | 'role' | 'created_at'> & {
+  branch_id?: string | null;
+};
+
+interface BranchOption { id: string; name_ar: string }
 
 const fmtDate = (value?: string | null) => {
   if (!value) return '—';
@@ -18,6 +22,7 @@ const fmtDate = (value?: string | null) => {
 
 export default function UsersPage() {
   const [users, setUsers] = useState<UserRow[]>([]);
+  const [branches, setBranches] = useState<BranchOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [myRole, setMyRole] = useState<string | null>(null);
   const [myId, setMyId] = useState<string | null>(null);
@@ -42,14 +47,55 @@ export default function UsersPage() {
   };
 
   const fetchUsers = async () => {
-    const { data, error: err } = await supabase
+    // branch_id قد لا يكون موجوداً قبل تشغيل ملف المرحلة ٢ — نحاول ثم نتراجع
+    const withBranch = await supabase
       .from('profiles')
-      .select('id, full_name, phone, avatar_url, role, created_at')
+      .select('id, full_name, phone, avatar_url, role, created_at, branch_id')
       .order('created_at', { ascending: false });
 
-    if (err) console.error('Error fetching profiles:', err);
-    setUsers(data ?? []);
+    let rows: UserRow[] = (withBranch.data ?? []) as UserRow[];
+
+    if (withBranch.error) {
+      const fallback = await supabase
+        .from('profiles')
+        .select('id, full_name, phone, avatar_url, role, created_at')
+        .order('created_at', { ascending: false });
+
+      if (fallback.error) console.error('Error fetching profiles:', fallback.error);
+      rows = (fallback.data ?? []) as UserRow[];
+    }
+
+    setUsers(rows);
+
+    const { data: branchData } = await supabase
+      .from('branches')
+      .select('id, name_ar')
+      .eq('is_active', true)
+      .order('sort_order');
+    setBranches((branchData ?? []) as BranchOption[]);
+
     setLoading(false);
+  };
+
+  const changeBranch = async (userId: string, branchId: string) => {
+    setSavingId(userId);
+    const next = branchId || null;
+    const previous = users.find((u) => u.id === userId)?.branch_id ?? null;
+    setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, branch_id: next } : u)));
+
+    const { error: err } = await supabase
+      .from('profiles').update({ branch_id: next }).eq('id', userId);
+
+    setSavingId(null);
+
+    if (err) {
+      setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, branch_id: previous } : u)));
+      setError('لم يُحفظ الفرع. تأكد أن ملف المرحلة ٢ قد شُغّل في Supabase.');
+      return;
+    }
+
+    setSavedId(userId);
+    setTimeout(() => setSavedId((c) => (c === userId ? null : c)), 2000);
   };
 
   const changeRole = async (userId: string, nextRole: Role) => {
@@ -185,16 +231,32 @@ export default function UsersPage() {
                     {savedId === user.id && <Check size={15} className="text-emerald-600" />}
 
                     {canManage ? (
-                      <select
-                        value={ASSIGNABLE_ROLES.includes(user.role as Role) ? user.role : 'viewer'}
-                        onChange={(e) => changeRole(user.id, e.target.value as Role)}
-                        disabled={savingId === user.id}
-                        className="text-sm border border-gray-200 rounded-lg px-2.5 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary disabled:opacity-50"
-                      >
-                        {ASSIGNABLE_ROLES.map((r) => (
-                          <option key={r} value={r}>{roleDef(r).label}</option>
-                        ))}
-                      </select>
+                      <>
+                        {branches.length > 0 && (
+                          <select
+                            value={user.branch_id ?? ''}
+                            onChange={(e) => changeBranch(user.id, e.target.value)}
+                            disabled={savingId === user.id}
+                            className="text-sm border border-gray-200 rounded-lg px-2.5 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary disabled:opacity-50"
+                            title="الفرع"
+                          >
+                            <option value="">كل الفروع</option>
+                            {branches.map((b) => (
+                              <option key={b.id} value={b.id}>{b.name_ar}</option>
+                            ))}
+                          </select>
+                        )}
+                        <select
+                          value={ASSIGNABLE_ROLES.includes(user.role as Role) ? user.role : 'viewer'}
+                          onChange={(e) => changeRole(user.id, e.target.value as Role)}
+                          disabled={savingId === user.id}
+                          className="text-sm border border-gray-200 rounded-lg px-2.5 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary disabled:opacity-50"
+                        >
+                          {ASSIGNABLE_ROLES.map((r) => (
+                            <option key={r} value={r}>{roleDef(r).label}</option>
+                          ))}
+                        </select>
+                      </>
                     ) : (
                       <span className={`px-2.5 py-1 rounded-full text-xs font-medium border ${def.badge}`}>
                         {def.label}

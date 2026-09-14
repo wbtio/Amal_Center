@@ -49,7 +49,7 @@ export const ROLES: Record<Role, RoleDefinition> = {
   branch_manager: {
     label: 'مدير فرع',
     description: 'يدير منتجات وطلبات وعروض فرعه',
-    paths: ['/', '/products', '/categories', '/orders', '/offers', '/coupons', '/favorites'],
+    paths: ['/', '/products', '/categories', '/orders', '/offers', '/coupons', '/favorites', '/branches'],
     home: '/',
     badge: 'bg-blue-100 text-blue-700 border-blue-200',
     isStaff: true,

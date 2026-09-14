@@ -39,6 +39,7 @@ const sidebarItems = [
     { href: '/homepage', label: 'الصفحة الرئيسية', icon: LayoutGrid, color: 'text-teal-600', activeBg: 'bg-teal-50' },
     { href: '/notifications', label: 'الإشعارات', icon: Bell, color: 'text-orange-600', activeBg: 'bg-orange-50' },
     { href: '/favorites', label: 'المفضلة', icon: Heart, color: 'text-pink-600', activeBg: 'bg-pink-50' },
+    { href: '/branches', label: 'الفروع', icon: Store, color: 'text-lime-600', activeBg: 'bg-lime-50' },
     { href: '/users', label: 'الفريق والصلاحيات', icon: Users, color: 'text-indigo-600', activeBg: 'bg-indigo-50' },
     { href: '/activity', label: 'سجل النشاط', icon: History, color: 'text-fuchsia-600', activeBg: 'bg-fuchsia-50' },
     { href: '/payment', label: 'الدفع الإلكتروني', icon: CreditCard, color: 'text-green-600', activeBg: 'bg-green-50' },
