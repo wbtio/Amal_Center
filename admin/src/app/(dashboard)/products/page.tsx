@@ -243,7 +243,7 @@ export default function ProductsPage() {
           />
         )}
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
           <div className="p-4 border-b border-gray-100">
             <div className="flex items-center gap-3 mb-3">
               <div className="relative flex-1 max-w-md">
@@ -354,7 +354,7 @@ export default function ProductsPage() {
           {/* Desktop Table */}
           <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-right">
-              <thead className="bg-gray-50 text-gray-600 text-sm font-medium">
+              <thead className="bg-gray-50 text-gray-600 text-xs font-medium">
                 <tr>
                   <th className="px-6 py-4">المنتج</th>
                   <th className="px-6 py-4">القسم</th>
@@ -366,7 +366,7 @@ export default function ProductsPage() {
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {products.map((product) => (
-                  <tr key={product.id} className="hover:bg-gray-50">
+                  <tr key={product.id} className="hover:bg-gray-50/70 transition-colors">
                     <td className="px-6 py-4 flex items-center gap-3">
                       <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden relative">
                         {product.image_url ? (
@@ -427,7 +427,7 @@ export default function ProductsPage() {
           {/* Mobile Card View */}
           <div className="md:hidden divide-y divide-gray-100">
             {products.map((product) => (
-              <div key={product.id} className="p-3 hover:bg-gray-50">
+              <div key={product.id} className="p-3 hover:bg-gray-50/70 transition-colors">
                 <div className="flex items-start gap-3">
                   <div className="w-14 h-14 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0 relative">
                     {product.image_url ? (

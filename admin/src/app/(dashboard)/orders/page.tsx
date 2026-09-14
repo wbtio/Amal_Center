@@ -414,7 +414,7 @@ export default function OrdersPage() {
               {visible.map((order) => {
                 const badge = STATUS_BADGE[order.status];
                 return (
-                  <Link key={order.id} href={`/orders/${order.id}`} className="flex items-center gap-3 p-3 hover:bg-gray-50">
+                  <Link key={order.id} href={`/orders/${order.id}`} className="flex items-center gap-3 p-3 hover:bg-gray-50/70 transition-colors">
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-gray-800 text-sm truncate">{order.customer_name || 'عميل'}</p>
                       <p className="text-[11px] text-gray-400">{fmtDate(order.created_at)}</p>

@@ -169,7 +169,7 @@ export default function NewOfferPage() {
           {/* Main Info */}
           <div className="lg:col-span-2 space-y-6">
             {/* Basic Info Card */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 md:p-6">
+            <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6">
               <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
                 <Tag size={20} className="text-primary" />
                 معلومات العرض
@@ -217,7 +217,7 @@ export default function NewOfferPage() {
             </div>
 
             {/* Discount Settings */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 md:p-6">
+            <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6">
               <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
                 <Percent size={20} className="text-primary" />
                 إعدادات الخصم
@@ -261,7 +261,7 @@ export default function NewOfferPage() {
             </div>
 
             {/* Date Settings */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 md:p-6">
+            <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6">
               <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
                 <Calendar size={20} className="text-primary" />
                 مدة العرض
@@ -296,7 +296,7 @@ export default function NewOfferPage() {
             </div>
 
             {/* Products Selection */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 md:p-6">
+            <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6">
               <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
                 <Package size={20} className="text-primary" />
                 المنتجات المشمولة
@@ -394,7 +394,7 @@ export default function NewOfferPage() {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Status Card */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 md:p-6">
+            <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6">
               <h2 className="text-lg font-bold text-gray-800 mb-4">الحالة</h2>
               
               <label className="flex items-center gap-3 cursor-pointer">
@@ -409,7 +409,7 @@ export default function NewOfferPage() {
             </div>
 
             {/* Preview Card */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 md:p-6">
+            <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6">
               <h2 className="text-lg font-bold text-gray-800 mb-4">معاينة</h2>
               
               <div className="bg-gradient-to-br from-primary/80 to-primary rounded-xl p-4 text-white">

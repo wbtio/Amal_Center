@@ -219,7 +219,7 @@ export default function EditProductPage() {
         </button>
       </div>
 
-      <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-8">
+      <div className="max-w-4xl mx-auto bg-white rounded-xl border border-gray-200 p-4 md:p-8">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Arabic Name */}

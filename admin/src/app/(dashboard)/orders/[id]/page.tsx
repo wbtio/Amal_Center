@@ -493,7 +493,7 @@ export default function OrderDetailsPage() {
         {/* Main Content: Items */}
         <div className="lg:col-span-2 space-y-4 md:space-y-6">
           {/* Products Table */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
             <div className="p-3 md:p-4 border-b border-gray-100 bg-gray-50 flex items-center gap-2">
               <Package size={16} className="text-primary" />
               <h3 className="font-bold text-gray-800 text-sm md:text-base">تفاصيل المنتجات ({items.length} منتج)</h3>
@@ -513,7 +513,7 @@ export default function OrderDetailsPage() {
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {items.map((item, index) => (
-                    <tr key={item.id} className="hover:bg-gray-50">
+                    <tr key={item.id} className="hover:bg-gray-50/70 transition-colors">
                       <td className="px-6 py-4 text-gray-400 text-sm">{index + 1}</td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
@@ -588,7 +588,7 @@ export default function OrderDetailsPage() {
         {/* Sidebar */}
         <div className="space-y-4 md:space-y-6">
           {/* Customer Info */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6">
+          <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6">
             <div className="flex items-center gap-2 mb-4 border-b border-gray-100 pb-2">
               <User size={18} className="text-primary" />
               <h3 className="font-bold text-gray-800">معلومات العميل</h3>
@@ -627,7 +627,7 @@ export default function OrderDetailsPage() {
           </div>
 
           {/* Payment & Delivery Info */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6">
+          <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6">
             <div className="flex items-center gap-2 mb-4 border-b border-gray-100 pb-2">
               <CreditCard size={18} className="text-primary" />
               <h3 className="font-bold text-gray-800">معلومات الدفع والتوصيل</h3>
@@ -664,7 +664,7 @@ export default function OrderDetailsPage() {
           </div>
 
           {/* Order Timeline */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6">
+          <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6">
             <div className="flex items-center gap-2 mb-4 border-b border-gray-100 pb-2">
               <Calendar size={18} className="text-primary" />
               <h3 className="font-bold text-gray-800">تفاصيل الوقت</h3>

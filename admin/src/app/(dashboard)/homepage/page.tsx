@@ -1023,7 +1023,7 @@ export default function HomepageManagementPage() {
                                         return (
                                             <div key={slot.id} className="bg-white rounded-xl border border-gray-200 overflow-hidden">
                                                 <div 
-                                                    className="p-4 flex items-center justify-between cursor-pointer hover:bg-gray-50"
+                                                    className="p-4 flex items-center justify-between cursor-pointer hover:bg-gray-50/70 transition-colors"
                                                     onClick={() => setExpandedSlots({ ...expandedSlots, [slot.id]: !isExpanded })}
                                                 >
                                                     <div className="flex items-center gap-3">

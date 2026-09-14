@@ -172,11 +172,11 @@ export default function CouponsPage() {
         </button>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
         {/* Desktop Table */}
         <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-right">
-            <thead className="bg-gray-50 text-gray-600 text-sm font-medium">
+            <thead className="bg-gray-50 text-gray-600 text-xs font-medium">
               <tr>
                 <th className="px-6 py-4">الكود</th>
                 <th className="px-6 py-4">نوع الخصم</th>
@@ -190,7 +190,7 @@ export default function CouponsPage() {
             </thead>
             <tbody className="divide-y divide-gray-100">
               {coupons.map((coupon) => (
-                <tr key={coupon.id} className="hover:bg-gray-50">
+                <tr key={coupon.id} className="hover:bg-gray-50/70 transition-colors">
                   <td className="px-6 py-4">
                     <span className="font-mono font-bold text-primary bg-primary/10 px-2 py-1 rounded">
                       {coupon.code}

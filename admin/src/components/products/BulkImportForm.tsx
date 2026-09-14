@@ -152,7 +152,7 @@ export default function BulkImportForm({ onBack }: BulkImportFormProps) {
       </div>
 
       <div className="max-w-5xl mx-auto">
-        <form onSubmit={handleSearch} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+        <form onSubmit={handleSearch} className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
           <div className="flex gap-2 mb-4">
             <button
               type="button"
@@ -197,7 +197,7 @@ export default function BulkImportForm({ onBack }: BulkImportFormProps) {
 
         {results.length > 0 && (
           <>
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-4 flex flex-wrap items-center gap-4 sticky top-2 z-10">
+            <div className="bg-white rounded-xl border border-gray-200 p-4 mb-4 flex flex-wrap items-center gap-4 sticky top-2 z-10">
               <div className="flex-1 min-w-[200px]">
                 <label className="block text-xs font-medium text-gray-500 mb-1">القسم لكل المنتجات المختارة</label>
                 <select

@@ -192,7 +192,7 @@ export default function UsersPage() {
         )}
 
         {/* فريق العمل */}
-        <section className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-5">
+        <section className="bg-white rounded-xl border border-gray-200 overflow-hidden mb-5">
           <div className="px-4 md:px-6 py-3 border-b border-gray-100 bg-gray-50/60">
             <h2 className="font-bold text-gray-800 text-sm">فريق العمل</h2>
           </div>
@@ -271,7 +271,7 @@ export default function UsersPage() {
         </section>
 
         {/* الزبائن */}
-        <section className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <section className="bg-white rounded-xl border border-gray-200 overflow-hidden">
           <div className="px-4 md:px-6 py-3 border-b border-gray-100 bg-gray-50/60 flex items-center justify-between">
             <h2 className="font-bold text-gray-800 text-sm">الزبائن</h2>
             <span className="text-xs text-gray-500">{customers.length}</span>
@@ -279,7 +279,7 @@ export default function UsersPage() {
 
           <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-right">
-              <thead className="bg-gray-50 text-gray-600 text-sm font-medium">
+              <thead className="bg-gray-50 text-gray-600 text-xs font-medium">
                 <tr>
                   <th className="px-6 py-3">الزبون</th>
                   <th className="px-6 py-3">رقم الهاتف</th>
@@ -289,7 +289,7 @@ export default function UsersPage() {
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {customers.map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-50">
+                  <tr key={user.id} className="hover:bg-gray-50/70 transition-colors">
                     <td className="px-6 py-3 flex items-center gap-3">
                       {user.avatar_url ? (
                         <Image src={user.avatar_url} alt={user.full_name ?? ''} width={36} height={36}

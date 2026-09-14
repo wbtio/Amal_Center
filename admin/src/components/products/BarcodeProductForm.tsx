@@ -226,7 +226,7 @@ export default function BarcodeProductForm({ onBack }: BarcodeProductFormProps) 
           <h1 className="text-2xl font-bold text-gray-800">إضافة عبر الباركود</h1>
         </div>
 
-        <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+        <div className="max-w-2xl mx-auto bg-white rounded-xl border border-gray-200 p-8">
           <div className="text-center mb-6">
             <ScanBarcode className="mx-auto text-primary mb-3" size={48} />
             <h2 className="text-xl font-bold text-gray-800 mb-2">امسح أو أدخل الباركود</h2>
@@ -276,7 +276,7 @@ export default function BarcodeProductForm({ onBack }: BarcodeProductFormProps) 
         <h1 className="text-2xl font-bold text-gray-800">إضافة عبر الباركود</h1>
       </div>
 
-      <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+      <div className="max-w-4xl mx-auto bg-white rounded-xl border border-gray-200 p-8">
         {notFound && (
           <div className="mb-6 bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-center gap-2 text-sm text-amber-800">
             <AlertTriangle size={16} />

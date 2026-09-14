@@ -240,7 +240,7 @@ export default function OffersPage() {
         </div>
 
         {/* Filters */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-3 md:p-4 mb-4 md:mb-6">
+        <div className="bg-white rounded-xl border border-gray-200 p-3 md:p-4 mb-4 md:mb-6">
           <div className="flex flex-col md:flex-row gap-3 md:gap-4">
             <div className="flex-1 relative">
               <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
@@ -273,7 +273,7 @@ export default function OffersPage() {
 
         {/* Offers List */}
         {filteredOffers.length === 0 ? (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 md:p-12 text-center">
+          <div className="bg-white rounded-xl border border-gray-200 p-8 md:p-12 text-center">
             <Tags className="mx-auto text-gray-300 mb-4" size={48} />
             <h3 className="text-lg font-semibold text-gray-600 mb-2">لا توجد عروض</h3>
             <p className="text-gray-400 mb-4">ابدأ بإنشاء عرض جديد لجذب المزيد من العملاء</p>
@@ -294,7 +294,7 @@ export default function OffersPage() {
               return (
                 <div
                   key={offer.id}
-                  className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow"
+                  className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
                 >
                   {/* Offer Image or Gradient */}
                   <div className="h-32 bg-gradient-to-br from-primary/80 to-primary relative">

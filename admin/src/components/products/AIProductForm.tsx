@@ -333,7 +333,7 @@ export default function AIProductForm({ onBack }: AIProductFormProps) {
 
         {/* Step 1: Upload Images */}
         {step === 'upload' && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+          <div className="bg-white rounded-xl border border-gray-200 p-8">
             <div className="text-center mb-6">
               <Sparkles className="mx-auto text-purple-600 mb-3" size={48} />
               <h2 className="text-xl font-bold text-gray-800 mb-2">ارفع صور المنتج</h2>
@@ -429,7 +429,7 @@ export default function AIProductForm({ onBack }: AIProductFormProps) {
 
         {/* Step 2: Edit AI Data + User Input */}
         {step === 'input' && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 md:p-8">
+          <div className="bg-white rounded-xl border border-gray-200 p-6 md:p-8">
             <div className="flex items-center gap-2 mb-6">
               <div className="bg-purple-100 p-2 rounded-lg">
                 <Edit2 className="text-purple-600" size={20} />
@@ -591,7 +591,7 @@ export default function AIProductForm({ onBack }: AIProductFormProps) {
 
         {/* Step 3: Review */}
         {step === 'review' && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+          <div className="bg-white rounded-xl border border-gray-200 p-8">
             <div className="text-center mb-6">
               <h2 className="text-xl font-bold text-gray-800 mb-2">مراجعة المنتج</h2>
               <p className="text-gray-600">تأكد من صحة المعلومات قبل الحفظ</p>

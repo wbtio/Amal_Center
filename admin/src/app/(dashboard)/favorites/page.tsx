@@ -125,7 +125,7 @@ export default function FavoritesPage() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-3 gap-2 md:gap-4 mb-4 md:mb-6">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+        <div className="bg-white rounded-xl border border-gray-200 p-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 md:w-12 md:h-12 bg-red-100 rounded-xl flex items-center justify-center">
               <Heart className="text-red-500" size={20} />
@@ -137,7 +137,7 @@ export default function FavoritesPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+        <div className="bg-white rounded-xl border border-gray-200 p-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 md:w-12 md:h-12 bg-green-100 rounded-xl flex items-center justify-center">
               <TrendingUp className="text-green-500" size={20} />
@@ -149,7 +149,7 @@ export default function FavoritesPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+        <div className="bg-white rounded-xl border border-gray-200 p-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 md:w-12 md:h-12 bg-blue-100 rounded-xl flex items-center justify-center">
               <Users className="text-blue-500" size={20} />
@@ -164,7 +164,7 @@ export default function FavoritesPage() {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
         <div className="p-4 border-b border-gray-100">
           <div className="relative max-w-md">
             <input
@@ -181,7 +181,7 @@ export default function FavoritesPage() {
         {/* Desktop Table */}
         <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-right">
-            <thead className="bg-gray-50 text-gray-600 text-sm font-medium">
+            <thead className="bg-gray-50 text-gray-600 text-xs font-medium">
               <tr>
                 <th className="px-6 py-4">المنتج</th>
                 <th className="px-6 py-4">القسم</th>
@@ -198,7 +198,7 @@ export default function FavoritesPage() {
             </thead>
             <tbody className="divide-y divide-gray-100">
               {filteredProducts.map((product, index) => (
-                <tr key={product.id} className="hover:bg-gray-50">
+                <tr key={product.id} className="hover:bg-gray-50/70 transition-colors">
                   <td className="px-6 py-4">
                     <Link href={`/products/${product.id}`} className="flex items-center gap-3">
                       <div className="relative">
