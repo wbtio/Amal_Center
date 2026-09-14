@@ -19,13 +19,15 @@ import {
     ChevronLeft,
     Store,
     Settings,
-    CreditCard
+    CreditCard,
+    History
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
 import { useSidebar } from '@/contexts/SidebarContext';
+import { canAccess, roleDef } from '@/lib/roles';
 
-type UserRole = 'customer' | 'admin' | 'products_manager' | null;
+type UserRole = string | null;
 
 const sidebarItems = [
     { href: '/', label: 'لوحة التحكم', icon: LayoutDashboard, color: 'text-emerald-600', activeBg: 'bg-emerald-50' },
@@ -37,15 +39,11 @@ const sidebarItems = [
     { href: '/homepage', label: 'الصفحة الرئيسية', icon: LayoutGrid, color: 'text-teal-600', activeBg: 'bg-teal-50' },
     { href: '/notifications', label: 'الإشعارات', icon: Bell, color: 'text-orange-600', activeBg: 'bg-orange-50' },
     { href: '/favorites', label: 'المفضلة', icon: Heart, color: 'text-pink-600', activeBg: 'bg-pink-50' },
-    { href: '/users', label: 'المستخدمين', icon: Users, color: 'text-indigo-600', activeBg: 'bg-indigo-50' },
+    { href: '/users', label: 'الفريق والصلاحيات', icon: Users, color: 'text-indigo-600', activeBg: 'bg-indigo-50' },
+    { href: '/activity', label: 'سجل النشاط', icon: History, color: 'text-fuchsia-600', activeBg: 'bg-fuchsia-50' },
     { href: '/payment', label: 'الدفع الإلكتروني', icon: CreditCard, color: 'text-green-600', activeBg: 'bg-green-50' },
     { href: '/content', label: 'المحتوى والإعدادات', icon: Settings, color: 'text-slate-600', activeBg: 'bg-slate-50' },
 ];
-
-// Define which items each role can see
-const roleRestrictedItems: Record<string, string[]> = {
-    products_manager: ['/products', '/categories'],
-};
 
 export function Sidebar() {
     const pathname = usePathname();
@@ -75,15 +73,10 @@ export function Sidebar() {
         return () => subscription.unsubscribe();
     }, []);
 
-    // Filter sidebar items based on user role
-    const filteredItems = sidebarItems.filter(item => {
-        if (!userRole || userRole === 'admin') return true;
-        const allowedPaths = roleRestrictedItems[userRole];
-        if (!allowedPaths) return true;
-        // For root path '/', only show if not restricted
-        if (item.href === '/') return false;
-        return allowedPaths.some(path => item.href.startsWith(path));
-    });
+    // لا نعرض إلا ما يسمح به دور المستخدم — نفس منطق الـ middleware
+    const filteredItems = sidebarItems.filter(item =>
+        userRole ? canAccess(userRole, item.href) : false
+    );
 
     const handleLogout = async () => {
         await supabase.auth.signOut();
@@ -167,6 +160,14 @@ export function Sidebar() {
 
                 {/* Logout */}
                 <div className="p-3 border-t border-gray-100">
+                    {userRole && (
+                        <div className="flex items-center justify-between gap-2 px-3 py-2 mb-1.5 rounded-xl bg-gray-50">
+                            <span className="text-[11px] text-gray-500">صلاحيتك</span>
+                            <span className={cn('px-2 py-0.5 rounded-full text-[11px] font-medium border', roleDef(userRole).badge)}>
+                                {roleDef(userRole).label}
+                            </span>
+                        </div>
+                    )}
                     <button
                         onClick={handleLogout}
                         className="group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-500 hover:bg-red-50 hover:text-red-600 w-full transition-all duration-200"

@@ -1,5 +1,6 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { canAccess, homePathFor } from '@/lib/roles'
 
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({
@@ -73,8 +74,8 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(redirectUrl)
   }
 
-  // Role-based access control for products_manager
-  if (session) {
+  // Role-based access control — الأدوار معرّفة في lib/roles.ts
+  if (session && !isPublicPath) {
     const { data: profile } = await supabase
       .from('profiles')
       .select('role')
@@ -82,26 +83,22 @@ export async function middleware(request: NextRequest) {
       .single()
 
     const userRole = profile?.role
+    const pathname = request.nextUrl.pathname
 
-    // If products_manager, restrict access to only products and categories
-    if (userRole === 'products_manager') {
-      const pathname = request.nextUrl.pathname
-      
-      // Allowed paths for products_manager
-      const allowedPaths = ['/products', '/categories']
-      const isAllowed = allowedPaths.some(path => pathname.startsWith(path))
-      
-      // If trying to access root (/), redirect to products
-      if (pathname === '/') {
+    if (!canAccess(userRole, pathname)) {
+      const fallback = homePathFor(userRole)
+
+      // الزبون ليس له مكان في اللوحة — يُخرج لصفحة الدخول
+      if (fallback === '/login') {
         const redirectUrl = request.nextUrl.clone()
-        redirectUrl.pathname = '/products'
+        redirectUrl.pathname = '/login'
         return NextResponse.redirect(redirectUrl)
       }
-      
-      // If trying to access a non-allowed path, redirect to products
-      if (!isAllowed) {
+
+      // تفادي حلقة إعادة توجيه لو كان المسار البديل نفسه ممنوعاً
+      if (pathname !== fallback) {
         const redirectUrl = request.nextUrl.clone()
-        redirectUrl.pathname = '/products'
+        redirectUrl.pathname = fallback
         return NextResponse.redirect(redirectUrl)
       }
     }

@@ -136,7 +136,16 @@ export interface Database {
                     phone: string | null;
                     avatar_url: string | null;
                     notifications_enabled: boolean | null;
-                    role: 'customer' | 'admin' | 'products_manager';
+                    // الأدوار معرّفة في admin/src/lib/roles.ts وتحرسها سياسات RLS
+                    role:
+                        | 'customer'
+                        | 'admin'
+                        | 'super_admin'
+                        | 'branch_manager'
+                        | 'products_manager'
+                        | 'orders_staff'
+                        | 'accountant'
+                        | 'viewer';
                     created_at: string;
                     updated_at: string | null;
                 };
