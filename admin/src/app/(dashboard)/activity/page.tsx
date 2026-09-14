@@ -51,6 +51,8 @@ const FIELDS: Record<string, string> = {
   discount_value: 'قيمة الخصم', usage_limit: 'حد الاستخدام', expires_at: 'تاريخ الانتهاء',
   code: 'الكود', value: 'القيمة', enabled: 'التفعيل', api_token: 'التوكن',
   parent_id: 'القسم الرئيسي', sales_count: 'عدد المبيعات', title: 'العنوان',
+  branch_id: 'الفرع', name_en: 'الاسم بالإنجليزي', address_ar: 'العنوان',
+  latitude: 'خط العرض', longitude: 'خط الطول', sort_order_branch: 'الترتيب',
 };
 
 const ORDER_STATUS: Record<string, string> = {
@@ -66,11 +68,15 @@ function fieldLabel(key: string) {
   return FIELDS[key] ?? key;
 }
 
-function formatValue(key: string, value: unknown): string {
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function formatValue(key: string, value: unknown, names: Record<string, string> = {}): string {
   if (SENSITIVE.has(key)) return '••••••';
   if (value === null || value === undefined || value === '') return 'فارغ';
   if (typeof value === 'boolean') return value ? 'نشط' : 'معطل';
   if (key === 'role') return roleDef(String(value)).label;
+  // المعرّفات تُعرض بأسمائها — فرع أو قسم، لا UUID خام
+  if (UUID_RE.test(String(value))) return names[String(value)] ?? String(value).slice(0, 8);
   if (ORDER_STATUS[String(value)]) return ORDER_STATUS[String(value)];
   if (typeof value === 'number') return value.toLocaleString('en-US');
   const str = String(value);
@@ -112,6 +118,22 @@ export default function ActivityPage() {
   const [query, setQuery] = useState('');
   const [actionFilter, setActionFilter] = useState('all');
   const [entityFilter, setEntityFilter] = useState('all');
+  const [names, setNames] = useState<Record<string, string>>({});
+
+  // خريطة المعرّفات إلى أسماء مقروءة (فروع وأقسام)
+  useEffect(() => {
+    void (async () => {
+      const map: Record<string, string> = {};
+      const [branchRes, categoryRes] = await Promise.all([
+        supabase.from('branches').select('id, name_ar'),
+        supabase.from('categories').select('id, name_ar'),
+      ]);
+      for (const row of [...(branchRes.data ?? []), ...(categoryRes.data ?? [])]) {
+        if (row?.id) map[row.id] = row.name_ar ?? '';
+      }
+      setNames(map);
+    })();
+  }, []);
 
   const load = useCallback(async (offset: number, replace: boolean) => {
     let q = supabase
@@ -270,9 +292,9 @@ export default function ActivityPage() {
                               <span key={key}
                                 className="inline-flex items-center gap-1.5 bg-gray-50 border border-gray-200 rounded-lg px-2 py-1 text-[11px]">
                                 <span className="text-gray-500">{fieldLabel(key)}</span>
-                                <span className="text-gray-400 line-through">{formatValue(key, diff.from)}</span>
+                                <span className="text-gray-400 line-through">{formatValue(key, diff.from, names)}</span>
                                 <ArrowLeft size={11} className="text-gray-400" />
-                                <span className="text-gray-800 font-medium">{formatValue(key, diff.to)}</span>
+                                <span className="text-gray-800 font-medium">{formatValue(key, diff.to, names)}</span>
                               </span>
                             ))}
                             {changes.length > 4 && (
