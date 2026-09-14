@@ -11,6 +11,66 @@ import { getProductThumbnailUrl } from '@/lib/imageUrl';
 import { ImageOff } from 'lucide-react';
 import { Header } from '@/components/layout/Header';
 
+/** تعديل رقم بالمكان — نقرة على القيمة تحوّلها لحقل، Enter يحفظ، Esc يلغي */
+function QuickEdit({
+  value, onSave, display, className, suffix,
+}: {
+  value: number;
+  onSave: (v: number) => Promise<boolean>;
+  display: string;
+  className?: string;
+  suffix?: string;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(String(value ?? 0));
+  const [saving, setSaving] = useState(false);
+  const [failed, setFailed] = useState(false);
+
+  const commit = async () => {
+    const next = Number(draft);
+    if (isNaN(next) || next < 0) { setFailed(true); return; }
+    if (next === value) { setEditing(false); return; }
+
+    setSaving(true);
+    const ok = await onSave(next);
+    setSaving(false);
+    setFailed(!ok);
+    if (ok) setEditing(false);
+  };
+
+  if (!editing) {
+    return (
+      <button
+        onClick={() => { setDraft(String(value ?? 0)); setFailed(false); setEditing(true); }}
+        title="اضغط للتعديل"
+        className={`text-right hover:ring-2 hover:ring-primary/20 rounded transition-all ${className ?? ''}`}
+      >
+        {display}
+      </button>
+    );
+  }
+
+  return (
+    <span className="inline-flex items-center gap-1">
+      <input
+        autoFocus
+        type="number"
+        min={0}
+        value={draft}
+        disabled={saving}
+        onChange={(e) => setDraft(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') void commit();
+          if (e.key === 'Escape') setEditing(false);
+        }}
+        onBlur={() => void commit()}
+        className={`w-24 px-2 py-1 text-sm border rounded-lg outline-none focus:ring-2 focus:ring-primary/20 ${failed ? 'border-red-400' : 'border-primary/40'}`}
+      />
+      {suffix && <span className="text-[10px] text-gray-400">{suffix}</span>}
+    </span>
+  );
+}
+
 export default function ProductsPage() {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -26,8 +86,22 @@ export default function ProductsPage() {
   const [filters, setFilters] = useState({
     category_id: '',
     is_active: 'all',
-    stock_status: 'all'
+    stock_status: 'all',
+    quality: 'all'
   });
+
+  // حفظ تعديل سريع من الجدول — يُسجَّل في سجل النشاط كأي تعديل آخر
+  const saveField = async (id: string, field: 'price_iqd' | 'stock_quantity', value: number) => {
+    const { error } = await supabase
+      .from('products')
+      .update({ [field]: value, updated_at: new Date().toISOString() })
+      .eq('id', id);
+
+    if (error) return false;
+
+    setProducts((prev) => prev.map((p) => (p.id === id ? { ...p, [field]: value } : p)));
+    return true;
+  };
 
   useEffect(() => {
     fetchCategories();
@@ -73,6 +147,13 @@ export default function ProductsPage() {
       query = query.eq('is_active', filters.is_active === 'active');
     }
 
+    // منتجات ناقصة البيانات — بلا سعر أو بلا صورة، تظهر للزبون ناقصة
+    if (filters.quality === 'no_price') {
+      query = query.or('price_iqd.is.null,price_iqd.eq.0');
+    } else if (filters.quality === 'no_image') {
+      query = query.or('image_url.is.null,image_url.eq.');
+    }
+
     if (filters.stock_status === 'low') {
       query = query.lt('stock_quantity', 10);
     } else if (filters.stock_status === 'out') {
@@ -112,13 +193,14 @@ export default function ProductsPage() {
     setFilters({
       category_id: '',
       is_active: 'all',
-      stock_status: 'all'
+      stock_status: 'all',
+      quality: 'all'
     });
     setSearchTerm('');
     setCurrentPage(1);
   };
 
-  const hasActiveFilters = filters.category_id || filters.is_active !== 'all' || filters.stock_status !== 'all' || searchTerm;
+  const hasActiveFilters = filters.category_id || filters.is_active !== 'all' || filters.stock_status !== 'all' || filters.quality !== 'all' || searchTerm;
 
   const totalPages = Math.ceil(totalCount / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -244,6 +326,22 @@ export default function ProductsPage() {
                     <option value="out">نفذ</option>
                   </select>
                 </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">جودة البيانات</label>
+                  <select
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    value={filters.quality}
+                    onChange={(e) => {
+                      setFilters({ ...filters, quality: e.target.value });
+                      setCurrentPage(1);
+                    }}
+                  >
+                    <option value="all">الكل</option>
+                    <option value="no_price">بلا سعر</option>
+                    <option value="no_image">بلا صورة</option>
+                  </select>
+                </div>
               </div>
             )}
 
@@ -283,11 +381,22 @@ export default function ProductsPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4 text-gray-600">{product.categories?.name_ar}</td>
-                    <td className="px-6 py-4 font-bold text-primary">{formatIQD(product.price_iqd)}</td>
                     <td className="px-6 py-4">
-                      <span className={`px-2 py-1 rounded text-xs font-bold ${product.stock_quantity < 10 ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
-                        {product.stock_quantity}
-                      </span>
+                      <QuickEdit
+                        value={product.price_iqd}
+                        suffix="د.ع"
+                        onSave={(v) => saveField(product.id, 'price_iqd', v)}
+                        display={formatIQD(product.price_iqd)}
+                        className="font-bold text-primary"
+                      />
+                    </td>
+                    <td className="px-6 py-4">
+                      <QuickEdit
+                        value={product.stock_quantity}
+                        onSave={(v) => saveField(product.id, 'stock_quantity', v)}
+                        display={String(product.stock_quantity)}
+                        className={`px-2 py-1 rounded text-xs font-bold ${product.stock_quantity < 10 ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}
+                      />
                     </td>
                     <td className="px-6 py-4">
                       <span className={`w-2 h-2 rounded-full inline-block ml-2 ${product.is_active ? 'bg-green-500' : 'bg-gray-400'}`}></span>
